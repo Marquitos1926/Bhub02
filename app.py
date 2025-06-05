@@ -111,15 +111,15 @@ def get_user_data(username):
 @app.route('/')
 def home():
     """
-    Redireciona para o índice se o usuário estiver logado,
-    caso contrário, redireciona para a página de login.
+    Redireciona para o dashboard se o usuário estiver logado,
+    caso contrário, renderiza a página inicial (index.html) com o botão de login.
     """
     if 'username' in session:
-        return redirect(url_for('index'))
-    return redirect(url_for('login'))
+        return redirect(url_for('dashboard'))
+    return render_template('index.html') # <--- Alterado aqui: Agora renderiza index.html
 
-@app.route('/index')
-def index():
+@app.route('/dashboard')
+def dashboard():
     """
     Renderiza a página principal (feed de posts) se o usuário estiver autenticado.
     Busca os posts mais recentes e os dados do usuário logado.
@@ -147,7 +147,7 @@ def index():
         else:
             post['author_profile_pic'] = 'user-icon-pequeno.png'
 
-    return render_template('index.html',
+    return render_template('Dashboard.html',
                            username=session['username'],
                            user=user,
                            posts=posts)
@@ -339,7 +339,7 @@ def login():
             'status': 'success',
             'title': 'Login bem-sucedido',
             'message': 'Você será redirecionado...',
-            'redirect': url_for('index')
+            'redirect': url_for('dashboard')
         })
 
     # Para requisições GET, renderiza o template de login
@@ -817,4 +817,4 @@ if __name__ == '__main__':
     # Em produção, você não usaria app.run(debug=True).
     # Em vez disso, usaria um servidor WSGI como Gunicorn.
     # Exemplo: gunicorn -w 4 -b 0.0.0.0:8000 app:app
-    app.run(debug=False) # Mudei para False para simular ambiente de produção
+    app.run(debug=False)

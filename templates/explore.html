@@ -454,10 +454,8 @@
             <nav class="main-nav-top">
                 <ul>
                     <li>
-                        <a href="{{ url_for('index') }}">
-                            <i class="fas fa-home"></i>
-                            <span>Home</span>
-                        </a>
+                        <a href="{{ url_for('dashboard') }}"> <i class="fas fa-home"></i>
+                            <span>Dashboard</span> </a>
                     </li>
                     <li class="active"> 
                         <a href="{{ url_for('explore') }}">
@@ -505,17 +503,16 @@
                     <i class="fas fa-bell"></i>
                 </button>
                 <div class="user-dropdown">
-                    <img src="{{ url_for('static', filename='images/' + user.profile_pic if user.profile_pic else 'user-icon-pequeno.png') }}" alt="User" class="profile-pic-sm" onclick="toggleUserMenu()">
+                    <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" alt="User" class="profile-pic-sm" onclick="toggleUserMenu()">
                     <div class="user-menu" id="userMenu">
                         <div class="user-menu-header">
-                            <img src="{{ url_for('static', filename='images/' + user.profile_pic if user.profile_pic else 'user-icon-pequeno.png') }}" alt="User">
+                            <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" alt="User">
                             <div>
                                 <h4>{{ user.username }}</h4>
-                                <p>Ver perfil</p>
-                            </div>
+                                <a href="{{ url_for('show_profile') }}">Ver perfil</a> </div>
                         </div>
                         <ul>
-                            <li><a href="#"><i class="fas fa-user"></i> Meu Perfil</a></li>
+                            <li><a href="{{ url_for('show_profile') }}"><i class="fas fa-user"></i> Meu Perfil</a></li>
                             <li><a href="#"><i class="fas fa-cog"></i> Configurações</a></li>
                             <li><a href="#"><i class="fas fa-question-circle"></i> Ajuda</a></li>
                             <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
@@ -571,7 +568,7 @@
                 title: 'Criar',
                 html: `
                     <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
-                        <button onclick="Swal.close(); window.location.href='{{ url_for('index') }}#create-post-section'" style="padding: 10px; background: var(--light-blue-bg); border: none; border-radius: 8px; cursor: pointer; color: var(--primary-blue);">
+                        <button onclick="Swal.close(); window.location.href='{{ url_for('dashboard') }}#create-post-section'" style="padding: 10px; background: var(--light-blue-bg); border: none; border-radius: 8px; cursor: pointer; color: var(--primary-blue);">
                             <i class="fas fa-edit"></i> Publicação
                         </button>
                         <button onclick="Swal.close(); location.href='#'" style="padding: 10px; background: var(--light-blue-bg); border: none; border-radius: 8px; cursor: pointer; color: var(--primary-blue);">

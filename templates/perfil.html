@@ -353,7 +353,7 @@
             color: #333;
         }
 
-        .user-menu-header a {
+        .user-menu-header a { /* Alterado de p para a */
             color: #007bff;
             font-size: 13px;
             text-decoration: none;
@@ -425,10 +425,8 @@
         <nav class="main-nav-top">
             <ul>
                 <li class="active">
-                    <a href="{{ url_for('index') }}">
-                        <i class="fas fa-home"></i>
-                        <span>Home</span>
-                    </a>
+                    <a href="{{ url_for('dashboard') }}"> <i class="fas fa-home"></i>
+                        <span>Dashboard</span> </a>
                 </li>
                 <li>
                     <a href="{{ url_for('explore') }}">
@@ -482,8 +480,7 @@
                         <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" alt="User">
                         <div>
                             <h4>{{ user.username }}</h4>
-                            <a href="{{ url_for('show_profile') }}">Ver perfil</a>
-                        </div>
+                            <a href="{{ url_for('show_profile') }}">Ver perfil</a> </div>
                     </div>
                     <ul>
                         <li><a href="{{ url_for('show_profile') }}"><i class="fas fa-user"></i> Meu Perfil</a></li>
@@ -704,7 +701,7 @@
 
         // Enviar foto de perfil para o servidor
         async function uploadProfilePic(file) {
-            const formData = new FormData();
+            const formData = new FormData(); // Usar FormData para enviar dados de formulário
             formData.append('profile_pic', file);
             
             try {
