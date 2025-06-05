@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil do Usuário</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        /* Estilos CSS gerais */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Estilos do cabeçalho do perfil */
+        .profile-header {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .profile-pic-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+        }
+
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 30px;
+            border: 5px solid #f0f0f0;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .profile-pic:hover {
+            transform: scale(1.05);
+        }
+        
+        .profile-info h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .profile-info p {
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        
+        /* Estilos do conteúdo principal do perfil */
+        .profile-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .profile-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+        }
+        
+        .profile-card h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .info-group {
+            margin-bottom: 15px;
+        }
+        
+        .info-group h3 {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .info-group p {
+            color: #34495e;
+            font-size: 16px;
+        }
+        
+        .edit-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .edit-btn:hover {
+            background-color: #2980b9;
+        }
+
+        /* Estilos do Modal de Edição */
+        .edit-modal {
+            display: none; /* Escondido por padrão */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh; /* Para lidar com conteúdo extenso */
+            overflow-y: auto; /* Adiciona scroll se o conteúdo for muito longo */
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .form-group input, 
+        .form-group textarea, 
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #7f8c8d;
+            color: white;
+        }
+
+        /* Estilos para a top-bar (cabeçalho de navegação) */
+        .top-bar {
+            background-color: #ffffff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .main-nav-top ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        .main-nav-top a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .main-nav-top a:hover,
+        .main-nav-top .active a {
+            background-color: #e0f2f7;
+            color: #007bff;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            background-color: #f0f2f5;
+            border-radius: 20px;
+            padding: 8px 15px;
+            flex-grow: 1;
+            margin: 0 20px;
+            max-width: 400px;
+        }
+
+        .search-container i {
+            color: #888;
+            margin-right: 10px;
+        }
+
+        .search-container input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .action-btn {
+            background-color: #e4e6eb;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: #555;
+            transition: background-color 0.3s;
+        }
+
+        .action-btn:hover {
+            background-color: #d8dade;
+        }
+
+        .user-dropdown {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .profile-pic-sm {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-menu {
+            display: none;
+            position: absolute;
+            top: 50px; /* Ajuste para aparecer abaixo da imagem */
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 250px;
+            z-index: 1000;
+        }
+
+        .user-menu-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .user-menu-header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        .user-menu-header h4 {
+            margin: 0;
+            color: #333;
+        }
+
+        .user-menu-header a {
+            color: #007bff;
+            font-size: 13px;
+            text-decoration: none;
+        }
+
+        .user-menu ul {
+            list-style: none;
+            padding: 10px 0;
+        }
+
+        .user-menu ul li a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #555;
+            transition: background-color 0.2s;
+        }
+
+        .user-menu ul li a:hover {
+            background-color: #f0f2f5;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-pic {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+            
+            .profile-content {
+                grid-template-columns: 1fr;
+            }
+
+            .top-bar {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .main-nav-top ul {
+                width: 100%;
+                justify-content: space-around;
+                margin-bottom: 10px;
+            }
+
+            .search-container {
+                width: 100%;
+                order: 3; /* Move a barra de busca para a parte inferior em telas pequenas */
+                margin: 10px 0;
+            }
+
+            .user-actions {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <nav class="main-nav-top">
+            <ul>
+                <li class="active">
+                    <a href="{{ url_for('index') }}">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('explore') }}">
+                        <i class="fas fa-search"></i>
+                        <span>Explorar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-comments"></i>
+                        <span>Mensagens</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-handshake"></i>
+                        <span>Parcerias</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-bell"></i>
+                        <span>Notificações</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-cog"></i>
+                        <span>Configurações</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Pesquisar na BusinessHub...">
+        </div>
+        
+        <div class="user-actions">
+            <button class="action-btn">
+                <i class="fas fa-comment-dots"></i>
+            </button>
+            <button class="action-btn">
+                <i class="fas fa-bell"></i>
+            </button>
+            <div class="user-dropdown">
+                <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" alt="User" class="profile-pic-sm" onclick="toggleUserMenu()">
+                <div class="user-menu" id="userMenu">
+                    <div class="user-menu-header">
+                        <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" alt="User">
+                        <div>
+                            <h4>{{ user.username }}</h4>
+                            <a href="{{ url_for('show_profile') }}">Ver perfil</a>
+                        </div>
+                    </div>
+                    <ul>
+                        <li><a href="{{ url_for('show_profile') }}"><i class="fas fa-user"></i> Meu Perfil</a></li>
+                        <li><a href="#"><i class="fas fa-cog"></i> Configurações</a></li>
+                        <li><a href="#"><i class="fas fa-question-circle"></i> Ajuda</a></li>
+                        <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="profile-header">
+            <div class="profile-pic-container">
+                <img id="profilePicture" src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" 
+                     alt="Profile Picture" class="profile-pic" onclick="document.getElementById('profilePicInput').click()">
+                <input type="file" id="profilePicInput" accept="image/*" style="display: none;" onchange="previewProfilePic(this)">
+            </div>
+            <div class="profile-info">
+                <h1 id="usernameDisplay">{{ user.username }}</h1>
+                <p>Email: <span id="emailDisplay">{{ user.email }}</span></p>
+                <p>Telefone: <span id="phoneDisplay">{{ user.phone if user.phone else 'Não cadastrado' }}</span></p>
+                <p>CNPJ: <span id="cnpjDisplay">{{ user.cnpj if user.cnpj else 'Não cadastrado' }}</span></p>
+                <span class="badge">Membro desde {{ user.created_at.strftime('%d/%m/%Y') }}</span>
+            </div>
+        </div>
+
+        <div class="profile-content">
+            <div class="profile-card">
+                <h2>Informações Pessoais</h2>
+                <div class="info-group">
+                    <h3>Nome de Usuário</h3>
+                    <p id="usernameInfo">{{ user.username }}</p>
+                </div>
+                <div class="info-group">
+                    <h3>Email</h3>
+                    <p id="emailInfo">{{ user.email }}</p>
+                </div>
+                <div class="info-group">
+                    <h3>Telefone</h3>
+                    <p id="phoneInfo">{{ user.phone if user.phone else 'Não cadastrado' }}</p>
+                </div>
+                <button class="edit-btn" onclick="openEditModal('personal')">Editar Informações</button>
+            </div>
+            
+            <div class="profile-card">
+                <h2>Informações Empresariais</h2>
+                <div class="info-group">
+                    <h3>CNPJ</h3>
+                    <p id="cnpjInfo">{{ user.cnpj if user.cnpj else 'Não cadastrado' }}</p>
+                </div>
+                <div class="info-group">
+                    <h3>Razão Social</h3>
+                    <p id="companyName">{{ company.data.nome if company and company.data.nome else 'Não cadastrada' }}</p>
+                </div>
+                <div class="info-group">
+                    <h3>Nome Fantasia</h3>
+                    <p id="fantasyName">{{ company.data.fantasia if company and company.data.fantasia else 'Não cadastrado' }}</p>
+                </div>
+                <div class="info-group">
+                    <h3>Data de Abertura</h3>
+                    <p id="openingDate">{{ company.data.abertura if company and company.data.abertura else 'Não cadastrada' }}</p>
+                </div>
+                <div class="info-group">
+                    <h3>Situação</h3>
+                    <p id="companyStatus">{{ company.data.situacao if company and company.data.situacao else 'Não cadastrada' }}</p>
+                </div>
+                <button class="edit-btn" onclick="openEditModal('company')">Editar CNPJ</button>
+            </div>
+            
+            <div class="profile-card">
+                <h2>Endereço da Empresa</h2>
+                <div class="info-group">
+                    <h3>Logradouro</h3>
+                    <p id="companyStreet">{{ company.data.logradouro if company and company.data.logradouro else 'Não cadastrado' }}</p>
+                </div>
+                <div class="info-group">
+                    <h3>Número</h3>
+                    <p id="companyNumber">{{ company.data.numero if company and company.data.numero else 'Não cadastrado' }}</p>
+                </div>
+                <div class="info-group">
+                    <h3>Complemento</h3>
+                    <p id="companyComplement">{{ company.data.complemento if company and company.data.complemento else 'Não cadastrado' }}</p>
+                </div>
+                <div class="info-group">
+                    <h3>Bairro</h3>
+                    <p id="companyDistrict">{{ company.data.bairro if company and company.data.bairro else 'Não cadastrado' }}</p>
+                </div>
+                <div class="info-group">
+                    <h3>Cidade/UF</h3>
+                    <p id="companyCity">{{ company.data.municipio if company and company.data.municipio else 'Não cadastrado' }}/{{ company.data.uf if company and company.data.uf else '' }}</p>
+                </div>
+                <div class="info-group">
+                    <h3>CEP</h3>
+                    <p id="companyCEP">{{ company.data.cep if company and company.data.cep else 'Não cadastrado' }}</p>
+                </div>
+            </div>
+            
+            <div class="profile-card">
+                <h2>Atividades Econômicas</h2>
+                <div class="info-group">
+                    <h3>Atividade Principal</h3>
+                    <p id="mainActivity">{{ company.data.atividade_principal[0].text if company and company.data.atividade_principal and company.data.atividade_principal|length > 0 else 'Não cadastrada' }}</p>
+                </div>
+                <div class="info-group">
+                    <h3>Código CNAE</h3>
+                    <p id="mainActivityCode">{{ company.data.atividade_principal[0].code if company and company.data.atividade_principal and company.data.atividade_principal|length > 0 else 'Não cadastrado' }}</p>
+                </div>
+                <div class="info-group">
+                    <h3>Atividades Secundárias</h3>
+                    <div id="secondaryActivities">
+                        {% if company and company.data.atividades_secundarias and company.data.atividades_secundarias|length > 0 %}
+                            {% for activity in company.data.atividades_secundarias %}
+                                <p>{{ activity.text }} ({{ activity.code }})</p>
+                            {% endfor %}
+                        {% else %}
+                            <p>Não cadastradas</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="personalInfoModal" class="edit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Editar Informações Pessoais</h3>
+                <button class="close-modal" onclick="closeModal('personalInfoModal')">&times;</button>
+            </div>
+            <form id="personalInfoForm">
+                <div class="form-group">
+                    <label for="editUsername">Nome de Usuário</label>
+                    <input type="text" id="editUsername" value="{{ user.username }}">
+                </div>
+                <div class="form-group">
+                    <label for="editEmail">Email</label>
+                    <input type="email" id="editEmail" value="{{ user.email }}">
+                </div>
+                <div class="form-group">
+                    <label for="editPhone">Telefone</label>
+                    <input type="text" id="editPhone" value="{{ user.phone if user.phone else '' }}" placeholder="(00) 00000-0000">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('personalInfoModal')">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="savePersonalInfo()">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="companyInfoModal" class="edit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Editar CNPJ</h3>
+                <button class="close-modal" onclick="closeModal('companyInfoModal')">&times;</button>
+            </div>
+            <form id="companyInfoForm">
+                <div class="form-group">
+                    <label for="editCNPJ">CNPJ</label>
+                    <input type="text" id="editCNPJ" value="{{ user.cnpj if user.cnpj else '' }}" placeholder="00.000.000/0000-00">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('companyInfoModal')">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveCompanyInfo()">Buscar Dados</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Função para alternar o menu do usuário na barra de navegação
+        function toggleUserMenu() {
+            const userMenu = document.getElementById('userMenu');
+            userMenu.style.display = userMenu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Fecha o menu do usuário se clicar fora
+        document.addEventListener('click', function(event) {
+            const userDropdown = document.querySelector('.user-dropdown');
+            const userMenu = document.getElementById('userMenu');
+            if (!userDropdown.contains(event.target) && userMenu.style.display === 'block') {
+                userMenu.style.display = 'none';
+            }
+        });
+
+        // Funções para manipulação dos modais
+        function openEditModal(type) {
+            if (type === 'personal') {
+                document.getElementById('personalInfoModal').style.display = 'flex';
+                // Popula os campos do modal com os valores atuais exibidos na página
+                document.getElementById('editUsername').value = document.getElementById('usernameInfo').textContent;
+                document.getElementById('editEmail').value = document.getElementById('emailInfo').textContent;
+                document.getElementById('editPhone').value = document.getElementById('phoneInfo').textContent === 'Não cadastrado' ? '' : document.getElementById('phoneInfo').textContent;
+            } else if (type === 'company') {
+                document.getElementById('companyInfoModal').style.display = 'flex';
+                document.getElementById('editCNPJ').value = document.getElementById('cnpjInfo').textContent === 'Não cadastrado' ? '' : document.getElementById('cnpjInfo').textContent;
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Visualizar foto de perfil antes de enviar
+        function previewProfilePic(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profilePicture').src = e.target.result;
+                    uploadProfilePic(input.files[0]);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Enviar foto de perfil para o servidor
+        async function uploadProfilePic(file) {
+            const formData = new FormData();
+            formData.append('profile_pic', file);
+            
+            try {
+                const response = await fetch('/api/update_profile_pic', {
+                    method: 'POST',
+                    body: formData // Envia FormData diretamente
+                });
+                
+                const data = await response.json();
+                if (response.ok) { // Verifica se a resposta HTTP foi bem-sucedida (status 2xx)
+                    Swal.fire('Sucesso!', 'Foto de perfil atualizada com sucesso!', 'success');
+                    // O caminho da imagem na barra superior também precisa ser atualizado
+                    document.querySelector('.profile-pic-sm').src = `/static/profile_pics/${data.filename}`;
+                    document.querySelector('.user-menu-header img').src = `/static/profile_pics/${data.filename}`;
+                } else {
+                    Swal.fire('Erro!', data.error || 'Falha ao atualizar foto de perfil', 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao enviar foto:', error);
+                Swal.fire('Erro!', 'Falha ao conectar com o servidor para atualizar foto de perfil', 'error');
+            }
+        }
+
+        // Salvar informações pessoais
+        async function savePersonalInfo() {
+            const formData = new FormData(); // Usar FormData para enviar dados de formulário
+            formData.append('username', document.getElementById('editUsername').value);
+            formData.append('email', document.getElementById('editEmail').value);
+            formData.append('phone', document.getElementById('editPhone').value);
+            
+            try {
+                const response = await fetch('/api/update_profile', {
+                    method: 'POST',
+                    body: formData // Envia FormData diretamente
+                });
+                
+                const data = await response.json();
+                if (response.ok) { // Verifica se a resposta HTTP foi bem-sucedida (status 2xx)
+                    // Atualizar exibição na página
+                    document.getElementById('usernameDisplay').textContent = formData.get('username');
+                    document.getElementById('emailDisplay').textContent = formData.get('email');
+                    document.getElementById('phoneDisplay').textContent = formData.get('phone') || 'Não cadastrado';
+                    document.getElementById('usernameInfo').textContent = formData.get('username');
+                    document.getElementById('emailInfo').textContent = formData.get('email');
+                    document.getElementById('phoneInfo').textContent = formData.get('phone') || 'Não cadastrado';
+                    
+                    closeModal('personalInfoModal');
+                    Swal.fire('Sucesso!', 'Informações atualizadas com sucesso!', 'success');
+                } else {
+                    Swal.fire('Erro!', data.message || 'Falha ao atualizar informações', 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar perfil:', error);
+                Swal.fire('Erro!', 'Falha ao conectar com o servidor para atualizar informações', 'error');
+            }
+        }
+
+        // Salvar informações da empresa (CNPJ)
+        async function saveCompanyInfo() {
+            const cnpj = document.getElementById('editCNPJ').value;
+            
+            try {
+                const response = await fetch('/api/update_company', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json', // O backend espera JSON para esta rota
+                    },
+                    body: JSON.stringify({ // Envia o CNPJ como JSON
+                        cnpj: cnpj
+                    })
+                });
+                
+                const data = await response.json();
+                if (response.ok) { // Verifica se a resposta HTTP foi bem-sucedida (status 2xx)
+                    // Atualizar exibição com os novos dados da empresa
+                    document.getElementById('cnpjDisplay').textContent = cnpj || 'Não cadastrado';
+                    document.getElementById('cnpjInfo').textContent = cnpj || 'Não cadastrado';
+                    
+                    if (data.company) {
+                        // Atualizar todos os campos da empresa com os dados retornados
+                        document.getElementById('companyName').textContent = data.company.nome || 'Não cadastrada';
+                        document.getElementById('fantasyName').textContent = data.company.fantasia || 'Não cadastrado';
+                        document.getElementById('openingDate').textContent = data.company.abertura || 'Não cadastrada';
+                        document.getElementById('companyStatus').textContent = data.company.situacao || 'Não cadastrada';
+                        document.getElementById('companyStreet').textContent = data.company.logradouro || 'Não cadastrado';
+                        document.getElementById('companyNumber').textContent = data.company.numero || 'Não cadastrado';
+                        document.getElementById('companyComplement').textContent = data.company.complemento || 'Não cadastrado';
+                        document.getElementById('companyDistrict').textContent = data.company.bairro || 'Não cadastrado';
+                        document.getElementById('companyCity').textContent = (data.company.municipio || 'Não cadastrado') + '/' + (data.company.uf || '');
+                        document.getElementById('companyCEP').textContent = data.company.cep || 'Não cadastrado';
+                        
+                        // Atividade Principal
+                        if (data.company.atividade_principal && data.company.atividade_principal.length > 0) {
+                            document.getElementById('mainActivity').textContent = data.company.atividade_principal[0].text;
+                            document.getElementById('mainActivityCode').textContent = data.company.atividade_principal[0].code;
+                        } else {
+                            document.getElementById('mainActivity').textContent = 'Não cadastrada';
+                            document.getElementById('mainActivityCode').textContent = 'Não cadastrado';
+                        }
+                        
+                        // Atividades Secundárias
+                        const secondaryActivitiesDiv = document.getElementById('secondaryActivities');
+                        secondaryActivitiesDiv.innerHTML = ''; // Limpa antes de adicionar
+                        if (data.company.atividades_secundarias && data.company.atividades_secundarias.length > 0) {
+                            data.company.atividades_secundarias.forEach(activity => {
+                                secondaryActivitiesDiv.innerHTML += `<p>${activity.text} (${activity.code})</p>`;
+                            });
+                        } else {
+                            secondaryActivitiesDiv.innerHTML = '<p>Não cadastradas</p>';
+                        }
+                    } else {
+                        // Se não houver dados de empresa (e.g., CNPJ foi removido), limpa os campos
+                        document.getElementById('companyName').textContent = 'Não cadastrada';
+                        document.getElementById('fantasyName').textContent = 'Não cadastrado';
+                        document.getElementById('openingDate').textContent = 'Não cadastrada';
+                        document.getElementById('companyStatus').textContent = 'Não cadastrada';
+                        document.getElementById('companyStreet').textContent = 'Não cadastrado';
+                        document.getElementById('companyNumber').textContent = 'Não cadastrado';
+                        document.getElementById('companyComplement').textContent = 'Não cadastrado';
+                        document.getElementById('companyDistrict').textContent = 'Não cadastrado';
+                        document.getElementById('companyCity').textContent = 'Não cadastrado';
+                        document.getElementById('companyCEP').textContent = 'Não cadastrado';
+                        document.getElementById('mainActivity').textContent = 'Não cadastrada';
+                        document.getElementById('mainActivityCode').textContent = 'Não cadastrado';
+                        document.getElementById('secondaryActivities').innerHTML = '<p>Não cadastradas</p>';
+                    }
+                    
+                    closeModal('companyInfoModal');
+                    Swal.fire('Sucesso!', 'CNPJ atualizado e dados da empresa carregados!', 'success');
+                } else {
+                    Swal.fire('Erro!', data.error || 'Falha ao atualizar CNPJ', 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar CNPJ:', error);
+                Swal.fire('Erro!', 'Falha ao conectar com o servidor para atualizar CNPJ', 'error');
+            }
+        }
+
+        // Formatar CNPJ enquanto digita
+        document.getElementById('editCNPJ').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, ''); // Remove todos os não-dígitos
+            
+            // Aplica a formatação do CNPJ
+            if (value.length > 2) {
+                value = value.substring(0, 2) + '.' + value.substring(2);
+            }
+            if (value.length > 6) {
+                value = value.substring(0, 6) + '.' + value.substring(6);
+            }
+            if (value.length > 10) {
+                value = value.substring(0, 10) + '/' + value.substring(10);
+            }
+            if (value.length > 15) {
+                value = value.substring(0, 15) + '-' + value.substring(15, 17);
+            }
+            
+            e.target.value = value;
+        });
+
+        // Formatar telefone enquanto digita
+        document.getElementById('editPhone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, ''); // Remove todos os não-dígitos
+            
+            // Aplica a formatação do telefone
+            if (value.length > 0) {
+                value = '(' + value.substring(0, 2) + ') ' + value.substring(2);
+            }
+            if (value.length > 10) { // Para números com 9 dígitos após o DDD (ex: (DD) 9XXXX-XXXX)
+                value = value.substring(0, 10) + '-' + value.substring(10, 15);
+            } else if (value.length > 9) { // Para números com 8 dígitos após o DDD (ex: (DD) XXXX-XXXX)
+                value = value.substring(0, 9) + '-' + value.substring(9, 13);
+            }
+            
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html>

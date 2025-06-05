@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Login - BusinessHub</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        /* Variáveis de Cores Aprimoradas */
+        :root {
+            --primary-blue: #007bff; /* Azul vibrante principal */
+            --dark-blue: #0056b3;    /* Azul mais escuro para hover/detalhes */
+            --light-blue: #e0f2ff;   /* Azul muito claro para fundos sutis */
+            --accent-blue: #17a2b8;  /* Um tom de azul-ciano para destaque */
+            --white: #ffffff;        /* Branco puro */
+            --black: #212529;        /* Preto quase puro para textos principais */
+            --gray-text: #495057;    /* Cinza escuro para textos secundários */
+            --light-gray-bg: #f8f9fa; /* Cinza muito claro para fundos de campos */
+            --border-color: #ced4da;  /* Cor de borda para inputs */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            /* Imagem de fundo com mais contraste e leve opacidade */
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                        url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') 
+                        no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--black);
+        }
+
+        .container {
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            width: 420px;
+            max-width: 90%;
+            margin: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .divlogo {
+            display: flex;
+            justify-content: center;
+            padding: 25px 0;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue)); 
+        }
+
+        .imglogo {
+            max-width: 180px;
+            height: auto;
+            filter: brightness(0) invert(1);
+        }
+
+        .wrapper {
+            padding: 30px 35px;
+        }
+
+        .wrapper h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 2rem;
+        }
+
+        .input-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 14px 45px 14px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: var(--light-gray-bg);
+            color: var(--black);
+        }
+
+        .input-box input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            background-color: var(--white);
+        }
+
+        .input-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.3rem;
+            color: var(--gray-text);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .input-box i:hover {
+            color: var(--primary-blue);
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--gray-text);
+        }
+
+        .remember-forgot label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .remember-forgot label input {
+            margin-right: 7px;
+            accent-color: var(--primary-blue);
+        }
+
+        .remember-forgot a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .remember-forgot a:hover {
+            color: var(--dark-blue);
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.95rem;
+            color: var(--gray-text);
+        }
+
+        .register-link a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .register-link a:hover {
+            color: var(--dark-blue);
+            text-decoration: underline;
+        }
+
+        /* Modal de Consentimento - CORRIGIDO */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            margin: 20px;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-content h1 {
+            margin-bottom: 25px;
+            color: var(--primary-blue);
+            font-size: 2rem;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .consent-questions {
+            margin-bottom: 30px;
+        }
+
+        .consent-questions p {
+            margin-bottom: 18px;
+            color: var(--gray-text);
+            display: flex;
+            align-items: flex-start;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .consent-questions input[type="checkbox"] {
+            margin-right: 12px;
+            margin-top: 3px;
+            min-width: 20px;
+            min-height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary-blue);
+        }
+
+        .consent-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .consent-buttons .btn {
+            width: auto;
+            padding: 12px 28px;
+            font-size: 1rem;
+        }
+
+        #selectAllConsents {
+            background: var(--border-color);
+            color: var(--gray-text);
+            box-shadow: none;
+        }
+
+        #selectAllConsents:hover {
+            background: #c5d0da;
+            color: var(--black);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Formulários */
+        #registerForm {
+            display: none;
+        }
+
+        /* Responsividade */
+        @media (max-width: 480px) {
+            .wrapper {
+                padding: 25px;
+            }
+            
+            .wrapper h1 {
+                font-size: 1.6rem;
+            }
+
+            .input-box input {
+                padding: 12px 40px 12px 12px;
+            }
+            
+            .input-box i {
+                right: 12px;
+                font-size: 1.1rem;
+            }
+
+            .btn {
+                padding: 12px;
+                font-size: 1rem;
+            }
+
+            .modal-content {
+                padding: 25px;
+            }
+
+            .modal-content h1 {
+                font-size: 1.6rem;
+            }
+
+            .consent-questions p {
+                font-size: 0.9rem;
+            }
+
+            .consent-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .consent-buttons .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="divlogo">
+            <img class="imglogo" src="{{ url_for('static', filename='images/logo-bhub.png') }}" alt="Logo BusinessHub">
+        </div>
+        <div class="wrapper">
+            <form id="loginForm" method="POST">
+                <h1>Login</h1>
+                <div class="input-box">
+                    <input type="text" id="username" name="username" placeholder="Nome de usuário" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" id="password" name="password" placeholder="Senha" required>
+                    <i class='bx bxs-lock-alt' id="togglePassword"></i>
+                </div>
+                <div class="remember-forgot">
+                    <label>
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
+                        Lembrar-me
+                    </label>
+                    <a href="{{ url_for('show_recover_password') }}">Esqueceu a senha?</a>
+                </div>
+                <button type="submit" class="btn">Entrar</button>
+                <div class="register-link">
+                    <p>Não possui uma conta? <a href="#" id="showRegister">Cadastre-se</a></p>
+                </div>
+            </form>
+
+            <form id="registerForm" method="POST">
+                <h1>Cadastre-se</h1>
+                <div class="input-box">
+                    <input type="text" id="newUsername" name="newUsername" placeholder="Nome de usuário" maxlength="20" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+                <div class="input-box">
+                    <input type="text" id="cnpj" name="cnpj" placeholder="CNPJ (opcional)" maxlength="18">
+                    <i class='bx bxs-id-card'></i>
+                </div>
+                <div class="input-box">
+                    <input type="email" id="email" name="email" placeholder="E-mail" maxlength="100" required>
+                    <i class='bx bxs-envelope'></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" id="newPassword" name="newPassword" placeholder="Senha (mínimo 8 caracteres)" minlength="8" maxlength="20" required>
+                    <i class='bx bxs-lock-alt' id="toggleNewPassword"></i>
+                </div>
+                <button type="submit" class="btn">Criar conta</button>
+                <div class="register-link">
+                    <p>Já possui uma conta? <a href="#" id="showLogin">Faça login</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="consentModal" class="modal">
+        <div class="modal-content">
+            <h1>Termos de Consentimento</h1>
+            <div class="consent-questions">
+                <p><input type="checkbox" id="consentCadastro" required> Você autoriza a BusinessHub a armazenar e utilizar suas informações de cadastro para criar e gerenciar seu perfil na plataforma?</p>
+                <p><input type="checkbox" id="consentPerfilVisualizacao" required> Você autoriza que outras empresas visualizem as informações do seu perfil?</p>
+                <p><input type="checkbox" id="consentPerfilParcerias" required> Você autoriza a BusinessHub a utilizar suas informações de perfil para sugerir parcerias relevantes?</p>
+                <p><input type="checkbox" id="consentPostagens" required> Você autoriza que outras empresas visualizem suas postagens e atualizações?</p>
+                <p><input type="checkbox" id="consentParcerias" required> Você autoriza a BusinessHub a sugerir sua empresa como uma potencial parceira para outras empresas?</p>
+                <p><input type="checkbox" id="consentChat" required> Você autoriza que outras empresas entrem em contato com você através do chat da BusinessHub?</p>
+                <p><input type="checkbox" id="consentContratosArmazenamento" required> Você autoriza a BusinessHub a armazenar os contratos digitais firmados entre sua empresa e outras empresas, ciente de que a responsabilidade pelos contratos é exclusivamente das empresas envolvidas?</p>
+                <p><input type="checkbox" id="consentContratosConfirmacao" required> Você concorda que a confirmação dos contratos digitais será realizada através de e-mails entre as empresas envolvidas e que ambas devem concordar para que o contrato seja validado e registrado na plataforma?</p>
+            </div>
+            <div class="consent-buttons">
+                <button id="selectAllConsents" class="btn">Marcar Todos</button>
+                <button id="consentSubmit" class="btn">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Alternar entre formulários de login e registro
+        document.getElementById('showRegister').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        });
+
+        document.getElementById('showLogin').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        });
+
+        // Mostrar/ocultar senha
+        function setupPasswordToggle(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (input && icon) {
+                icon.addEventListener('click', function() {
+                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                    input.setAttribute('type', type);
+                    icon.classList.toggle('bxs-lock-open');
+                });
+            }
+        }
+
+        setupPasswordToggle('password', 'togglePassword');
+        setupPasswordToggle('newPassword', 'toggleNewPassword');
+
+        // Formatar CNPJ
+        document.getElementById('cnpj')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 2) value = value.substring(0, 2) + '.' + value.substring(2);
+            if (value.length > 6) value = value.substring(0, 6) + '.' + value.substring(6);
+            if (value.length > 10) value = value.substring(0, 10) + '/' + value.substring(10);
+            if (value.length > 15) value = value.substring(0, 15) + '-' + value.substring(15, 17);
+            e.target.value = value.substring(0, 18);
+        });
+
+        // Verificar consentimento
+        // Para testes, descomente a linha abaixo para forçar o modal a aparecer sempre:
+        // localStorage.removeItem('consentGiven'); 
+
+        if (!localStorage.getItem('consentGiven')) {
+            document.getElementById('consentModal').style.display = 'flex';
+        }
+
+        // Lidar com o consentimento
+        document.getElementById('consentSubmit').addEventListener('click', function() {
+            const requiredConsents = [
+                'consentCadastro', 'consentPerfilVisualizacao', 'consentPerfilParcerias',
+                'consentPostagens', 'consentParcerias', 'consentChat',
+                'consentContratosArmazenamento', 'consentContratosConfirmacao'
+            ];
+
+            const allAccepted = requiredConsents.every(id =>
+                document.getElementById(id).checked
+            );
+
+            if (allAccepted) {
+                document.getElementById('consentModal').style.display = 'none';
+                localStorage.setItem('consentGiven', 'true');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Termos aceitos',
+                    text: 'Obrigado por aceitar nossos termos de uso.',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    background: 'var(--white)',
+                    color: 'var(--black)'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Termos não aceitos',
+                    text: 'Por favor, aceite todos os termos para continuar.',
+                    background: 'var(--white)',
+                    color: 'var(--black)'
+                });
+            }
+        });
+
+        // Marcar/desmarcar todos os termos
+        document.getElementById('selectAllConsents').addEventListener('click', function(e) {
+            e.preventDefault();
+            const checkboxes = document.querySelectorAll('.consent-questions input[type="checkbox"]');
+            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = !allChecked;
+            });
+
+            this.textContent = allChecked ? 'Marcar Todos' : 'Desmarcar Todos';
+        });
+
+        // Função para mostrar alertas
+        function showAlert(icon, title, message, redirectUrl = null) {
+            return Swal.fire({
+                icon: icon,
+                title: title,
+                text: message,
+                confirmButtonColor: 'var(--primary-blue)',
+                background: 'var(--white)',
+                color: 'var(--black)'
+            }).then((result) => {
+                if (redirectUrl && result.isConfirmed) {
+                    window.location.href = redirectUrl;
+                }
+            });
+        }
+
+        // Enviar formulário de login
+        document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            
+            try {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Autenticando...';
+                
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    await showAlert('success', result.title, result.message, result.redirect);
+                } else {
+                    showAlert('error', result.title, result.message);
+                }
+            } catch (error) {
+                showAlert('error', 'Erro', 'Ocorreu um erro ao processar sua solicitação.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+            }
+        });
+
+        // Enviar formulário de registro
+        document.getElementById('registerForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            
+            try {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Registrando...';
+                
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    await showAlert('success', result.title, result.message, result.redirect);
+                } else {
+                    showAlert('error', result.title, result.message);
+                }
+            } catch (error) {
+                showAlert('error', 'Erro', 'Ocorreu um erro ao processar seu cadastro.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+            }
+        });
+
+        // Fechar modal ao clicar fora
+        window.addEventListener('click', function(e) {
+            if (e.target === document.getElementById('consentModal')) {
+                document.getElementById('consentModal').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

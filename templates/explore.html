@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusinessHub - Explorar Empresas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        /* Variáveis CSS para o padrão de cores (baseado na imagem fornecida) */
+        :root {
+            --primary-blue: #1877f2; /* Azul vibrante principal para botões, links, etc. */
+            --dark-blue: #0056b3;    /* Azul mais escuro para hover, detalhes */
+            --light-blue-bg: #e7f3ff; /* Azul muito claro para fundos de hover/ativos */
+            --background-grey: #f0f2f5; /* Fundo geral do dashboard */
+            --card-background: #fff; /* Fundo de cards, sidebars */
+            --text-color-dark: #050505; /* Texto principal, títulos */
+            --text-color-medium: #65676b; /* Texto secundário, ícones padrão */
+            --border-color: #e4e6eb; /* Bordas e separadores */
+            --input-background: #f0f2f5; /* Background de inputs */
+            --notification-red: #fa3e3e; /* Badge de notificação */
+            --online-green: #31a24c; /* Status online */
+            --offline-grey: #ddd; /* Status offline */
+            --image-icon-green: #45bd62; /* Ícone de imagem no post */
+            --sentiment-yellow: #f7b928; /* Ícone de sentimento no post */
+            --top-bar-blue: #2196F3; /* Azul mais escuro para a top bar (pode ser o primary-blue também) */
+            --search-bg-blue: #ADD8E6; /* Azul claro para o fundo da busca */
+        }
+
+        /* Reset e Estilos Globais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-grey);
+            color: var(--text-color-dark);
+        }
+
+        .dashboard-container {
+            display: flex;
+            flex-direction: column; 
+            min-height: 100vh;
+        }
+
+        /* --- Top Bar Styles --- */
+        .top-bar {
+            background-color: var(--top-bar-blue);
+            padding: 10px 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1;
+            color: white;
+            flex-wrap: wrap; 
+        }
+
+        .top-bar a, .top-bar button {
+            color: white;
+            text-decoration: none; 
+        }
+
+        .top-bar .logo-container-top {
+            display: flex;
+            align-items: center;
+            margin-right: 20px; 
+        }
+
+        .top-bar .logo-container-top .logo {
+            height: 30px; 
+            width: auto;
+        }
+        
+        .top-bar .main-nav-top {
+            flex: 1; 
+            display: flex;
+            justify-content: center; 
+        }
+
+        .top-bar .main-nav-top ul {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+
+        .top-bar .main-nav-top li {
+            margin: 0 15px; 
+        }
+
+        .top-bar .main-nav-top li a {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            font-weight: 500;
+            color: white; 
+        }
+
+        .top-bar .main-nav-top li a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .top-bar .main-nav-top li.active a {
+            background-color: rgba(255, 255, 255, 0.3); 
+            color: white; 
+        }
+
+        .top-bar .main-nav-top li a i {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+        
+        .top-bar .main-nav-top .notification-badge {
+            background-color: var(--notification-red);
+            color: white;
+            border-radius: 50%;
+            font-size: 10px; 
+            padding: 1px 5px;
+            margin-left: 5px;
+        }
+
+        .search-container {
+            flex-shrink: 0; 
+            width: 250px; 
+            position: relative;
+            margin-left: 20px; 
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 10px; 
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-color-medium);
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 8px 15px 8px 35px; 
+            border-radius: 20px;
+            border: none;
+            background-color: var(--search-bg-blue);
+            font-size: 13px; 
+            color: var(--text-color-dark);
+        }
+
+        .search-container input::placeholder {
+            color: var(--text-color-medium);
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            margin-left: 20px; 
+        }
+
+        .action-btn {
+            background-color: transparent;
+            border: none;
+            width: 36px; 
+            height: 36px;
+            border-radius: 50%;
+            margin: 0 4px; 
+            cursor: pointer;
+            position: relative;
+            color: white;
+        }
+
+        .action-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .action-btn .notification-badge {
+            background-color: var(--notification-red);
+            color: white;
+            position: absolute;
+            top: -3px; 
+            right: -3px; 
+            font-size: 9px; 
+            padding: 1px 4px;
+        }
+
+        .user-dropdown {
+            position: relative;
+            margin-left: 10px;
+        }
+
+        .profile-pic-sm {
+            width: 36px; 
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid white; 
+        }
+
+        .user-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 45px; 
+            width: 300px; 
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            overflow: hidden;
+        }
+        
+        .user-menu-header {
+            display: flex;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .user-menu-header img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+
+        .user-menu-header h4 {
+            font-size: 18px;
+            margin-bottom: 5px;
+            color: var(--text-color-dark);
+        }
+
+        .user-menu-header p {
+            color: var(--primary-blue);
+            font-size: 14px;
+        }
+
+        .user-menu ul {
+            list-style: none;
+        }
+
+        .user-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: var(--text-color-dark);
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .user-menu li a:hover {
+            background-color: var(--background-grey);
+        }
+
+        .user-menu li a i {
+            margin-right: 10px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* --- Main Content & Explore Area Styles --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--background-grey);
+            padding: 20px; 
+        }
+
+        .explore-content-area {
+            flex: 1;
+            padding: 0; 
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            background-color: var(--background-grey); 
+        }
+
+        .section-title {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: var(--text-color-dark);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Aumenta um pouco o min-width dos cards */
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .company-card {
+            background-color: var(--card-background);
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            text-align: center;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease-in-out;
+            border: 1px solid var(--border-color); /* Adiciona uma borda sutil */
+        }
+
+        .company-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* Sombra mais destacada no hover */
+        }
+
+        .company-card img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 3px solid var(--primary-blue);
+        }
+
+        .company-card h4 {
+            font-size: 18px;
+            margin-bottom: 5px;
+            color: var(--text-color-dark);
+        }
+
+        .company-card p {
+            font-size: 14px;
+            color: var(--text-color-medium);
+            margin-bottom: 15px; /* Aumenta o espaçamento abaixo da descrição */
+            line-height: 1.5; /* Melhora a legibilidade do parágrafo */
+            height: 60px; /* Altura fixa para a descrição, para padronizar cards */
+            overflow: hidden; /* Esconde o excesso de texto */
+            text-overflow: ellipsis; /* Adiciona reticências se o texto for muito longo */
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+        }
+
+        .company-card .action-button {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 10px 25px; /* Aumenta o padding do botão */
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px; /* Aumenta a fonte do botão */
+            font-weight: 600; /* Deixa o botão mais negrito */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .company-card .action-button:hover {
+            background-color: var(--dark-blue); 
+            transform: translateY(-1px); /* Pequeno efeito de elevação */
+        }
+
+        /* --- Responsividade Global --- */
+        @media (max-width: 1200px) {
+            .top-bar .search-container {
+                width: 200px; 
+                margin-left: 10px;
+            }
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+        }
+
+        @media (max-width: 992px) {
+            .top-bar {
+                flex-direction: column; /* Empilha os itens verticalmente */
+                align-items: center;
+                padding: 15px 10px;
+            }
+            .top-bar .logo-container-top,
+            .top-bar .search-container,
+            .top-bar .main-nav-top,
+            .top-bar .user-actions {
+                width: 100%; /* Ocupa a largura total */
+                margin: 0; /* Remove margens extras */
+                margin-bottom: 10px; /* Adiciona espaçamento entre blocos empilhados */
+                justify-content: center; /* Centraliza conteúdo dentro dos blocos */
+            }
+            .top-bar .main-nav-top ul {
+                flex-wrap: wrap; /* Permite que os itens de navegação quebrem linha */
+                justify-content: center;
+            }
+            .top-bar .main-nav-top li {
+                margin: 5px 10px; /* Ajusta margem para itens de navegação empilhados */
+            }
+            .top-bar .search-container input {
+                text-align: center; /* Centraliza placeholder e texto */
+                padding: 8px 15px; /* Ajusta padding para remover ícone se não houver */
+            }
+            .search-container i {
+                left: unset; /* Remove posicionamento fixo do ícone */
+                right: 15px; /* Move ícone para a direita */
+            }
+            .user-dropdown {
+                margin-left: 0; /* Remove margem extra do dropdown */
+            }
+            .user-menu {
+                top: 50px; /* Ajusta a posição vertical do menu dropdown */
+                width: 90%;
+                left: 5%; /* Centraliza o menu em telas menores */
+                right: 5%;
+            }
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Menos colunas em tablets */
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar .main-nav-top li a span {
+                display: none; /* Oculta o texto da navegação, mostrando apenas ícones */
+            }
+            .top-bar .main-nav-top li a i {
+                margin-right: 0;
+            }
+            .top-bar .user-actions .action-btn,
+            .top-bar .user-actions .profile-pic-sm {
+                width: 32px; 
+                height: 32px;
+            }
+            .user-menu-header img {
+                width: 40px;
+                height: 40px;
+            }
+            .user-menu-header h4 {
+                font-size: 16px;
+            }
+            .explore-content-area {
+                padding: 10px;
+            }
+            .grid-container {
+                grid-template-columns: 1fr; /* Uma coluna em telas muito pequenas */
+                gap: 15px;
+            }
+            .company-card p {
+                height: auto; /* Permite que a descrição se ajuste, sem limite de linhas estrito */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="top-bar">
+            <nav class="main-nav-top">
+                <ul>
+                    <li>
+                        <a href="{{ url_for('index') }}">
+                            <i class="fas fa-home"></i>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li class="active"> 
+                        <a href="{{ url_for('explore') }}">
+                            <i class="fas fa-search"></i>
+                            <span>Explorar</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-comments"></i>
+                            <span>Mensagens</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-handshake"></i>
+                            <span>Parcerias</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-bell"></i>
+                            <span>Notificações</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-cog"></i>
+                            <span>Configurações</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Pesquisar na BusinessHub...">
+            </div>
+            
+            <div class="user-actions">
+                <button class="action-btn">
+                    <i class="fas fa-comment-dots"></i>
+                </button>
+                <button class="action-btn">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <div class="user-dropdown">
+                    <img src="{{ url_for('static', filename='images/' + user.profile_pic if user.profile_pic else 'user-icon-pequeno.png') }}" alt="User" class="profile-pic-sm" onclick="toggleUserMenu()">
+                    <div class="user-menu" id="userMenu">
+                        <div class="user-menu-header">
+                            <img src="{{ url_for('static', filename='images/' + user.profile_pic if user.profile_pic else 'user-icon-pequeno.png') }}" alt="User">
+                            <div>
+                                <h4>{{ user.username }}</h4>
+                                <p>Ver perfil</p>
+                            </div>
+                        </div>
+                        <ul>
+                            <li><a href="#"><i class="fas fa-user"></i> Meu Perfil</a></li>
+                            <li><a href="#"><i class="fas fa-cog"></i> Configurações</a></li>
+                            <li><a href="#"><i class="fas fa-question-circle"></i> Ajuda</a></li>
+                            <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="explore-content-area">
+                <section class="companies-section">
+                    <h2 class="section-title">Empresas Recomendadas</h2>
+                    <div class="grid-container">
+                        {% for company in companies %}
+                        <div class="company-card">
+                            <img src="{{ url_for('static', filename='images/' + company.logo if company.logo else 'company-default.png') }}" alt="{{ company.name }} Logo">
+                            <h4>{{ company.name }}</h4>
+                            <p>{{ company.description }}</p>
+                            <button class="action-button">Ver Perfil</button>
+                        </div>
+                        {% else %}
+                        <p>Nenhuma empresa encontrada.</p>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Menu dropdown do usuário
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Fechar menu quando clicar fora
+        document.addEventListener('click', function(event) {
+            const userMenu = document.getElementById('userMenu');
+            const profilePicSm = document.querySelector('.profile-pic-sm');
+            
+            if (userMenu && !userMenu.contains(event.target) && !profilePicSm.contains(event.target)) {
+                userMenu.style.display = 'none';
+            }
+        });
+
+        // Opções de criação (mantido para consistência)
+        function showCreateOptions() {
+            Swal.fire({
+                title: 'Criar',
+                html: `
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+                        <button onclick="Swal.close(); window.location.href='{{ url_for('index') }}#create-post-section'" style="padding: 10px; background: var(--light-blue-bg); border: none; border-radius: 8px; cursor: pointer; color: var(--primary-blue);">
+                            <i class="fas fa-edit"></i> Publicação
+                        </button>
+                        <button onclick="Swal.close(); location.href='#'" style="padding: 10px; background: var(--light-blue-bg); border: none; border-radius: 8px; cursor: pointer; color: var(--primary-blue);">
+                            <i class="fas fa-calendar-alt"></i> Evento
+                        </button>
+                        <button onclick="Swal.close(); location.href='#'" style="padding: 10px; background: var(--light-blue-bg); border: none; border-radius: 8px; cursor: pointer; color: var(--primary-blue);">
+                            <i class="fas fa-bullhorn"></i> Anúncio
+                        </button>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCloseButton: true,
+                customClass: {
+                    popup: 'swal2-responsive' 
+                }
+            });
+        }
+
+        // Verificar autenticação
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/check-auth');
+                const data = await response.json();
+                if (!data.authenticated) {
+                    window.location.href = '/login'; 
+                }
+            } catch (error) {
+                console.error('Erro ao verificar autenticação:', error);
+                window.location.href = '/login'; 
+            }
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            setInterval(checkAuth, 300000); // 5 minutos
+        });
+    </script>
+</body>
+</html>
