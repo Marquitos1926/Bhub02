@@ -9,38 +9,32 @@ from bson import json_util
 import json
 import requests
 import random
-from dotenv import load_dotenv # Importa load_dotenv
-
-# Carrega as variáveis de ambiente do arquivo .env (se existir)
-load_dotenv() 
+import certifi
 
 app = Flask(__name__, template_folder='templates')
 
 # --- Configurações da Aplicação ---
-# Em produção, a chave secreta deve ser carregada de uma variável de ambiente.
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', os.urandom(24))
 
 # Define os caminhos absolutos para as pastas de upload
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static', 'uploads') # Pasta para uploads de posts
-app.config['PROFILE_PICS_FOLDER'] = os.path.join(BASE_DIR, 'static', 'profile_pics') # Pasta para fotos de perfil
-app.config['IMAGES_FOLDER'] = os.path.join(BASE_DIR, 'static', 'images') # Adicionar pasta para imagens de empresas/posts (se aplicável)
-app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'} # Extensões de arquivo permitidas
+app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static', 'uploads')
+app.config['PROFILE_PICS_FOLDER'] = os.path.join(BASE_DIR, 'static', 'profile_pics')
+app.config['IMAGES_FOLDER'] = os.path.join(BASE_DIR, 'static', 'images')
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
 # --- Conexão com MongoDB ---
-# É uma boa prática armazenar a URI em uma variável de ambiente para produção.
 mongo_uri = os.environ.get("MONGO_URI", "mongodb+srv://juliocardoso:1XIo2RrBrHSMZEIl@bd-bhub.pmuu5go.mongodb.net/?retryWrites=true&w=majority&appName=BD-BHUB")
-client = MongoClient(mongo_uri)
+client = MongoClient(mongo_uri, tlsCAFile=certifi.where())
 db = client.get_database("dbbhub")
 
 # --- Coleções do Banco de Dados ---
 users_collection = db.users
-cnpjs_collection = db.cnpjs # Usado para controle de CNPJs já cadastrados e associados a user_id
+cnpjs_collection = db.cnpjs
 posts_collection = db.posts
-companies_collection = db.companies # Armazena informações detalhadas da empresa consultada via Receita WS
-conversations_collection = db.conversations # Nova coleção para conversas
-connection_requests_collection = db.connection_requests # Nova coleção para solicitações de conexão
-
+companies_collection = db.companies
+conversations_collection = db.conversations
+connection_requests_collection = db.connection_requests
 # --- Funções Auxiliares (Helpers) para Validação ---
 def validate_username(username):
     """
