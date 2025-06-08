@@ -26,6 +26,7 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'} # Extensões de
 
 # --- Conexão com MongoDB ---
 # É uma boa prática armazenar a URI em uma variável de ambiente para produção.
+# No app.py
 mongo_uri = os.environ.get("MONGO_URI", "mongodb+srv://juliocardoso:1XIo2RrBrHSMZEIl@bd-bhub.pmuu5go.mongodb.net/?retryWrites=true&w=majority&appName=BD-BHUB")
 client = MongoClient(mongo_uri)
 db = client.get_database("dbbhub")
