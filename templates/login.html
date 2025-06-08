@@ -639,14 +639,13 @@
                     body: formData
                 });
                 
-                const result = await response.json(); // ESTA LINHA AGORA ESTÁ PROTEGIDA PELO try-except do backend
+                const result = await response.json();
                 
                 if (result.redirect) { 
                     window.location.href = result.redirect;
                 } else if (result.status === 'error') {
                     showAlert('error', result.title, result.message);
                 } else if (result.status === 'consent_required') {
-                    // Se o backend retorna consent_required, mostra o modal
                     showConsentModal(result.message);
                 }
             } catch (error) {
