@@ -10,7 +10,10 @@ import json
 import requests
 import random
 
+# A linha abaixo está OK, o Flask já procura por 'templates' por padrão
+# mas explicitá-la não causa erro se a pasta estiver no lugar certo.
 app = Flask(__name__, template_folder='templates')
+
 # --- Configurações da Aplicação ---
 # Em produção, a chave secreta deve ser carregada de uma variável de ambiente.
 # Isso garante que a chave é persistente e segura.
@@ -25,7 +28,10 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'} # Extensões de
 
 # --- Conexão com MongoDB ---
 # É uma boa prática armazenar a URI em uma variável de ambiente para produção.
-mongo_uri = os.environ.get("MONGO_URI", "mongodb+srv://juliocardoso:z5fTsL8EAgD8SORa@dbbhub.nxcw2n9.mongodb.net/?retryWrites=true&w=majority")
+# AQUI ESTÁ A LINHA CORRIGIDA:
+# O primeiro argumento é o NOME da variável de ambiente ("MONGO_URI").
+# O segundo argumento é o VALOR DEFAULT (sua URI de conexão completa com a senha REAL).
+mongo_uri = os.environ.get("MONGO_URI", "mongodb+srv://juliocardoso:z5fTsL8EAgD8SORa@dbbhub.nxcw2n9.mongodb.net/?retryWrites=true&w=majority&appName=dbBhub")
 client = MongoClient(mongo_uri)
 db = client.get_database("dbbhub")
 
