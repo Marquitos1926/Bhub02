@@ -40,8 +40,6 @@
             line-height: 1.6;
         }
 
-        /* Removido o botão admin-access-btn do HTML, pois ele será controlado pelo Flask/JS */
-
         .container {
             background-color: rgba(255, 255, 255, 0.96);
             max-width: 450px;
@@ -203,7 +201,6 @@
             transition: var(--transition);
             background-color: rgba(255, 255, 255, 0.8);
         }
-        /* Removidas classes .input-box i e estilos relacionados, se não houver ícones */
 
         /* Modal de Consentimento (copiado do BusinessHub, com cores adaptadas) */
         .modal {
@@ -400,7 +397,7 @@
                     <input type="checkbox" id="rememberMe" name="rememberMe">
                     Lembrar-me
                 </label>
-                <a href="{{ url_for('recuperar_senha') }}">Esqueceu a senha?</a>
+                <a href="{{ url_for('recuperar_senha') }}">Esqueceu a senha?</a> {# Corrected endpoint name #}
             </div>
 
             <button type="submit" class="btn" id="loginSubmitBtn">Entrar</button>
@@ -511,10 +508,6 @@
             showLoginForm();
         });
 
-        // Lógica de mostrar/ocultar senha (não presente no Chefabook original, mas boa prática)
-        // Se você tiver ícones para isso, adicione a lógica aqui. Exemplo simplificado:
-        // document.getElementById('toggleSenha')?.addEventListener('click', function() { ... });
-
         // Validação e formatação de telefone (adaptado do BusinessHub)
         document.getElementById('registerTelefone')?.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
@@ -539,6 +532,7 @@
         const selectAllConsentsBtn = document.getElementById('selectAllConsents');
 
         // Termos de consentimento (Chefabook-specific)
+        // Removida a baseTerms duplicada para evitar confusão na geração de extras
         const allConsentTerms = [
             { id: 'consentDadosCadastro', text: 'Você autoriza o Chefabook a armazenar e utilizar suas informações de cadastro (nome, e-mail, telefone) para criar e gerenciar seu perfil na plataforma?' },
             { id: 'consentReceitasPublicas', text: 'Você autoriza que suas receitas postadas sejam visíveis para outros usuários e visitantes da plataforma?' },
@@ -549,15 +543,21 @@
             { id: 'consentFinal', text: 'Você declara que leu, compreendeu e concorda integralmente com todos os Termos de Uso e Política de Privacidade do Chefabook.' }
         ];
 
-        // Adicionar termos extras para simular um grande volume (como no BusinessHub)
-        for (let i = 1; i <= 15; i++) {
-            baseTerms.forEach(term => { // Usar uma base genérica para gerar as extras
-                allConsentTerms.push({
-                    id: `${term.id}_extra${i}`,
-                    text: `[Cláusula ${i}.x] ${term.text.replace('?', ` (seção ${i+1}).`)} Você entende a importância desta cláusula e aceita os termos aqui descritos para prosseguir com o uso dos serviços. ${i}º Parágrafo de detalhe.`
-                });
-            });
-        }
+        // Se você não precisa de mais de 100 termos, pode remover este loop, ou adaptá-lo para os termos do Chefabook
+        // Exemplo de como gerar extras com base nos termos do Chefabook (se necessário):
+        const chefaBookBaseTermsForExtras = [
+            { id: 'consentDadosCadastro', text: 'Você autoriza o Chefabook a armazenar e utilizar suas informações de cadastro (nome, e-mail, telefone) para criar e gerenciar seu perfil na plataforma?' },
+            { id: 'consentReceitasPublicas', text: 'Você autoriza que suas receitas postadas sejam visíveis para outros usuários e visitantes da plataforma?' },
+            // ... adicione outros termos base se quiser que eles tenham "extras"
+        ];
+        // for (let i = 1; i <= 5; i++) { // Por exemplo, 5 extras
+        //     chefaBookBaseTermsForExtras.forEach(term => {
+        //         allConsentTerms.push({
+        //             id: `${term.id}_extra${i}`,
+        //             text: `[Cláusula ${i}.x] ${term.text.replace('?', ` (seção ${i+1}).`)} Mais detalhes sobre esta permissão.`
+        //         });
+        //     });
+        // }
 
 
         function populateConsentTerms() {
@@ -611,7 +611,6 @@
             }
 
             try {
-                // Enviar consentimento para a nova rota do backend
                 const response = await fetch('/api/initial_consent', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
