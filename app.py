@@ -31,6 +31,7 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'} # Extensões de
 # AQUI ESTÁ A LINHA CORRIGIDA:
 # O primeiro argumento é o NOME da variável de ambiente ("MONGO_URI").
 # O segundo argumento é o VALOR DEFAULT (sua URI de conexão completa com a senha REAL).
+# Certifique-se de que a variável de ambiente 'MONGO_URI' está configurada corretamente no Render
 mongo_uri = os.environ.get("MONGO_URI", "mongodb+srv://juliocardoso:1XIo2RrBrHSMZEIl@bd-bhub.pmuu5go.mongodb.net/?retryWrites=true&w=majority&appName=BD-BHUB")
 client = MongoClient(mongo_uri)
 db = client.get_database("dbbhub")
@@ -572,7 +573,7 @@ def send_message():
             'messages': [new_message],
             'created_at': datetime.now(),
             'last_message_at': datetime.now(),
-            'is_group': False   # Marca como conversa individual
+            'is_group': False    # Marca como conversa individual
         }
         result = conversations_collection.insert_one(new_conversation)
         conversation_id = str(result.inserted_id)
@@ -613,7 +614,7 @@ def send_connection_request():
     existing_request = connection_requests_collection.find_one({
         '$or': [
             {'sender_id': sender_id, 'receiver_id': receiver_id}, # Solicitacao que eu ja enviei
-            {'sender_id': receiver_id, 'receiver_id': sender_id}   # Solicitacao que o outro usuario me enviou
+            {'sender_id': receiver_id, 'receiver_id': sender_id}    # Solicitacao que o outro usuario me enviou
         ]
     })
 
@@ -634,7 +635,7 @@ def send_connection_request():
     request_data = {
         'sender_id': sender_id,
         'receiver_id': receiver_id,
-        'status': 'pending',     # status: pending, accepted, rejected
+        'status': 'pending',    # status: pending, accepted, rejected
         'sent_at': datetime.now()
     }
     connection_requests_collection.insert_one(request_data)
@@ -777,6 +778,8 @@ def login():
                 'message': 'Por favor, preencha ambos os campos.'
             }), 400
 
+        # Aqui o erro estava ocorrendo. users_collection.find_one({'username': username}) é a linha 780 do seu traceback
+        # O problema não é na linha em si, mas na incapacidade de se conectar ao MongoDB
         user = users_collection.find_one({'username': username})
 
         if not user or not check_password_hash(user['password'], password):
@@ -1319,7 +1322,7 @@ def update_company():
     # O user_id associado ao CNPJ na cnpjs_collection deve ser diferente do user_id atual.
     existing_cnpj_record = cnpjs_collection.find_one({'cnpj': cnpj})
     if existing_cnpj_record and str(existing_cnpj_record.get('user_id')) != session['user_id']:
-            return jsonify({'error': 'Este CNPJ já está cadastrado para outro usuário.'}), 400
+        return jsonify({'error': 'Este CNPJ já está cadastrado para outro usuário.'}), 400
 
 
     try:
