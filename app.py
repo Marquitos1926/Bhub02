@@ -128,7 +128,7 @@ def home():
     """
     if 'username' in session and 'user_id' in session and session.get('consent_given', False):
         return redirect(url_for('dashboard'))
-    return render_template('login.html') # A nova página inicial agora é login.html
+    return render_template('login.html')
 
 
 @app.route('/test-server')
