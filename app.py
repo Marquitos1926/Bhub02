@@ -9,12 +9,15 @@ from bson import json_util
 import json
 import requests
 import random
+from dotenv import load_dotenv # Importa load_dotenv
+
+# Carrega as variáveis de ambiente do arquivo .env (se existir)
+load_dotenv() 
 
 app = Flask(__name__, template_folder='templates')
 
 # --- Configurações da Aplicação ---
 # Em produção, a chave secreta deve ser carregada de uma variável de ambiente.
-# Isso garante que a chave é persistente e segura.
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', os.urandom(24))
 
 # Define os caminhos absolutos para as pastas de upload
@@ -119,9 +122,9 @@ def get_user_data(username):
 @app.route('/')
 def home():
     """
-    Renderiza a página inicial (index.html).
+    Renderiza a página inicial (login.html).
     Se o usuário estiver logado E consentiu, redireciona para o dashboard.
-    Caso contrário, exibe o index.html.
+    Caso contrário, exibe o login.html.
     """
     if 'username' in session and 'user_id' in session and session.get('consent_given', False):
         return redirect(url_for('dashboard'))
@@ -1209,13 +1212,10 @@ def static_files(filename):
     return send_from_directory('static', filename)
 
 # --- Nova Rota de API para Verificar Status de Autenticação e Consentimento ---
-# Adicionado para resolver o erro 404 para /api/check-auth
-@app.route('/api/check-auth')
-@app.route('/api/check_consent_status') # Mantém a rota antiga para compatibilidade
+@app.route('/api/check_consent_status')
 def check_authentication_and_consent_status():
     """
     Endpoint para o frontend verificar rapidamente o status de autenticação e consentimento.
-    Unifica a lógica para /api/check-auth e /api/check_consent_status.
     """
     authenticated = 'username' in session and 'user_id' in session
     consent_given = False
