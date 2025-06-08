@@ -444,14 +444,14 @@
             e.preventDefault();
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('registerForm').style.display = 'block';
-            history.replaceState({}, document.title, window.location.pathname + '#register'); // Adiciona o hash para URL
+            history.replaceState({}, document.title, window.location.pathname + '#register');
         });
 
         document.getElementById('showLogin').addEventListener('click', function(e) {
             e.preventDefault();
             document.getElementById('registerForm').style.display = 'none';
             document.getElementById('loginForm').style.display = 'block';
-            history.replaceState({}, document.title, window.location.pathname); // Remove o hash da URL
+            history.replaceState({}, document.title, window.location.pathname);
         });
 
         // Mostrar/ocultar senha
@@ -500,7 +500,7 @@
         // --- Lógica do Modal de Consentimento ---
         const consentModal = document.getElementById('consentModal');
         const consentQuestionsContent = document.getElementById('consentQuestionsContent');
-        let consentCheckboxes; // Será populado dinamicamente
+        let consentCheckboxes;
         const consentSubmitBtn = document.getElementById('consentSubmit');
         const selectAllConsentsBtn = document.getElementById('selectAllConsents');
 
@@ -516,7 +516,6 @@
         ];
 
         let allConsentTerms = [...baseTerms];
-        // Adicionar muitos termos para simular "mais de 100" para teste
         for (let i = 1; i <= 15; i++) {
             baseTerms.forEach(term => {
                 allConsentTerms.push({
@@ -535,16 +534,13 @@
                 p.innerHTML = `<input type="checkbox" id="${term.id}" name="${term.id}"> ${term.text}`;
                 consentQuestionsContent.appendChild(p);
             });
-            // Atualiza a NodeList de checkboxes após popular
             consentCheckboxes = document.querySelectorAll('#consentModal .consent-questions input[type="checkbox"]');
-            // Adiciona event listeners para cada checkbox para verificar o estado e atualizar o botão "Marcar Todos"
             consentCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', updateSelectAllButton);
             });
-            updateSelectAllButton(); // Garante que o texto do botão esteja correto ao popular
+            updateSelectAllButton();
         }
 
-        // Função para atualizar o texto do botão "Marcar Todos/Desmarcar Todos"
         function updateSelectAllButton() {
             if (!consentCheckboxes || consentCheckboxes.length === 0) return;
             const allCurrentlyChecked = Array.from(consentCheckboxes).every(checkbox => checkbox.checked);
@@ -566,11 +562,9 @@
             });
         }
 
-        // Função para exibir o modal de consentimento
         async function showConsentModal(message = null) {
-            populateConsentTerms(); // Garante que os termos estejam na DOM
+            populateConsentTerms();
             if (message) {
-                // Se houver uma mensagem, exibe-a em um SweetAlert antes de mostrar o modal
                 await Swal.fire({
                     icon: 'info',
                     title: 'Atenção!',
@@ -583,12 +577,10 @@
             consentModal.style.display = 'flex';
         }
 
-        // Event listener para o botão "Confirmar" do modal de consentimento
         consentSubmitBtn.addEventListener('click', async function() {
             const consentData = {};
             let allChecked = true;
             
-            // Verifica se todos os checkboxes estão marcados
             consentCheckboxes.forEach(checkbox => {
                 if (!checkbox.checked) {
                     allChecked = false;
@@ -598,11 +590,10 @@
 
             if (!allChecked) {
                 showAlert('error', 'Termos não aceitos', 'Por favor, aceite todos os termos para continuar.');
-                return; // Impede o envio se nem todos estiverem marcados
+                return;
             }
 
             try {
-                // Envia o consentimento para a API.
                 const response = await fetch('/api/initial_consent', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -612,8 +603,6 @@
 
                 if (result.success) {
                     consentModal.style.display = 'none';
-                    // Redireciona para o login após o consentimento bem-sucedido e logout no backend.
-                    // O backend agora envia 'redirect': url_for('login')
                     await showAlert('success', result.title, result.message, result.redirect);
                 } else {
                     showAlert('error', 'Erro', result.error);
@@ -624,7 +613,6 @@
             }
         });
 
-        // Event listener para o botão "Marcar Todos"
         selectAllConsentsBtn.addEventListener('click', function(e) {
             e.preventDefault();
             const allCurrentlyChecked = Array.from(consentCheckboxes).every(checkbox => checkbox.checked);
@@ -632,14 +620,9 @@
             consentCheckboxes.forEach(checkbox => {
                 checkbox.checked = !allCurrentlyChecked;
             });
-            updateSelectAllButton(); // Atualiza o texto do botão após a ação
+            updateSelectAllButton();
         });
 
-        // Fechar modal ao clicar fora (REMOVIDO OU AJUSTADO PARA FORÇAR ACEITAÇÃO)
-        // O modal só será fechado ao clicar em "Confirmar" quando todos os termos forem aceitos.
-
-
-        // Enviar formulário de login
         document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -656,24 +639,25 @@
                     body: formData
                 });
                 
-                const result = await response.json();
+                const result = await response.json(); // ESTA LINHA AGORA ESTÁ PROTEGIDA PELO try-except do backend
                 
-                // Se o backend indicar um redirecionamento (seja para dashboard ou para login com consent_required)
                 if (result.redirect) { 
                     window.location.href = result.redirect;
                 } else if (result.status === 'error') {
                     showAlert('error', result.title, result.message);
+                } else if (result.status === 'consent_required') {
+                    // Se o backend retorna consent_required, mostra o modal
+                    showConsentModal(result.message);
                 }
             } catch (error) {
                 console.error("Erro de rede ou servidor:", error);
-                showAlert('error', 'Erro de conexão', 'Ocorreu um erro ao tentar conectar-se ao servidor.');
+                showAlert('error', 'Erro de conexão', 'Ocorreu um erro ao tentar conectar-se ao servidor. Por favor, tente novamente.');
             } finally {
                 submitButton.disabled = false;
                 submitButton.textContent = originalText;
             }
         });
 
-        // Enviar formulário de registro
         document.getElementById('registerForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -693,8 +677,6 @@
                 const result = await response.json();
                 
                 if (result.status === 'success') {
-                    // Após registro bem-sucedido, o Flask vai definir o user_id na sessão e redirecionar
-                    // com o parâmetro `require_consent=true`.
                     await showAlert('success', result.title, result.message, result.redirect);
                 } else {
                     showAlert('error', result.title, result.message);
@@ -708,42 +690,31 @@
             }
         });
 
-        // Ao carregar a página, verifica o status de consentimento
         document.addEventListener('DOMContentLoaded', async function() {
-            populateConsentTerms(); // Popula os termos uma vez ao carregar
+            populateConsentTerms();
 
             const params = new URLSearchParams(window.location.search);
             const requireConsentFromUrl = params.get('require_consent');
             const hash = window.location.hash;
 
-            // Se o URL explicitamente pede consentimento, mostra o modal.
             if (requireConsentFromUrl === 'true') { 
                 showConsentModal('Por favor, aceite nossos Termos de Uso e Política de Privacidade para acessar a plataforma.');
-                // Remove o parâmetro da URL para evitar que o modal apareça novamente se a página for recarregada.
                 history.replaceState({}, document.title, window.location.pathname);
             } else if (hash === '#register') {
-                // Se a URL tem o hash '#register', mostra o formulário de registro
                 document.getElementById('loginForm').style.display = 'none';
                 document.getElementById('registerForm').style.display = 'block';
             } else {
-                // Se não há o parâmetro na URL nem o hash, verifica via API se o usuário está logado e precisa de consentimento.
-                // Isso cobre o cenário de um usuário logado que acessa /login diretamente, mas ainda não consentiu.
                 try {
                     const authResponse = await fetch('/api/check_consent_status');
                     const authData = await authResponse.json();
 
-                    // Se está autenticado e NÃO deu consentimento, mostra o modal
                     if (authData.authenticated && !authData.consent_given) {
                         showConsentModal('Você precisa aceitar os Termos de Uso para continuar. Sua sessão foi mantida.');
                     } else if (authData.authenticated && authData.consent_given) {
-                        // Se o usuário está autenticado E já deu consentimento, redireciona para o dashboard
-                        // Não importa se está em /login ou /
                         window.location.href = '/dashboard';
                     }
-                    // Se não estiver autenticado e não precisar de consentimento, permanece na página login.html
                 } catch (error) {
                     console.error("Erro ao verificar autenticação inicial ou consentimento:", error);
-                    // Permanece na página login.html caso haja erro de conexão
                 }
             }
         });
