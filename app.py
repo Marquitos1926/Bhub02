@@ -10,8 +10,7 @@ import json
 import requests
 import random
 
-app = Flask(__name__)
-
+app = Flask(__name__, template_folder='templates')
 # --- Configurações da Aplicação ---
 # Em produção, a chave secreta deve ser carregada de uma variável de ambiente.
 # Isso garante que a chave é persistente e segura.
