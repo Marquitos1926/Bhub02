@@ -4,16 +4,25 @@ import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import timedelta, datetime
 from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError # Import specific PyMongo errors
 from bson.objectid import ObjectId
 from bson import json_util
 import json
 import requests
 import random
+import logging # Import the logging module
+
+# Configure logging
+logging.basicConfig(level=logging.ERROR,
+                    format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
 
 app = Flask(__name__, template_folder='templates')
 
 # --- Configurações da Aplicação ---
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', os.urandom(24))
+if not app.secret_key:
+    logging.warning("FLASK_SECRET_KEY environment variable not set. Using a random key for development. Set a strong key in production!")
+    app.secret_key = os.urandom(24) # Fallback for local dev, but should be set in prod
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static', 'uploads')
@@ -22,18 +31,64 @@ app.config['IMAGES_FOLDER'] = os.path.join(BASE_DIR, 'static', 'images')
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
 # --- Conexão com MongoDB ---
-# IMPORTANTE: Configure a variável de ambiente MONGO_URI no Render!
-mongo_uri = os.environ.get("MONGO_URI", "mongodb+srv://juliocardoso:1XIo2RrBrHSMZEIl@bd-bhub.pmuu5go.mongodb.net/?retryWrites=true&w=majority&appName=BD-BHUB")
-client = MongoClient(mongo_uri)
-db = client.get_database("dbbhub")
+# IMPORTANT: Configure the MONGO_URI environment variable on Render!
+mongo_uri = os.environ.get("MONGO_URI")
+if not mongo_uri:
+    logging.error("MONGO_URI environment variable is not set. Cannot connect to MongoDB.")
+    # Fallback to a default or raise an error if not set (for local dev)
+    # For production, it's critical that this is set.
+    # You might want to raise an exception here or have a more robust fallback.
+    mongo_uri = "mongodb+srv://juliocardoso:1XIo2RrBrHSMZEIl@bd-bhub.pmuu5go.mongodb.net/?retryWrites=true&w=majority&appName=BD-BHUB" # Your default URI
+
+# Global client and db, but connect within a try-except
+client = None
+db = None
+try:
+    client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000) # 5 second timeout for initial connection
+    # The ismaster command is cheap and does not require auth.
+    client.admin.command('ismaster') 
+    db = client.get_database("dbbhub")
+    logging.info("Successfully connected to MongoDB.")
+except ServerSelectionTimeoutError as err:
+    logging.error(f"MongoDB Server Selection Timeout Error: {err}")
+    # Handle this error more gracefully if needed, e.g., redirect to an error page
+    # For now, it will cause subsequent DB operations to fail.
+except ConnectionFailure as err:
+    logging.error(f"MongoDB Connection Failure: {err}")
+except Exception as err:
+    logging.error(f"An unexpected error occurred while connecting to MongoDB: {err}")
 
 # --- Coleções do Banco de Dados ---
-users_collection = db.users
-cnpjs_collection = db.cnpjs
-posts_collection = db.posts
-companies_collection = db.companies
-conversations_collection = db.conversations
-connection_requests_collection = db.connection_requests
+# Initialize collections only if db connection was successful
+if db:
+    users_collection = db.users
+    cnpjs_collection = db.cnpjs
+    posts_collection = db.posts
+    companies_collection = db.companies
+    conversations_collection = db.conversations
+    connection_requests_collection = db.connection_requests
+else:
+    # Fallback if DB connection failed (e.g., mock collections or exit)
+    # For a simple app, crashing is acceptable if DB is mandatory.
+    # For production, you might want to serve a "maintenance" page.
+    users_collection = None 
+    cnpjs_collection = None
+    posts_collection = None
+    companies_collection = None
+    conversations_collection = None
+    connection_requests_collection = None
+
+# Middleware to check DB connection status before each request
+@app.before_request
+def check_db_connection():
+    if not db:
+        logging.error("Database connection is not established. All DB operations will fail.")
+        # For API routes, return JSON error
+        if request.path.startswith('/api/'):
+            return jsonify({'status': 'error', 'title': 'Erro de Serviço', 'message': 'O serviço está temporariamente indisponível. Por favor, tente novamente mais tarde.'}), 503
+        # For non-API routes, redirect to a generic error/maintenance page
+        return render_template('maintenance.html', error_message="Nosso serviço está indisponível no momento. Por favor, tente novamente mais tarde.")
+
 
 # --- Funções Auxiliares (Helpers) para Validação ---
 def validate_username(username):
@@ -74,13 +129,17 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 def get_user_data(username):
-    user = users_collection.find_one({'username': username})
-    if user:
-        user['_id'] = str(user['_id'])
-        if 'profile_pic' not in user or not user['profile_pic']:
-            user['profile_pic'] = 'user-icon-pequeno.png'
-        user['consent_given'] = user.get('consent_given', False)
-    return user
+    try:
+        user = users_collection.find_one({'username': username})
+        if user:
+            user['_id'] = str(user['_id'])
+            if 'profile_pic' not in user or not user['profile_pic']:
+                user['profile_pic'] = 'user-icon-pequeno.png'
+            user['consent_given'] = user.get('consent_given', False)
+        return user
+    except Exception as e:
+        logging.error(f"Error fetching user data for {username}: {e}")
+        return None
 
 # --- Rotas Principais da Aplicação ---
 @app.route('/')
@@ -91,7 +150,13 @@ def home():
 
 @app.route('/test-server')
 def test_server():
-    return "Servidor Flask está funcionando! 🎉"
+    try:
+        # Attempt a simple DB operation to test connectivity
+        users_collection.find_one({})
+        db_status = "Connected to MongoDB successfully."
+    except Exception as e:
+        db_status = f"Failed to connect to MongoDB: {e}"
+    return f"Servidor Flask está funcionando! 🎉 DB Status: {db_status}"
 
 @app.route('/dashboard')
 def dashboard():
@@ -106,23 +171,28 @@ def dashboard():
         session.clear()
         return redirect(url_for('login'))
 
-    posts = list(posts_collection.find().sort('created_at', -1).limit(10))
+    try:
+        posts = list(posts_collection.find().sort('created_at', -1).limit(10))
+        for post in posts:
+            post['_id'] = str(post['_id'])
+            post['author_id'] = str(post['author_id'])
 
-    for post in posts:
-        post['_id'] = str(post['_id'])
-        post['author_id'] = str(post['author_id'])
+            author_user = users_collection.find_one({'_id': ObjectId(post['author_id'])})
+            if author_user and 'profile_pic' in author_user and author_user['profile_pic']:
+                post['author_profile_pic'] = author_user['profile_pic']
+            else:
+                post['author_profile_pic'] = 'user-icon-pequeno.png'
+            post['author_username'] = author_user['username'] if author_user else 'Usuário Desconhecido'
 
-        author_user = users_collection.find_one({'_id': ObjectId(post['author_id'])})
-        if author_user and 'profile_pic' in author_user and author_user['profile_pic']:
-            post['author_profile_pic'] = author_user['profile_pic']
-        else:
-            post['author_profile_pic'] = 'user-icon-pequeno.png'
-        post['author_username'] = author_user['username'] if author_user else 'Usuário Desconhecido'
+        return render_template('Dashboard.html',
+                               username=session['username'],
+                               user=user,
+                               posts=posts)
+    except Exception as e:
+        logging.error(f"Error loading dashboard posts: {e}")
+        # Render with an error message or redirect
+        return render_template('Dashboard.html', username=session['username'], user=user, posts=[], error_message="Não foi possível carregar as publicações no momento.")
 
-    return render_template('Dashboard.html',
-                           username=session['username'],
-                           user=user,
-                           posts=posts)
 
 @app.route('/explore')
 def explore():
@@ -137,39 +207,44 @@ def explore():
         session.clear()
         return redirect(url_for('login'))
 
-    companies_posts = list(posts_collection.find().sort('created_at', -1).limit(20))
-    for post in companies_posts:
-        post['_id'] = str(post['_id'])
-        post['author_id'] = str(post['author_id'])
+    try:
+        companies_posts = list(posts_collection.find().sort('created_at', -1).limit(20))
+        for post in companies_posts:
+            post['_id'] = str(post['_id'])
+            post['author_id'] = str(post['author_id'])
 
-        author_user = users_collection.find_one({'_id': ObjectId(post['author_id'])})
-        if author_user:
-            post['author_name'] = author_user.get('username', 'Usuário Desconhecido')
-            post['author_profile_pic'] = author_user.get('profile_pic', 'user-icon-pequeno.png')
-        else:
-            post['author_name'] = 'Usuário Desconhecido'
-            post['author_profile_pic'] = 'user-icon-pequeno.png'
+            author_user = users_collection.find_one({'_id': ObjectId(post['author_id'])})
+            if author_user:
+                post['author_name'] = author_user.get('username', 'Usuário Desconhecido')
+                post['author_profile_pic'] = author_user.get('profile_pic', 'user-icon-pequeno.png')
+            else:
+                post['author_name'] = 'Usuário Desconhecido'
+                post['author_profile_pic'] = 'user-icon-pequeno.png'
 
-        post['likes_count'] = len(post.get('likes', []))
-        post['comments_count'] = len(post.get('comments', []))
+            post['likes_count'] = len(post.get('likes', []))
+            post['comments_count'] = len(post.get('comments', []))
 
-        if 'image' in post and post['image']:
-            post['display_image'] = url_for('static_uploads', filename=post['image'])
-        else:
-            post['display_image'] = url_for('static', filename='company-default.png')
+            if 'image' in post and post['image']:
+                post['display_image'] = url_for('static_uploads', filename=post['image'])
+            else:
+                post['display_image'] = url_for('static', filename='company-default.png')
 
-    all_users = list(users_collection.find({}, {'username': 1, 'profile_pic': 1}))
-    for u in all_users:
-        u['_id'] = str(u['_id'])
-        if 'profile_pic' not in u or not u['profile_pic']:
-            u['profile_pic'] = 'user-icon-pequeno.png'
-        u['status'] = 'online' if random.random() > 0.5 else 'offline'
+        all_users = list(users_collection.find({}, {'username': 1, 'profile_pic': 1}))
+        for u in all_users:
+            u['_id'] = str(u['_id'])
+            if 'profile_pic' not in u or not u['profile_pic']:
+                u['profile_pic'] = 'user-icon-pequeno.png'
+            u['status'] = 'online' if random.random() > 0.5 else 'offline'
 
-    return render_template('explore.html',
-                           username=session['username'],
-                           user=user,
-                           companies=companies_posts,
-                           all_users=all_users)
+        return render_template('explore.html',
+                               username=session['username'],
+                               user=user,
+                               companies=companies_posts,
+                               all_users=all_users)
+    except Exception as e:
+        logging.error(f"Error loading explore data: {e}")
+        return render_template('explore.html', username=session['username'], user=user, companies=[], all_users=[], error_message="Não foi possível carregar o conteúdo de exploração no momento.")
+
 
 @app.route('/messages')
 def messages():
@@ -186,73 +261,81 @@ def messages():
 
     current_user_id = user['_id']
 
-    conversations = list(conversations_collection.find({
-        'participants': current_user_id
-    }).sort('last_message_at', -1))
+    try:
+        conversations = list(conversations_collection.find({
+            'participants': current_user_id
+        }).sort('last_message_at', -1))
 
-    formatted_conversations = []
-    for convo in conversations:
-        convo['_id'] = str(convo['_id'])
+        formatted_conversations = []
+        for convo in conversations:
+            convo['_id'] = str(convo['_id'])
 
-        other_participant_id = None
-        for p_id in convo['participants']:
-            if p_id != current_user_id:
-                other_participant_id = p_id
-                break
+            other_participant_id = None
+            for p_id in convo['participants']:
+                if p_id != current_user_id:
+                    other_participant_id = p_id
+                    break
 
-        if not other_participant_id:
-            continue
+            if not other_participant_id:
+                continue
 
-        other_user_info = users_collection.find_one({'_id': ObjectId(other_participant_id)}, {'username': 1, 'profile_pic': 1})
-        if other_user_info:
-            other_user_info['_id'] = str(other_user_info['_id'])
-            if 'profile_pic' not in other_user_info or not other_user_info['profile_pic']:
-                other_user_info['profile_pic'] = 'user-icon-pequeno.png'
+            other_user_info = users_collection.find_one({'_id': ObjectId(other_participant_id)}, {'username': 1, 'profile_pic': 1})
+            if other_user_info:
+                other_user_info['_id'] = str(other_user_info['_id'])
+                if 'profile_pic' not in other_user_info or not other_user_info['profile_pic']:
+                    other_user_info['profile_pic'] = 'user-icon-pequeno.png'
 
-            convo['other_participant'] = other_user_info
+                convo['other_participant'] = other_user_info
 
-            if convo.get('messages'):
-                convo['last_message_content'] = convo['messages'][-1]['content']
-                convo['last_message_time'] = convo['messages'][-1]['timestamp'].strftime('%H:%M')
+                if convo.get('messages'):
+                    convo['last_message_content'] = convo['messages'][-1]['content']
+                    convo['last_message_time'] = convo['messages'][-1]['timestamp'].strftime('%H:%M')
+                else:
+                    convo['last_message_content'] = 'Nenhuma mensagem'
+                    convo['last_message_time'] = ''
+
+                formatted_conversations.append(convo)
             else:
-                convo['last_message_content'] = 'Nenhuma mensagem'
-                convo['last_message_time'] = ''
+                convo['other_participant'] = {'username': 'Usuário Desconhecido', 'profile_pic': 'user-icon-pequeno.png', '_id': None}
+                if convo.get('messages'):
+                    convo['last_message_content'] = convo['messages'][-1]['content']
+                    convo['last_message_time'] = convo['messages'][-1]['timestamp'].strftime('%H:%M')
+                else:
+                    convo['last_message_content'] = 'Nenhuma mensagem'
+                    convo['last_message_time'] = ''
+                formatted_conversations.append(convo)
 
-            formatted_conversations.append(convo)
-        else:
-            convo['other_participant'] = {'username': 'Usuário Desconhecido', 'profile_pic': 'user-icon-pequeno.png', '_id': None}
-            if convo.get('messages'):
-                convo['last_message_content'] = convo['messages'][-1]['content']
-                convo['last_message_time'] = convo['messages'][-1]['timestamp'].strftime('%H:%M')
-            else:
-                convo['last_message_content'] = 'Nenhuma mensagem'
-                convo['last_message_time'] = ''
-            formatted_conversations.append(convo)
+        pending_requests = list(connection_requests_collection.find({
+            'receiver_id': current_user_id,
+            'status': 'pending'
+        }))
 
-    pending_requests = list(connection_requests_collection.find({
-        'receiver_id': current_user_id,
-        'status': 'pending'
-    }))
+        formatted_pending_requests = []
+        for req in pending_requests:
+            req['_id'] = str(req['_id'])
+            sender_info = users_collection.find_one({'_id': ObjectId(req['sender_id'])}, {'username': 1, 'profile_pic': 1})
+            if sender_info:
+                sender_info['_id'] = str(sender_info['_id'])
+                if 'profile_pic' not in sender_info or not sender_info['profile_pic']:
+                    sender_info['profile_pic'] = 'user-icon-pequeno.png'
+                req['sender_info'] = sender_info
+                formatted_pending_requests.append(req)
 
-    formatted_pending_requests = []
-    for req in pending_requests:
-        req['_id'] = str(req['_id'])
-        sender_info = users_collection.find_one({'_id': ObjectId(req['sender_id'])}, {'username': 1, 'profile_pic': 1})
-        if sender_info:
-            sender_info['_id'] = str(sender_info['_id'])
-            if 'profile_pic' not in sender_info or not sender_info['profile_pic']:
-                sender_info['profile_pic'] = 'user-icon-pequeno.png'
-            req['sender_info'] = sender_info
-            formatted_pending_requests.append(req)
-
-    return render_template('messages.html',
-                           user=user,
-                           conversations=formatted_conversations,
-                           pending_requests=formatted_pending_requests)
+        return render_template('messages.html',
+                               user=user,
+                               conversations=formatted_conversations,
+                               pending_requests=formatted_pending_requests)
+    except Exception as e:
+        logging.error(f"Error loading messages data: {e}")
+        return render_template('messages.html', user=user, conversations=[], pending_requests=[], error_message="Não foi possível carregar as mensagens no momento.")
 
 @app.route('/static/uploads/<filename>')
 def static_uploads(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    try:
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    except Exception as e:
+        logging.error(f"Error serving static upload file {filename}: {e}")
+        return "", 404 # Not found
 
 # --- Endpoints da API ---
 @app.route('/api/companies')
@@ -263,11 +346,14 @@ def api_companies():
     if not session.get('consent_given', False):
         return jsonify({'error': 'Consentimento necessário'}), 403
 
-    companies = list(companies_collection.find({}, {'name': 1, 'description': 1, 'logo': 1}))
-    for company in companies:
-        company['_id'] = str(company['_id'])
-
-    return json.loads(json_util.dumps(companies))
+    try:
+        companies = list(companies_collection.find({}, {'name': 1, 'description': 1, 'logo': 1}))
+        for company in companies:
+            company['_id'] = str(company['_id'])
+        return json.loads(json_util.dumps(companies))
+    except Exception as e:
+        logging.error(f"Error in api_companies: {e}")
+        return jsonify({'error': 'Erro ao buscar dados de empresas.'}), 500
 
 @app.route('/api/posts')
 def api_posts():
@@ -277,19 +363,23 @@ def api_posts():
     if not session.get('consent_given', False):
         return jsonify({'error': 'Consentimento necessário'}), 403
 
-    posts = list(posts_collection.find().sort('created_at', -1).limit(10))
-    for post in posts:
-        post['_id'] = str(post['_id'])
-        post['author_id'] = str(post['author_id'])
+    try:
+        posts = list(posts_collection.find().sort('created_at', -1).limit(10))
+        for post in posts:
+            post['_id'] = str(post['_id'])
+            post['author_id'] = str(post['author_id'])
 
-        author_user = users_collection.find_one({'_id': ObjectId(post['author_id'])})
-        if author_user and 'profile_pic' in author_user and author_user['profile_pic']:
-            post['author_profile_pic'] = author_user['profile_pic']
-        else:
-            post['author_profile_pic'] = 'user-icon-pequeno.png'
-        post['author_username'] = author_user['username'] if author_user else 'Usuário Desconhecido'
+            author_user = users_collection.find_one({'_id': ObjectId(post['author_id'])})
+            if author_user and 'profile_pic' in author_user and author_user['profile_pic']:
+                post['author_profile_pic'] = author_user['profile_pic']
+            else:
+                post['author_profile_pic'] = 'user-icon-pequeno.png'
+            post['author_username'] = author_user['username'] if author_user else 'Usuário Desconhecido'
 
-    return json.loads(json_util.dumps(posts))
+        return json.loads(json_util.dumps(posts))
+    except Exception as e:
+        logging.error(f"Error in api_posts: {e}")
+        return jsonify({'error': 'Erro ao buscar publicações.'}), 500
 
 @app.route('/api/create_post', methods=['POST'])
 def create_post():
@@ -303,32 +393,37 @@ def create_post():
     user_id = session.get('user_id')
     username = session.get('username')
 
-    user = users_collection.find_one({'_id': ObjectId(user_id)})
-    profile_pic = user.get('profile_pic', 'user-icon-pequeno.png') if user else 'user-icon-pequeno.png'
+    try:
+        user = users_collection.find_one({'_id': ObjectId(user_id)})
+        profile_pic = user.get('profile_pic', 'user-icon-pequeno.png') if user else 'user-icon-pequeno.png'
 
-    if not content and not request.files:
-        return jsonify({'error': 'Conteúdo ou imagem é necessário para criar um post.'}), 400
+        if not content and not request.files:
+            return jsonify({'error': 'Conteúdo ou imagem é necessário para criar um post.'}), 400
 
-    post_data = {
-        'author_id': user_id,
-        'author_name': username,
-        'author_profile_pic': profile_pic,
-        'content': content,
-        'created_at': datetime.now(),
-        'likes': [],
-        'comments': [],
-        'image': None
-    }
+        post_data = {
+            'author_id': user_id,
+            'author_name': username,
+            'author_profile_pic': profile_pic,
+            'content': content,
+            'created_at': datetime.now(),
+            'likes': [],
+            'comments': [],
+            'image': None
+        }
 
-    if 'image' in request.files:
-        file = request.files['image']
-        if file and allowed_file(file.filename):
-            filename = f"{session['user_id']}_{int(datetime.now().timestamp())}.{file.filename.rsplit('.', 1)[1].lower()}"
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            post_data['image'] = filename
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and allowed_file(file.filename):
+                filename = f"{session['user_id']}_{int(datetime.now().timestamp())}.{file.filename.rsplit('.', 1)[1].lower()}"
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                post_data['image'] = filename
 
-    posts_collection.insert_one(post_data)
-    return jsonify({'success': 'Post criado com sucesso!'})
+        posts_collection.insert_one(post_data)
+        return jsonify({'success': 'Post criado com sucesso!'})
+    except Exception as e:
+        logging.error(f"Error creating post: {e}")
+        return jsonify({'error': f'Erro interno ao criar post: {str(e)}'}), 500
 
 @app.route('/api/like_post/<post_id>', methods=['POST'])
 def like_post(post_id):
@@ -358,7 +453,7 @@ def like_post(post_id):
             )
             return jsonify({'success': 'Post curtido!'})
     except Exception as e:
-        print(f"Erro ao processar like: {e}")
+        logging.error(f"Error processing like for post {post_id}: {e}")
         return jsonify({'error': f'Erro interno ao processar like: {str(e)}'}), 500
 
 @app.route('/api/conversations/<conversation_id>')
@@ -371,19 +466,24 @@ def get_conversation_messages(conversation_id):
 
     current_user_id = session['user_id']
 
-    conversation = conversations_collection.find_one({'_id': ObjectId(conversation_id)})
-    if not conversation:
-        return jsonify({'error': 'Conversa não encontrada.'}), 404
+    try:
+        conversation = conversations_collection.find_one({'_id': ObjectId(conversation_id)})
+        if not conversation:
+            return jsonify({'error': 'Conversa não encontrada.'}), 404
 
-    if current_user_id not in conversation['participants']:
-        return jsonify({'error': 'Você não tem permissão para acessar esta conversa.'}), 403
+        if current_user_id not in conversation['participants']:
+            return jsonify({'error': 'Você não tem permissão para acessar esta conversa.'}), 403
 
-    messages = conversation.get('messages', [])
-    for msg in messages:
-        msg['_id'] = str(msg['_id'])
-        msg['timestamp_formatted'] = msg['timestamp'].strftime('%d/%m/%Y %H:%M')
+        messages = conversation.get('messages', [])
+        for msg in messages:
+            msg['_id'] = str(msg['_id'])
+            msg['timestamp_formatted'] = msg['timestamp'].strftime('%d/%m/%Y %H:%M')
 
-    return json.loads(json_util.dumps(messages))
+        return json.loads(json_util.dumps(messages))
+    except Exception as e:
+        logging.error(f"Error getting conversation messages {conversation_id}: {e}")
+        return jsonify({'error': f'Erro interno ao buscar mensagens da conversa: {str(e)}'}), 500
+
 
 @app.route('/api/send_message', methods=['POST'])
 def send_message():
@@ -410,19 +510,19 @@ def send_message():
     except Exception:
         return jsonify({'error': 'ID de destinatário inválido.'}), 400
 
-    conversation = conversations_collection.find_one({
-        'participants': { '$all': [sender_id, receiver_id] },
-        'is_group': False
-    })
-
-    new_message = {
-        '_id': ObjectId(),
-        'sender_id': sender_id,
-        'content': message_content,
-        'timestamp': datetime.now()
-    }
-
     try:
+        conversation = conversations_collection.find_one({
+            'participants': { '$all': [sender_id, receiver_id] },
+            'is_group': False
+        })
+
+        new_message = {
+            '_id': ObjectId(),
+            'sender_id': sender_id,
+            'content': message_content,
+            'timestamp': datetime.now()
+        }
+
         if conversation:
             conversations_collection.update_one(
                 {'_id': conversation['_id']},
@@ -450,7 +550,7 @@ def send_message():
             'timestamp': new_message['timestamp'].isoformat()
         })
     except Exception as e:
-        print(f"Erro ao enviar mensagem: {e}")
+        logging.error(f"Error sending message: {e}")
         return jsonify({'error': f'Erro interno ao enviar mensagem: {str(e)}'}), 500
 
 
@@ -504,7 +604,7 @@ def send_connection_request():
 
         return jsonify({'success': 'Solicitação de conexão enviada com sucesso!'})
     except Exception as e:
-        print(f"Erro ao enviar solicitação de conexão: {e}")
+        logging.error(f"Error sending connection request: {e}")
         return jsonify({'error': f'Erro interno ao enviar solicitação de conexão: {str(e)}'}), 500
 
 
@@ -564,7 +664,7 @@ def respond_connection_request():
             )
             return jsonify({'success': 'Solicitação de conexão rejeitada.'})
     except Exception as e:
-        print(f"Erro ao responder solicitação de conexão: {e}")
+        logging.error(f"Error responding to connection request: {e}")
         return jsonify({'error': f'Erro interno ao responder solicitação de conexão: {str(e)}'}), 500
 
 
@@ -612,7 +712,7 @@ def search_users():
 
         return json.loads(json_util.dumps(users))
     except Exception as e:
-        print(f"Erro ao buscar usuários: {e}")
+        logging.error(f"Error searching users: {e}")
         return jsonify({'error': f'Erro interno ao buscar usuários: {str(e)}'}), 500
 
 # --- Rotas de Autenticação ---
@@ -664,7 +764,7 @@ def login():
                 })
 
         except Exception as e:
-            print(f"Erro inesperado durante o login: {e}")
+            logging.error(f"Unhandled exception during login POST: {e}", exc_info=True) # exc_info=True to log traceback
             return jsonify({
                 'status': 'error',
                 'title': 'Erro Interno do Servidor',
@@ -802,7 +902,7 @@ def register():
             })
 
         except Exception as e:
-            print(f"Erro inesperado durante o registro: {e}")
+            logging.error(f"Unhandled exception during register POST: {e}", exc_info=True)
             return jsonify({
                 'status': 'error',
                 'title': 'Erro Interno do Servidor',
@@ -840,7 +940,7 @@ def initial_consent():
     for term_id in required_consent_ids:
         if not data.get(term_id):
             all_accepted = False
-            print(f"DEBUG: Termo não aceito: {term_id}")
+            logging.debug(f"DEBUG: Termo não aceito: {term_id}")
             break
 
     if not all_accepted:
@@ -858,7 +958,7 @@ def initial_consent():
             'redirect': url_for('login')
         })
     except Exception as e:
-        print(f"Erro ao registrar consentimento: {e}")
+        logging.error(f"Error registering consent: {e}", exc_info=True)
         return jsonify({'success': False, 'error': f'Erro interno ao registrar consentimento: {str(e)}'}), 500
 
 
@@ -882,11 +982,15 @@ def show_profile():
         return redirect(url_for('login'))
 
     company = None
-    if 'cnpj' in user and user['cnpj']:
-        company = companies_collection.find_one({'owner_id': user['_id']})
-        if company:
-            company['_id'] = str(company['_id'])
-
+    try:
+        if 'cnpj' in user and user['cnpj']:
+            company = companies_collection.find_one({'owner_id': user['_id']})
+            if company:
+                company['_id'] = str(company['_id'])
+    except Exception as e:
+        logging.error(f"Error fetching company data for profile: {e}", exc_info=True)
+        # Continue rendering, but company will be None or partially loaded
+    
     return render_template('perfil.html', user=user, company=company)
 
 @app.route('/api/update_profile', methods=['POST'])
@@ -898,18 +1002,19 @@ def update_profile():
         return jsonify({'error': 'Consentimento necessário'}), 403
 
     user_id = session['user_id']
-    current_user_doc = users_collection.find_one({'_id': ObjectId(user_id)})
-    if not current_user_doc:
-        return jsonify({'status': 'error', 'message': 'Usuário não encontrado'}), 404
-
-    new_username = request.form.get('username')
-    new_email = request.form.get('email')
-    new_cnpj = request.form.get('cnpj')
-    new_phone = request.form.get('phone')
-
-    update_data = {}
-
+    
     try:
+        current_user_doc = users_collection.find_one({'_id': ObjectId(user_id)})
+        if not current_user_doc:
+            return jsonify({'status': 'error', 'message': 'Usuário não encontrado'}), 404
+
+        new_username = request.form.get('username')
+        new_email = request.form.get('email')
+        new_cnpj = request.form.get('cnpj')
+        new_phone = request.form.get('phone')
+
+        update_data = {}
+
         if new_username and new_username != current_user_doc.get('username'):
             is_valid, title, message = validate_username(new_username)
             if not is_valid:
@@ -979,12 +1084,13 @@ def update_profile():
         else:
             return jsonify({'status': 'info', 'message': 'Nenhuma alteração a ser salva.'})
     except Exception as e:
-        print(f"Erro inesperado durante a atualização de perfil: {e}")
+        logging.error(f"Unhandled exception during update_profile POST: {e}", exc_info=True)
         return jsonify({
             'status': 'error',
             'title': 'Erro Interno do Servidor',
             'message': 'Não foi possível atualizar o perfil devido a um problema no servidor. Por favor, tente novamente.'
         }), 500
+
 
 # --- Rotas de Recuperação de Senha ---
 @app.route('/recuperar_senha')
@@ -999,7 +1105,7 @@ def recover_password():
         user = users_collection.find_one({'$or': [{'email': identifier}, {'username': identifier}]})
 
         if user:
-            print(f"DEBUG: Solicitação de recuperação para: {identifier}. E-mail de recuperação simulado enviado para {user['email']}")
+            logging.info(f"Recovery request for: {identifier}. Simulated recovery email sent to {user['email']}")
             return jsonify({
                 'status': 'success',
                 'title': 'E-mail Enviado',
@@ -1013,7 +1119,7 @@ def recover_password():
                 'message': 'Nenhum usuário ou e-mail encontrado com este identificador. Por favor, tente novamente.'
             })
     except Exception as e:
-        print(f"Erro inesperado durante a recuperação de senha: {e}")
+        logging.error(f"Unhandled exception during recover_password POST: {e}", exc_info=True)
         return jsonify({
             'status': 'error',
             'title': 'Erro Interno do Servidor',
@@ -1024,7 +1130,12 @@ def recover_password():
 # --- Rotas para Arquivos Estáticos ---
 @app.route('/static/<path:filename>')
 def static_files(filename):
-    return send_from_directory('static', filename)
+    try:
+        return send_from_directory('static', filename)
+    except Exception as e:
+        logging.error(f"Error serving static file {filename}: {e}", exc_info=True)
+        return "", 404 # Not found
+
 
 # --- Nova Rota de API para Verificar Status de Autenticação e Consentimento ---
 @app.route('/api/check-auth')
@@ -1039,8 +1150,8 @@ def check_authentication_and_consent_status():
                 consent_given = user.get('consent_given', False)
                 session['consent_given'] = consent_given
         except Exception as e:
-            print(f"Erro ao verificar status de consentimento no MongoDB: {e}")
-            authenticated = False
+            logging.error(f"Error verifying consent status from DB: {e}", exc_info=True)
+            authenticated = False # Treat as unauthenticated if DB check fails
             consent_given = False
 
     return jsonify({
@@ -1076,7 +1187,10 @@ def update_profile_pic():
             if user and 'profile_pic' in user and user['profile_pic'] != 'user-icon-pequeno.png':
                 old_pic_path = os.path.join(app.config['PROFILE_PICS_FOLDER'], user['profile_pic'])
                 if os.path.exists(old_pic_path):
-                    os.remove(old_pic_path)
+                    try:
+                        os.remove(old_pic_path)
+                    except OSError as e:
+                        logging.warning(f"Could not remove old profile picture {old_pic_path}: {e}")
 
             users_collection.update_one(
                 {'_id': ObjectId(session['user_id'])},
@@ -1085,7 +1199,7 @@ def update_profile_pic():
 
             return jsonify({'success': 'Foto de perfil atualizada!', 'filename': filename})
         except Exception as e:
-            print(f"Erro ao atualizar foto de perfil: {e}")
+            logging.error(f"Unhandled exception during update_profile_pic POST: {e}", exc_info=True)
             return jsonify({
                 'error': 'Ocorreu um erro ao atualizar a foto de perfil. Por favor, tente novamente.'
             }), 500
@@ -1157,10 +1271,10 @@ def update_company():
         })
 
     except requests.exceptions.RequestException as e:
-        print(f"Erro de comunicação com a API da Receita WS: {e}")
+        logging.error(f"API de Receita WS Request Error: {e}", exc_info=True)
         return jsonify({'error': f'Erro de comunicação com a API da Receita WS: {str(e)}'}), 500
     except Exception as e:
-        print(f"Erro interno ao processar dados da empresa: {e}")
+        logging.error(f"Unhandled exception during update_company POST: {e}", exc_info=True)
         return jsonify({'error': f'Erro interno ao processar dados da empresa: {str(e)}'}), 500
 
 @app.route('/termos_completos')
@@ -1168,6 +1282,7 @@ def termos_completos():
     return render_template('termos_completos.html')
 
 if __name__ == '__main__':
+    # Ensure directories exist when running locally
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(app.config['PROFILE_PICS_FOLDER'], exist_ok=True)
     os.makedirs(app.config['IMAGES_FOLDER'], exist_ok=True)
