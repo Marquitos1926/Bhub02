@@ -26,7 +26,8 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'} # Extensões de
 
 # --- Conexão com MongoDB ---
 # É uma boa prática armazenar a URI em uma variável de ambiente para produção.
-mongo_uri = os.environ.get("mongodb+srv://juliocardoso:z5fTsL8EAgD8SORa@dbbhub.nxcw2n9.mongodb.net/?retryWrites=true&w=majority")
+# A URI foi corrigida com as aspas duplas de fechamento.
+mongo_uri = os.environ.get("MONGO_URI", "mongodb+srv://juliocardoso:z5fTsL8EAgD8SORa@dbbhub.nxcw2n9.mongodb.net/?retryWrites=true&w=majority")
 client = MongoClient(mongo_uri)
 db = client.get_database("dbbhub")
 
@@ -629,7 +630,7 @@ def send_connection_request():
     request_data = {
         'sender_id': sender_id,
         'receiver_id': receiver_id,
-        'status': 'pending',    # status: pending, accepted, rejected
+        'status': 'pending',     # status: pending, accepted, rejected
         'sent_at': datetime.now()
     }
     connection_requests_collection.insert_one(request_data)
