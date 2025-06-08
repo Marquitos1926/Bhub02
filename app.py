@@ -629,7 +629,7 @@ def send_connection_request():
     request_data = {
         'sender_id': sender_id,
         'receiver_id': receiver_id,
-        'status': 'pending',    # status: pending, accepted, rejected
+        'status': 'pending',     # status: pending, accepted, rejected
         'sent_at': datetime.now()
     }
     connection_requests_collection.insert_one(request_data)
