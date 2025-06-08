@@ -1,4 +1,3 @@
-
 # ChefaBook - Plataforma de Receitas Culinárias
 
 ![GitHub Last Commit](https://img.shields.io/github/last-commit/seu-usuario/ChefaBook)
