@@ -640,17 +640,33 @@
 
 
         // Enviar formulário de login
-        document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
+        const loginForm = document.getElementById('loginForm');
+        const submitBtn = loginForm?.querySelector('button[type="submit"]');
+        
+        loginForm?.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const formData = new FormData(this);
-            const submitButton = this.querySelector('button[type="submit"]');
-            const originalText = submitButton.textContent;
+            // Validação básica dos campos
+            const email = document.getElementById('email')?.value.trim();
+            const senha = document.getElementById('senha')?.value.trim();
+            
+            if (!email || !email.includes('@')) {
+                showAlert('error', 'Erro de validação', 'Por favor, insira um e-mail válido');
+                return;
+            }
+            
+            if (!senha) {
+                showAlert('error', 'Erro de validação', 'Por favor, insira sua senha');
+                return;
+            }
+            
+            // Configuração do botão de submit
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Autenticando...';
             
             try {
-                submitButton.disabled = true;
-                submitButton.textContent = 'Autenticando...';
-                
+                const formData = new FormData(this);
                 const response = await fetch('/login', {
                     method: 'POST',
                     body: formData
@@ -658,8 +674,7 @@
                 
                 const result = await response.json();
                 
-                // Se o backend indicar um redirecionamento (seja para dashboard ou para login com consent_required)
-                if (result.redirect) { 
+                if (result.redirect) {
                     window.location.href = result.redirect;
                 } else if (result.status === 'error') {
                     showAlert('error', result.title, result.message);
@@ -668,8 +683,8 @@
                 console.error("Erro de rede ou servidor:", error);
                 showAlert('error', 'Erro de conexão', 'Ocorreu um erro ao tentar conectar-se ao servidor.');
             } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = originalText;
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
             }
         });
 
