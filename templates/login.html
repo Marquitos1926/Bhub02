@@ -14,9 +14,9 @@
             --dark-blue: #0056b3;    /* Azul mais escuro para hover/detalhes */
             --light-blue: #e0f2ff;   /* Azul muito claro para fundos sutis */
             --accent-blue: #17a2b8;  /* Um tone de azul-ciano para destaque */
-            --white: #ffffff;       /* Branco puro */
-            --black: #212529;       /* Preto quase puro para textos principais */
-            --gray-text: #495057;   /* Cinza escuro para textos secundários */
+            --white: #ffffff;      /* Branco puro */
+            --black: #212529;      /* Preto quase puro para textos principais */
+            --gray-text: #495057;  /* Cinza escuro para textos secundários */
             --light-gray-bg: #f8f9fa; /* Cinza muito claro para fundos de campos */
             --border-color: #ced4da; /* Cor de borda para inputs */
         }
@@ -640,33 +640,17 @@
 
 
         // Enviar formulário de login
-        const loginForm = document.getElementById('loginForm');
-        const submitBtn = loginForm?.querySelector('button[type="submit"]');
-        
-        loginForm?.addEventListener('submit', async function(e) {
+        document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Validação básica dos campos
-            const email = document.getElementById('email')?.value.trim();
-            const senha = document.getElementById('senha')?.value.trim();
-            
-            if (!email || !email.includes('@')) {
-                showAlert('error', 'Erro de validação', 'Por favor, insira um e-mail válido');
-                return;
-            }
-            
-            if (!senha) {
-                showAlert('error', 'Erro de validação', 'Por favor, insira sua senha');
-                return;
-            }
-            
-            // Configuração do botão de submit
-            const originalText = submitBtn.textContent;
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Autenticando...';
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
             
             try {
-                const formData = new FormData(this);
+                submitButton.disabled = true;
+                submitButton.textContent = 'Autenticando...';
+                
                 const response = await fetch('/login', {
                     method: 'POST',
                     body: formData
@@ -674,7 +658,8 @@
                 
                 const result = await response.json();
                 
-                if (result.redirect) {
+                // Se o backend indicar um redirecionamento (seja para dashboard ou para login com consent_required)
+                if (result.redirect) { 
                     window.location.href = result.redirect;
                 } else if (result.status === 'error') {
                     showAlert('error', result.title, result.message);
@@ -683,51 +668,23 @@
                 console.error("Erro de rede ou servidor:", error);
                 showAlert('error', 'Erro de conexão', 'Ocorreu um erro ao tentar conectar-se ao servidor.');
             } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
             }
         });
 
         // Enviar formulário de registro
-        const registerForm = document.getElementById('registerForm');
-        const registerSubmitBtn = registerForm?.querySelector('button[type="submit"]');
-        
-        registerForm?.addEventListener('submit', async function(e) {
+        document.getElementById('registerForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Validação básica dos campos (adicione os campos específicos do seu formulário)
-            const nome = document.getElementById('nome')?.value.trim();
-            const email = document.getElementById('email')?.value.trim();
-            const senha = document.getElementById('senha')?.value.trim();
-            const confirmarSenha = document.getElementById('confirmarSenha')?.value.trim();
-            
-            if (!nome) {
-                showAlert('error', 'Erro de validação', 'Por favor, insira seu nome completo');
-                return;
-            }
-            
-            if (!email || !email.includes('@')) {
-                showAlert('error', 'Erro de validação', 'Por favor, insira um e-mail válido');
-                return;
-            }
-            
-            if (!senha || senha.length < 6) {
-                showAlert('error', 'Erro de validação', 'A senha deve ter pelo menos 6 caracteres');
-                return;
-            }
-            
-            if (senha !== confirmarSenha) {
-                showAlert('error', 'Erro de validação', 'As senhas não coincidem');
-                return;
-            }
-            
-            // Configuração do botão de submit
-            const originalText = registerSubmitBtn.textContent;
-            registerSubmitBtn.disabled = true;
-            registerSubmitBtn.textContent = 'Registrando...';
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
             
             try {
-                const formData = new FormData(this);
+                submitButton.disabled = true;
+                submitButton.textContent = 'Registrando...';
+                
                 const response = await fetch('/register', {
                     method: 'POST',
                     body: formData
@@ -736,6 +693,8 @@
                 const result = await response.json();
                 
                 if (result.status === 'success') {
+                    // Após registro bem-sucedido, o Flask vai definir o user_id na sessão e redirecionar
+                    // com o parâmetro `require_consent=true`.
                     await showAlert('success', result.title, result.message, result.redirect);
                 } else {
                     showAlert('error', result.title, result.message);
@@ -744,8 +703,8 @@
                 console.error("Erro de rede ou servidor:", error);
                 showAlert('error', 'Erro de conexão', 'Ocorreu um erro ao tentar registrar sua conta.');
             } finally {
-                registerSubmitBtn.disabled = false;
-                registerSubmitBtn.textContent = originalText;
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
             }
         });
 
