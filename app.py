@@ -20,10 +20,11 @@ app.secret_key = os.environ.get('FLASK_SECRET_KEY', os.urandom(24)) # Usar FLASK
 app.permanent_session_lifetime = timedelta(days=30) # Aumenta a vida útil da sessão
 
 # Configurações de Upload (já existia no Chefabook)
-app.config['UPLOAD_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'uploads')
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static', 'uploads')
+app.config['PROFILE_PICS_FOLDER'] = os.path.join(BASE_DIR, 'static', 'profile_pics')
+app.config['IMAGES_FOLDER'] = os.path.join(BASE_DIR, 'static', 'images') # Mantido do BHUB, embora talvez não usado diretamente no Chefabook
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
-app.config['PROFILE_PICS_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'profile_pics')
-app.config['IMAGES_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'images') # Mantido do BHUB, embora talvez não usado diretamente no Chefabook
 
 # Conexão com MongoDB (usando a URI do Chefabook)
 mongo_uri = os.environ.get('MONGO_URI', 'mongodb+srv://juliocardoso:ttAJxnWdq6VteFCD@cluster0.fynj6mg.mongodb.net/chefabook?retryWrites=true&w=majority&appName=Cluster0')
@@ -48,7 +49,8 @@ def login_required(f):
             flash("Por favor, faça login para acessar esta página.", "error")
             return redirect(url_for('login'))
         # Nova verificação de consentimento para rotas protegidas
-        if not session.get('consent_given', False):
+        # Admins (user_id == "admin") são considerados como tendo consentido automaticamente
+        if session.get('user_id') != "admin" and not session.get('consent_given', False):
             flash("Por favor, aceite nossos Termos de Uso para continuar.", "info")
             return redirect(url_for('login', require_consent=True))
         return f(*args, **kwargs)
@@ -188,6 +190,7 @@ def login():
             }), 500
     
     # Para requisições GET ou se o POST falhar antes de jsonify
+    # O JavaScript em login.html cuidará de qual formulário mostrar (login ou register)
     return render_template('login.html')
 
 @app.route("/login_admin", methods=["GET", "POST"])
@@ -232,15 +235,9 @@ def initial_consent():
         'consentFinal'
     ]
 
-    # Recriar os termos extras para validação (se foram gerados dinamicamente no frontend)
-    # Adapte essa parte para refletir exatamente como os IDs são gerados no seu login.html
-    # Como o Chefabook não tinha termos extras aninhados como o BusinessHub, vamos simplificar.
-    # Se você adicionar mais termos dinamicamente no JS, replique a lógica aqui.
-    # Por exemplo, se você tem 'consentDadosCadastro_extra1' etc.:
-    # for i in range(1, 16):
-    #    for base_term_id in ['consentDadosCadastro', ...]:
-    #        required_consent_ids.append(f"{base_term_id}_extra{i}")
-
+    # Para este projeto, não estamos gerando _extra{i} no frontend como no BusinessHub.
+    # Se você adicionar mais termos dinamicamente no JS do login.html, replique a lógica de geração aqui.
+    
     all_accepted = True
     for term_id in required_consent_ids:
         if not data.get(term_id):
@@ -738,6 +735,40 @@ def excluir_receita_admin(receita_id):
     
     return redirect(url_for("painel_admin"))
 
+# --- Rotas de Recuperação de Senha --- (NOVA, adaptada do BusinessHub)
+@app.route('/recuperar_senha')
+def recuperar_senha(): # Renomeada para evitar conflito com a rota antiga que estava gerando erro
+    """
+    Exibe a página de recuperação de senha.
+    """
+    return render_template('recuperar_senha.html')
+
+@app.route('/recover_password', methods=['POST'])
+def recover_password():
+    """
+    Lida com a solicitação de recuperação de senha.
+    Simula o envio de um e-mail de redefinição.
+    """
+    identifier = request.form.get('recoveryIdentifier')
+    user = usuarios_col.find_one({'$or': [{'email': identifier}, {'nome': identifier}]}) # Busca por email ou nome
+
+    if user:
+        # Em um ambiente real, aqui você geraria um token de redefinição,
+        # o armazenaria no banco de dados e enviaria um e-mail com o link de redefinição.
+        print(f"DEBUG: Solicitação de recuperação para: {identifier}. E-mail de recuperação simulado enviado para {user['email']}")
+        return jsonify({
+            'status': 'success',
+            'title': 'E-mail Enviado',
+            'message': 'Seu link de redefinição de senha foi enviado para o e-mail cadastrado. Verifique sua caixa de entrada (e a pasta de spam).',
+            'redirect': url_for('login')
+        })
+    else:
+        return jsonify({
+            'status': 'error',
+            'title': 'Usuário não encontrado',
+            'message': 'Nenhum usuário ou e-mail encontrado com este identificador. Por favor, tente novamente.'
+        })
+
 
 @app.route('/enviar_feedback', methods=['GET', 'POST'])
 @login_required
@@ -782,6 +813,7 @@ def enviar_feedback():
     # Se for GET, mostrar o formulário
     return render_template('enviar_feedback.html')
 
+
 @app.route('/admin/feedbacks')
 @admin_required
 def visualizar_feedbacks():
@@ -821,6 +853,8 @@ def page_not_found(e):
 
 @app.errorhandler(500)
 def internal_server_error(e):
+    # Log the original exception for debugging
+    app.logger.exception("Internal Server Error") # Isso registrará o traceback completo no log do Render
     return render_template('500.html'), 500
 
 if __name__ == '__main__':
