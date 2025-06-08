@@ -7,56 +7,272 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
     <style>
-        /* Estilos básicos para centralizar o conteúdo */
+        /* Estilos Globais e Resets */
         body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            background-color: #f4f4f4;
+            padding: 0;
+            background-color: #f0f2f5; /* Um cinza claro e suave */
             color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: #ffffff;
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas menores */
             text-align: center;
         }
-        .container {
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
-            width: 90%;
+
+        header .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #0056b3; /* Um azul mais escuro para o logo */
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            margin-left: 20px;
         }
-        h1 {
-            color: #007bff; /* Um tom de azul para destaque */
+
+        header .logo img {
+            height: 40px; /* Tamanho do logo */
+            margin-right: 10px;
+        }
+
+        header .nav-button {
+            margin-right: 20px;
+        }
+
+        /* Hero Section (Boas-Vindas) */
+        .hero-section {
+            background: linear-gradient(135deg, #007bff, #0056b3); /* Gradiente azul */
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden; /* Para esconder qualquer parte que saia do container */
+        }
+
+        .hero-section h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-section p {
+            font-size: 1.3em;
+            max-width: 800px;
+            margin: 0 auto 40px auto;
+        }
+
+        /* Sobre o BusinessHub Section */
+        .about-section {
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .about-section h2 {
+            font-size: 2.5em;
+            color: #007bff;
+            margin-bottom: 50px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Colunas adaptáveis */
+            gap: 40px; /* Espaço entre os itens */
+            margin-top: 40px;
+        }
+
+        .feature-item {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            text-align: left;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px); /* Efeito de elevação ao passar o mouse */
+        }
+
+        .feature-item img {
+            width: 100%; /* Imagem ocupa 100% da largura do item */
+            height: 200px; /* Altura fixa para as imagens */
+            object-fit: cover; /* Garante que a imagem preencha o espaço sem distorção */
+            border-radius: 8px;
             margin-bottom: 20px;
         }
-        p {
-            font-size: 1.1em;
-            line-height: 1.6;
+
+        .feature-item h3 {
+            color: #0056b3;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .feature-item p {
+            font-size: 1.05em;
+            color: #555;
+        }
+
+        /* Call to Action Section */
+        .cta-section {
+            background-color: #ffffff;
+            padding: 60px 20px;
+            text-align: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            margin-top: 40px;
+        }
+
+        .cta-section h2 {
+            font-size: 2.2em;
+            color: #007bff;
             margin-bottom: 30px;
         }
-        .login-button {
+
+        /* Botões */
+        .button {
+            display: inline-block;
             background-color: #007bff;
             color: white;
-            padding: 12px 25px;
+            padding: 15px 35px;
             border: none;
-            border-radius: 5px;
-            font-size: 1.1em;
+            border-radius: 8px;
+            font-size: 1.2em;
             cursor: pointer;
-            text-decoration: none; /* Para remover sublinhado se for um <a> */
-            transition: background-color 0.3s ease;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        .login-button:hover {
+
+        .button:hover {
             background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 25px 0;
+            font-size: 0.9em;
+            margin-top: 60px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2.5em;
+            }
+
+            .hero-section p {
+                font-size: 1.1em;
+            }
+
+            .about-section h2, .cta-section h2 {
+                font-size: 2em;
+            }
+
+            .feature-item {
+                padding: 20px;
+            }
+
+            .feature-item h3 {
+                font-size: 1.5em;
+            }
+
+            .button {
+                padding: 12px 25px;
+                font-size: 1.1em;
+            }
+
+            header {
+                justify-content: center; /* Centraliza logo e botão em telas menores */
+            }
+
+            header .logo, header .nav-button {
+                margin: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-section h1 {
+                font-size: 2em;
+            }
+
+            .hero-section p {
+                font-size: 1em;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Bem-vindo(a) ao BusinessHub!</h1>
-        <p>Sua plataforma completa para conectar empresas, inovar e crescer. Compartilhe ideias, encontre parcerias e explore novas oportunidades de negócio.</p>
-        <a href="{{ url_for('login') }}" class="login-button">Entrar ou Cadastrar</a>
-    </div>
+    <header>
+        <a href="#" class="logo">
+            <img src="{{ url_for('static', filename='img/logo_businesshub.png') }}" alt="Logo BusinessHub">
+            BusinessHub
+        </a>
+        <div class="nav-button">
+            <a href="{{ url_for('login') }}" class="button">Entrar ou Cadastrar</a>
+        </div>
+    </header>
+
+    <section class="hero-section">
+        <div class="container">
+            <h1>Conecte-se. Inove. Cresça.</h1>
+            <p>Sua plataforma completa para conectar empresas, inovar e explorar novas oportunidades de negócio. O futuro dos seus negócios começa aqui.</p>
+            <a href="{{ url_for('login') }}" class="button">Comece Agora!</a>
+        </div>
+    </section>
+
+    <section class="about-section">
+        <div class="container">
+            <h2>O que o BusinessHub oferece a você?</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <img src="{{ url_for('static', filename='img/conexao_empresas.jpg') }}" alt="Conexão entre Empresas">
+                    <h3>Conexões Estratégicas</h3>
+                    <p>Encontre parceiros ideais, fornecedores e clientes em potencial. Nossa plataforma facilita o networking para expandir sua rede de contatos.</p>
+                </div>
+                <div class="feature-item">
+                    <img src="{{ url_for('static', filename='img/inovacao.jpg') }}" alt="Inovação e Desenvolvimento">
+                    <h3>Inovação e Crescimento</h3>
+                    <p>Acesse as últimas tendências do mercado, ferramentas e recursos para impulsionar a inovação e o desenvolvimento contínuo do seu negócio.</p>
+                </div>
+                <div class="feature-item">
+                    <img src="{{ url_for('static', filename='img/oportunidades.jpg') }}" alt="Novas Oportunidades">
+                    <h3>Novas Oportunidades</h3>
+                    <p>Descubra oportunidades de negócio exclusivas, projetos colaborativos e mercados inexplorados para levar sua empresa ao próximo nível.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <h2>Pronto para transformar seu negócio?</h2>
+            <p>Junte-se à comunidade BusinessHub e comece a construir o futuro da sua empresa hoje mesmo!</p>
+            <a href="{{ url_for('login') }}" class="button">Entrar ou Cadastrar</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 BusinessHub. Todos os direitos reservados.</p>
+        </div>
+    </footer>
 </body>
 </html>

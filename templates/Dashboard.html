@@ -45,11 +45,12 @@
         body {
             background-color: var(--background-grey);
             color: var(--text-color-dark);
+            overflow-x: hidden; /* Evita scroll horizontal */
         }
 
         .dashboard-container {
             display: flex;
-            flex-direction: column; 
+            flex-direction: column;
             min-height: 100vh;
         }
 
@@ -63,29 +64,29 @@
             justify-content: space-between;
             z-index: 1;
             color: white; /* Cor padrão para elementos diretos na top bar */
-            flex-wrap: wrap; 
+            flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha em telas pequenas */
         }
 
         .top-bar a, .top-bar button {
             color: white; /* Links e botões na top bar devem ser brancos */
-            text-decoration: none; 
+            text-decoration: none;
         }
 
         .top-bar .logo-container-top {
             display: flex;
             align-items: center;
-            margin-right: 20px; 
+            margin-right: 20px;
         }
 
         .top-bar .logo-container-top .logo {
-            height: 30px; 
+            height: 30px;
             width: auto;
         }
         
         .top-bar .main-nav-top {
-            flex: 1; 
+            flex: 1; /* Ocupa o espaço disponível */
             display: flex;
-            justify-content: center; 
+            justify-content: center; /* Centraliza os itens de navegação */
         }
 
         .top-bar .main-nav-top ul {
@@ -96,7 +97,7 @@
         }
 
         .top-bar .main-nav-top li {
-            margin: 0 15px; 
+            margin: 0 15px;
         }
 
         .top-bar .main-nav-top li a {
@@ -114,8 +115,8 @@
         }
 
         .top-bar .main-nav-top li.active a {
-            background-color: rgba(255, 255, 255, 0.3); 
-            color: white; 
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
         }
 
         .top-bar .main-nav-top li a i {
@@ -127,21 +128,21 @@
             background-color: var(--notification-red);
             color: white;
             border-radius: 50%;
-            font-size: 10px; 
+            font-size: 10px;
             padding: 1px 5px;
             margin-left: 5px;
         }
 
         .search-container {
-            flex-shrink: 0; 
-            width: 250px; 
+            flex-shrink: 0; /* Não permite encolher */
+            width: 250px; /* Largura fixa para a barra de pesquisa */
             position: relative;
-            margin-left: 20px; 
+            margin-left: 20px;
         }
 
         .search-container i {
             position: absolute;
-            left: 10px; 
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-color-medium);
@@ -149,11 +150,11 @@
 
         .search-container input {
             width: 100%;
-            padding: 8px 15px 8px 35px; 
+            padding: 8px 15px 8px 35px; /* Padding à esquerda para o ícone */
             border-radius: 20px;
             border: none;
             background-color: var(--search-bg-blue);
-            font-size: 13px; 
+            font-size: 13px;
             color: var(--text-color-dark);
         }
 
@@ -164,16 +165,16 @@
         .user-actions {
             display: flex;
             align-items: center;
-            margin-left: 20px; 
+            margin-left: 20px;
         }
 
         .action-btn {
             background-color: transparent;
             border: none;
-            width: 36px; 
+            width: 36px;
             height: 36px;
             border-radius: 50%;
-            margin: 0 4px; 
+            margin: 0 4px;
             cursor: pointer;
             position: relative;
             color: white;
@@ -187,9 +188,9 @@
             background-color: var(--notification-red);
             color: white;
             position: absolute;
-            top: -3px; 
-            right: -3px; 
-            font-size: 9px; 
+            top: -3px;
+            right: -3px;
+            font-size: 9px;
             padding: 1px 4px;
         }
 
@@ -199,12 +200,12 @@
         }
 
         .profile-pic-sm {
-            width: 36px; 
+            width: 36px;
             height: 36px;
             border-radius: 50%;
             object-fit: cover;
             cursor: pointer;
-            border: 2px solid white; 
+            border: 2px solid white;
         }
 
         /* --- User Menu Dropdown Styles (AJUSTADO PARA A IMAGEM) --- */
@@ -212,8 +213,8 @@
             display: none;
             position: absolute;
             right: 0;
-            top: 45px; 
-            width: 300px; 
+            top: 45px;
+            width: 300px;
             background-color: var(--card-background); /* Fundo branco */
             border-radius: 8px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
@@ -283,32 +284,104 @@
             color: var(--dropdown-icon-color); /* Cor dos ícones em preto */
         }
 
-        /* Sidebar Esquerda (Se existir, mas está oculta) */
-        .sidebar-left {
-            display: none; /* Mantém oculto se não for usar */
-        }
-
-        /* Main Content ocupa o resto do espaço */
+        /* --- Main Content Layout (3 colunas) --- */
         .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--background-grey);
-            padding: 20px; 
+            display: flex; /* Transforma em flex container */
+            flex: 1; /* Ocupa o espaço restante da altura do dashboard-container */
+            padding: 20px; /* Padding geral para o conteúdo principal */
+            gap: 20px; /* Espaçamento entre as colunas */
+            max-width: 1300px; /* Largura máxima para centralizar o conteúdo */
+            margin: 0 auto; /* Centraliza o conteúdo principal */
+            width: 100%; /* Garante que ocupe toda a largura disponível */
         }
 
-        /* Conteúdo Principal da Área (posts, stories, etc.) */
+        /* --- Sidebar Esquerda (Navegação) --- */
+        .sidebar-left {
+            flex: 0 0 250px; /* Largura fixa para a sidebar esquerda */
+            background-color: var(--card-background);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            height: fit-content; /* Ajusta a altura ao conteúdo */
+            position: sticky; /* Fixa a sidebar ao rolar */
+            top: 20px; /* Distância do topo */
+            display: flex; /* Permite layout interno flexível */
+            flex-direction: column; /* Organiza itens em coluna */
+            gap: 10px; /* Espaçamento entre os itens */
+        }
+
+        .sidebar-left .profile-card {
+            display: flex;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 10px;
+        }
+
+        .sidebar-left .profile-card img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        .sidebar-left .profile-card h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color-dark);
+        }
+
+        .sidebar-left .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            color: var(--text-color-dark);
+            text-decoration: none;
+            transition: background-color 0.2s;
+            font-weight: 500;
+        }
+
+        .sidebar-left .nav-item:hover {
+            background-color: var(--background-grey);
+        }
+
+        .sidebar-left .nav-item i {
+            font-size: 20px;
+            margin-right: 12px;
+            color: var(--text-color-medium); /* Cor padrão dos ícones */
+            width: 24px; /* Para alinhamento consistente */
+            text-align: center;
+        }
+
+        .sidebar-left .nav-item span {
+            flex: 1; /* Ocupa o espaço restante */
+        }
+        .sidebar-left .nav-item.notifications i { color: var(--notification-red); }
+        .sidebar-left .nav-item.messages i { color: var(--primary-blue); }
+        .sidebar-left .nav-item.connections i { color: #f7b928; } /* Um tom de amarelo/laranja */
+        .sidebar-left .nav-item.groups i { color: #4CAF50; } /* Verde para grupos */
+        .sidebar-left .nav-item.events i { color: #9C27B0; } /* Roxo para eventos */
+        .sidebar-left .nav-item.marketplace i { color: #FF9800; } /* Laranja para marketplace */
+        .sidebar-left .nav-item.settings i { color: var(--text-color-medium); } /* Cinza para configurações */
+
+        /* Conteúdo Central (Feed de Posts) */
         .content-area {
-            flex: 1;
-            padding: 0; 
+            flex: 1; /* Ocupa o espaço central principal */
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
+            gap: 20px; /* Espaçamento entre "criar post" e "posts-feed" */
+            overflow-y: visible; /* Permite que o conteúdo flua naturalmente */
         }
 
         /* Stories */
         .stories-section {
-            margin-bottom: 20px;
+            background-color: var(--card-background);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 0px; /* Removido margin-bottom para não duplicar gap */
         }
 
         .section-title {
@@ -322,6 +395,12 @@
             overflow-x: auto;
             padding: 10px 0;
             gap: 10px;
+            /* Esconde a barra de rolagem mas mantém a funcionalidade */
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
+        .stories-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
 
         .create-story, .story {
@@ -342,6 +421,14 @@
             align-items: center;
             justify-content: center;
             border: 1px dashed var(--text-color-medium);
+            background-image: url("{{ url_for('static', filename='images/story-create-placeholder.jpg') }}"); /* Imagem de fundo padrão */
+            background-size: cover;
+            background-position: center;
+            color: white; /* Cor do texto no placeholder */
+            text-shadow: 0 0 5px rgba(0,0,0,0.5); /* Sombra para o texto */
+        }
+        .create-story:hover {
+            filter: brightness(0.9); /* Escurece um pouco no hover */
         }
 
         .story-avatar {
@@ -371,6 +458,8 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            font-size: 20px;
+            z-index: 5;
         }
 
         .create-story p, .story p {
@@ -380,8 +469,22 @@
             right: 0;
             text-align: center;
             font-weight: 600;
-            color: var(--text-color-dark);
+            color: white; /* Texto em branco nas stories */
             padding: 0 5px;
+            text-shadow: 0 0 5px rgba(0,0,0,0.7); /* Sombra para o texto */
+            z-index: 4;
+        }
+
+        .story .profile-pic-sm {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--primary-blue); /* Borda azul para indicar visualizado/ativo */
+            border-radius: 50%;
+            object-fit: cover;
+            z-index: 5;
         }
 
         /* Criar Post */
@@ -389,7 +492,7 @@
             background-color: var(--card-background);
             border-radius: 10px;
             padding: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 0px; /* Removido margin-bottom para não duplicar gap */
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
@@ -415,6 +518,7 @@
             background-color: var(--input-background);
             font-size: 14px;
             color: var(--text-color-dark);
+            cursor: pointer; /* Indica que é clicável */
         }
 
         .post-input::placeholder {
@@ -440,10 +544,16 @@
             cursor: pointer;
             transition: background-color 0.3s;
             color: var(--text-color-medium);
+            font-weight: 500; /* Texto mais fino */
         }
 
         .post-option:hover {
             background-color: var(--background-grey);
+        }
+
+        .post-option i {
+            margin-right: 5px;
+            font-size: 18px; /* Ajuste para ícones */
         }
 
         .post-option i.fa-image {
@@ -588,19 +698,22 @@
             margin-right: 5px;
         }
 
-        /* Sidebar Direita (Se existir, mas está oculta nas media queries) */
+        /* --- Sidebar Direita (Contatos e Patrocinados) --- */
         .sidebar-right {
-            width: 300px;
-            padding: 20px;
-            overflow-y: auto;
-            background-color: var(--background-grey);
+            flex: 0 0 300px; /* Largura fixa para a sidebar direita */
+            padding: 0px; /* O padding será dentro dos cards */
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Espaçamento entre as seções */
+            height: fit-content; /* Ajusta a altura ao conteúdo */
+            position: sticky; /* Fixa a sidebar ao rolar */
+            top: 20px; /* Distância do topo */
         }
 
         .contacts-section, .sponsored-section {
             background-color: var(--card-background);
             border-radius: 10px;
             padding: 15px;
-            margin-bottom: 20px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
@@ -645,6 +758,7 @@
             cursor: pointer;
             position: relative;
             color: var(--text-color-dark);
+            text-decoration: none; /* Remove sublinhado padrão */
         }
 
         .contact:hover {
@@ -679,6 +793,8 @@
             align-items: center;
             margin: 15px 0;
             cursor: pointer;
+            text-decoration: none; /* Remove sublinhado padrão */
+            color: inherit; /* Herda a cor do texto padrão */
         }
 
         .sponsored-item img {
@@ -703,17 +819,23 @@
         /* Responsividade */
         @media (max-width: 1200px) {
             .sidebar-right {
-                display: none; 
+                display: none; /* Oculta a sidebar direita em telas menores */
             }
             .top-bar .search-container {
-                width: 200px; 
+                width: 200px;
                 margin-left: 10px;
+            }
+            .main-content {
+                max-width: 900px; /* Ajusta largura máxima para 2 colunas */
             }
         }
 
         @media (max-width: 992px) {
+            .sidebar-left {
+                display: none; /* Oculta a sidebar esquerda em telas menores */
+            }
             .top-bar {
-                flex-direction: column; 
+                flex-direction: column;
                 align-items: center;
                 padding: 15px 10px;
             }
@@ -721,47 +843,52 @@
             .top-bar .search-container,
             .top-bar .main-nav-top,
             .top-bar .user-actions {
-                width: 100%; 
-                margin: 0; 
-                margin-bottom: 10px; 
-                justify-content: center; 
+                width: 100%;
+                margin: 0;
+                margin-bottom: 10px;
+                justify-content: center;
             }
             .top-bar .main-nav-top ul {
-                flex-wrap: wrap; 
+                flex-wrap: wrap;
                 justify-content: center;
             }
             .top-bar .main-nav-top li {
-                margin: 5px 10px; 
+                margin: 5px 10px;
             }
             .top-bar .search-container input {
-                text-align: center; 
-                padding: 8px 15px; 
+                text-align: center;
+                padding: 8px 15px;
             }
             .search-container i {
-                left: unset; 
-                right: 15px; 
+                left: unset;
+                right: 15px;
             }
             .user-dropdown {
-                margin-left: 0; 
+                margin-left: 0;
             }
             .user-menu {
-                top: 50px; 
+                top: 50px;
                 width: 90%;
-                left: 5%; 
+                left: 5%;
                 right: 5%;
+            }
+             .main-content {
+                padding: 15px; /* Reduz o padding em telas menores */
+                flex-direction: column; /* Coloca as colunas em pilha */
+                gap: 15px; /* Espaçamento ajustado */
             }
         }
 
         @media (max-width: 768px) {
             .top-bar .main-nav-top li a span {
-                display: none; 
+                display: none; /* Esconde o texto dos links de navegação do topo */
             }
             .top-bar .main-nav-top li a i {
                 margin-right: 0;
             }
             .top-bar .user-actions .action-btn,
             .top-bar .user-actions .profile-pic-sm {
-                width: 32px; 
+                width: 32px;
                 height: 32px;
             }
             .user-menu-header img {
@@ -770,6 +897,9 @@
             }
             .user-menu-header h4 {
                 font-size: 16px;
+            }
+            .stories-container {
+                padding-bottom: 0; /* Remove padding inferior excessivo */
             }
         }
     </style>
@@ -790,21 +920,9 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ url_for('messages') }}"> {# Redirecionamento para a rota de mensagens #}
                             <i class="fas fa-comments"></i>
                             <span>Mensagens</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <i class="fas fa-handshake"></i>
-                            <span>Parcerias</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <i class="fas fa-bell"></i>
-                            <span>Notificações</span>
                         </a>
                     </li>
                     <li>
@@ -850,7 +968,14 @@
         </header>
 
         <main class="main-content">
+            <aside class="sidebar-left">
+                <a href="{{ url_for('show_profile') }}" class="profile-card">
+                    <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" alt="User">
+                    <h4>{{ user.username }}</h4>
+                </a>
+            </aside>
             <div class="content-area">
+
                 <section class="create-post">
                     <div class="post-editor">
                         <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" alt="User" class="post-author-img">
@@ -878,6 +1003,30 @@
                 <section class="posts-feed" id="postsFeed">
                     </section>
             </div>
+
+            <aside class="sidebar-right">
+                <section class="contacts-section">
+                    <div class="contacts-header">
+                        <h3>Contatos</h3>
+                        <div class="contacts-actions">
+                            <button><i class="fas fa-video"></i></button>
+                            <button><i class="fas fa-search"></i></button>
+                            <button><i class="fas fa-ellipsis-h"></i></button>
+                        </div>
+                    </div>
+                    <div class="contacts-list">
+                        {% for other_user in all_users %}
+                            {% if other_user._id != user._id %} {# Não lista o próprio usuário aqui #}
+                                <a href="#" class="contact">
+                                    <img src="{{ url_for('static', filename='profile_pics/' + other_user.profile_pic) }}" alt="{{ other_user.username }}">
+                                    <span>{{ other_user.username }}</span>
+                                    <span class="online-status {% if other_user.status == 'offline' %}offline{% endif %}"></span>
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </section>
+            </aside>
         </main>
     </div>
 
@@ -920,7 +1069,7 @@
                 showConfirmButton: false,
                 showCloseButton: true,
                 customClass: {
-                    popup: 'swal2-responsive' 
+                    popup: 'swal2-responsive'
                 }
             });
         }
@@ -958,30 +1107,30 @@
                 const response = await fetch('/api/posts');
                 if (!response.ok) {
                     if (response.status === 401) {
-                        window.location.href = '/login'; 
+                        window.location.href = '/login';
                         return;
                     }
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const posts = await response.json();
                 const postsContainer = document.getElementById('postsFeed');
-                postsContainer.innerHTML = ''; 
+                postsContainer.innerHTML = '';
                 
                 // Obtém o user._id diretamente do Flask, pois ele é passado no template
                 // Isso evita usar uma variável global no JS que pode ser inconsistente
-                const currentUserId = "{{ user._id }}"; 
+                const currentUserId = "{{ user._id }}";
 
                 posts.forEach(post => {
                     const postElement = document.createElement('div');
                     postElement.className = 'post';
-                    postElement.setAttribute('data-id', post._id); 
+                    postElement.setAttribute('data-id', post._id);
                     
                     // Verifica se o ID do usuário atual está na lista de likes do post
                     const isLiked = post.likes && post.likes.includes(currentUserId) ? 'liked' : '';
                     
                     postElement.innerHTML = `
                         <div class="post-header">
-                            <img src="{{ url_for('static', filename='profile_pics/') }}${post.author_profile_pic || 'user-icon-pequeno.png'}" 
+                            <img src="{{ url_for('static', filename='profile_pics/') }}${post.author_profile_pic || 'user-icon-pequeno.png'}"
                                 alt="${post.author_name}" class="post-author-img">
                             <div class="post-author-info">
                                 <h4>${post.author_name}</h4>
@@ -991,8 +1140,8 @@
                         </div>
                         <div class="post-content">
                             ${post.content ? `<p>${post.content}</p>` : ''}
-                            ${post.image ? `<img src="{{ url_for('static', filename='uploads/') }}${post.image}" 
-                                            alt="Post Image" class="post-image">` : ''}
+                            ${post.image ? `<img src="{{ url_for('static', filename='uploads/') }}${post.image}"
+                                             alt="Post Image" class="post-image">` : ''}
                         </div>
                         <div class="post-stats">
                             <span><i class="fas fa-thumbs-up"></i> <span id="likes-count-${post._id}">${post.likes ? post.likes.length : 0}</span></span>
@@ -1047,9 +1196,9 @@
                     });
                     const data = await response.json();
                     if (data.success) {
-                        this.value = ''; 
-                        removeImage(); 
-                        loadPosts(); 
+                        this.value = '';
+                        removeImage();
+                        loadPosts();
                         Swal.fire('Sucesso!', 'Post criado com sucesso!', 'success');
                     } else {
                         // Se for erro de autenticação, redireciona
@@ -1078,10 +1227,11 @@
                     const likeButton = document.querySelector(`.post[data-id="${postId}"] .post-action-btn`);
                     
                     if (likesCountSpan && likeButton) {
-                        if (data.success === 'Post curtido!') { // Verifique a mensagem exata de sucesso do seu Flask
+                        // O Flask retorna 'Post curtido!' ou 'Curtida removida.'
+                        if (data.success === 'Post curtido!') {
                             likesCountSpan.textContent = parseInt(likesCountSpan.textContent) + 1;
                             likeButton.classList.add('liked');
-                        } else if (data.success === 'Curtida removida.') { // Verifique a mensagem exata de sucesso do seu Flask
+                        } else if (data.success === 'Curtida removida.') {
                             likesCountSpan.textContent = parseInt(likesCountSpan.textContent) - 1;
                             likeButton.classList.remove('liked');
                         }

@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusinessHub - Mensagens</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        /* Variáveis CSS */
+        :root {
+            --primary-blue: #1877f2;
+            --dark-blue: #0056b3;
+            --light-blue-bg: #e7f3ff;
+            --background-grey: #f0f2f5;
+            --card-background: #fff;
+            --text-color-dark: #050505;
+            --text-color-medium: #65676b;
+            --border-color: #e4e6eb;
+            --input-background: #f0f2f5;
+            --notification-red: #fa3e3e;
+            --online-green: #31a24c;
+            --offline-grey: #ddd;
+            --top-bar-blue: #2196F3;
+            --search-bg-blue: #ADD8E6;
+            --chat-bubble-self: #dcf8c6; /* Cor do balão de mensagem própria */
+            --chat-bubble-other: #e9e9eb; /* Cor do balão de mensagem do outro */
+
+            /* Variáveis para o menu dropdown */
+            --dropdown-text-dark: #212529;
+            --dropdown-link-blue: #007bff;
+            --dropdown-hover-bg: #f5f5f5;
+            --dropdown-icon-color: #212529;
+        }
+
+        /* Reset e Estilos Globais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-grey);
+            color: var(--text-color-dark);
+        }
+
+        .dashboard-container {
+            display: flex;
+            flex-direction: column; 
+            min-height: 100vh;
+        }
+
+        /* --- Top Bar Styles --- */
+        .top-bar {
+            background-color: var(--top-bar-blue);
+            padding: 10px 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1;
+            color: white;
+            flex-wrap: wrap; 
+        }
+
+        .top-bar a, .top-bar button {
+            color: white;
+            text-decoration: none; 
+        }
+
+        .top-bar .logo-container-top {
+            display: flex;
+            align-items: center;
+            margin-right: 20px; 
+        }
+
+        .top-bar .logo-container-top .logo {
+            height: 30px; 
+            width: auto;
+        }
+        
+        .top-bar .main-nav-top {
+            flex: 1; 
+            display: flex;
+            justify-content: center; 
+        }
+
+        .top-bar .main-nav-top ul {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+
+        .top-bar .main-nav-top li {
+            margin: 0 15px; 
+        }
+
+        .top-bar .main-nav-top li a {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            font-weight: 500;
+            color: white; 
+        }
+
+        .top-bar .main-nav-top li a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .top-bar .main-nav-top li.active a {
+            background-color: rgba(255, 255, 255, 0.3); 
+            color: white; 
+        }
+
+        .top-bar .main-nav-top li a i {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+        
+        .top-bar .main-nav-top .notification-badge {
+            background-color: var(--notification-red);
+            color: white;
+            border-radius: 50%;
+            font-size: 10px; 
+            padding: 1px 5px;
+            margin-left: 5px;
+        }
+
+        .search-container {
+            flex-shrink: 0; 
+            width: 250px; 
+            position: relative;
+            margin-left: 20px; 
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 10px; 
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-color-medium);
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 8px 15px 8px 35px; 
+            border-radius: 20px;
+            border: none;
+            background-color: var(--search-bg-blue);
+            font-size: 13px; 
+            color: var(--text-color-dark);
+        }
+
+        .search-container input::placeholder {
+            color: var(--text-color-medium);
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            margin-left: 20px; 
+        }
+
+        .action-btn {
+            background-color: transparent;
+            border: none;
+            width: 36px; 
+            height: 36px;
+            border-radius: 50%;
+            margin: 0 4px; 
+            cursor: pointer;
+            position: relative;
+            color: white;
+        }
+
+        .action-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .action-btn .notification-badge {
+            background-color: var(--notification-red);
+            color: white;
+            position: absolute;
+            top: -3px; 
+            right: -3px; 
+            font-size: 9px; 
+            padding: 1px 4px;
+        }
+
+        .user-dropdown {
+            position: relative;
+            margin-left: 10px;
+        }
+
+        .profile-pic-sm {
+            width: 36px; 
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid white; 
+        }
+
+        .user-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 45px; 
+            width: 300px; 
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            overflow: hidden;
+        }
+        
+        .user-menu-header {
+            display: flex;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .user-menu-header img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+
+        .user-menu-header h4 {
+            font-size: 18px;
+            margin-bottom: 5px;
+            color: var(--text-color-dark);
+        }
+
+        .user-menu-header p {
+            color: var(--primary-blue);
+            font-size: 14px;
+        }
+
+        .user-menu ul {
+            list-style: none;
+        }
+
+        .user-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: var(--text-color-dark);
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .user-menu li a:hover {
+            background-color: var(--background-grey);
+        }
+
+        .user-menu li a i {
+            margin-right: 10px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* --- Main Content Mensagens --- */
+        .messages-container {
+            flex: 1;
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-height: 70vh;
+        }
+
+        .conversations-list {
+            flex: 0 0 300px;
+            border-right: 1px solid var(--border-color);
+            padding-right: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .conversations-list h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--text-color-dark);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        .new-chat-btn {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-bottom: 15px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        .new-chat-btn:hover {
+            background-color: var(--dark-blue);
+        }
+
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            position: relative;
+        }
+        .conversation-item:hover, .conversation-item.active {
+            background-color: var(--light-blue-bg);
+        }
+        .conversation-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 2px solid var(--border-color);
+        }
+        .conversation-item .info {
+            flex: 1;
+        }
+        .conversation-item .info h4 {
+            font-size: 16px;
+            margin: 0;
+            color: var(--text-color-dark);
+        }
+        .conversation-item .info p {
+            font-size: 13px;
+            color: var(--text-color-medium);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .conversation-item .timestamp {
+            font-size: 12px;
+            color: var(--text-color-medium);
+            margin-left: auto;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .conversation-item .unread-badge {
+            background-color: var(--notification-red);
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            padding: 3px 6px;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-left: 20px;
+            min-height: 500px;
+        }
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+        .chat-header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 2px solid var(--primary-blue);
+        }
+        .chat-header h4 {
+            font-size: 18px;
+            margin: 0;
+            color: var(--text-color-dark);
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .message-bubble {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        .message-bubble.self {
+            justify-content: flex-end;
+        }
+        .message-bubble.other {
+            justify-content: flex-start;
+        }
+        .message-content {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+            position: relative;
+            word-wrap: break-word;
+        }
+        .message-bubble.self .message-content {
+            background-color: var(--chat-bubble-self);
+            color: var(--text-color-dark);
+            border-bottom-right-radius: 2px;
+        }
+        .message-bubble.other .message-content {
+            background-color: var(--chat-bubble-other);
+            color: var(--text-color-dark);
+            border-bottom-left-radius: 2px;
+        }
+        .message-timestamp {
+            font-size: 10px;
+            color: var(--text-color-medium);
+            margin-top: 5px;
+            text-align: right;
+        }
+        .message-bubble.other .message-timestamp {
+            text-align: left;
+        }
+        
+        .chat-input-area {
+            display: flex;
+            margin-top: 20px;
+            gap: 10px;
+            align-items: center;
+        }
+        .chat-input-area input[type="text"] {
+            flex: 1;
+            padding: 12px 18px;
+            border-radius: 25px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-background);
+            font-size: 15px;
+            color: var(--text-color-dark);
+        }
+        .chat-input-area button {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .chat-input-area button:hover {
+            background-color: var(--dark-blue);
+        }
+
+        /* --- Seção de Solicitações de Conexão --- */
+        .connection-requests-section {
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        .connection-requests-section h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--text-color-dark);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        .request-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .request-item:last-child {
+            border-bottom: none;
+        }
+        .request-item .sender-info {
+            display: flex;
+            align-items: center;
+        }
+        .request-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+            border: 2px solid var(--border-color);
+        }
+        .request-item h4 {
+            font-size: 16px;
+            margin: 0;
+            color: var(--text-color-dark);
+        }
+        .request-item .actions button {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+            transition: background-color 0.3s;
+        }
+        .request-item .actions button.reject {
+            background-color: var(--notification-red);
+        }
+        .request-item .actions button:hover {
+            opacity: 0.9;
+        }
+
+        /* --- Modal de Busca de Usuários para Nova Conversa --- */
+        .swal2-user-search-input {
+            margin-top: 15px;
+            width: calc(100% - 20px);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            font-size: 16px;
+        }
+        .swal2-user-search-results {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 5px;
+            text-align: left;
+        }
+        .swal2-user-search-result-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-bottom: 1px solid var(--background-grey);
+        }
+        .swal2-user-search-result-item:last-child {
+            border-bottom: none;
+        }
+        .swal2-user-search-result-item:hover {
+            background-color: var(--light-blue-bg);
+        }
+        .swal2-user-search-result-item img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+        .swal2-user-search-result-item .username {
+            font-weight: 500;
+            color: var(--text-color-dark);
+        }
+        .swal2-user-search-result-item .status {
+            font-size: 12px;
+            color: var(--text-color-medium);
+            margin-left: auto;
+        }
+        .swal2-user-search-result-item .status.connected {
+            color: var(--online-green);
+            font-weight: bold;
+        }
+        .swal2-user-search-result-item .status.pending {
+            color: var(--sentiment-yellow);
+            font-weight: bold;
+        }
+        .swal2-user-search-result-item .status.self-pending { 
+            color: var(--primary-blue);
+            font-weight: bold;
+        }
+        /* Ajuste para os botões no modal de busca para ficarem menores */
+        .swal2-user-search-result-item button {
+            padding: 6px 10px !important;
+            font-size: 12px !important;
+            margin-left: 10px !important;
+            border-radius: 4px !important;
+        }
+        .swal2-user-search-result-item button[disabled] {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* --- Responsividade --- */
+        @media (max-width: 992px) {
+            .messages-container {
+                flex-direction: column;
+                padding: 15px;
+                gap: 15px;
+                margin: 15px auto;
+            }
+            .conversations-list {
+                flex: none;
+                width: 100%;
+                padding-right: 0;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding-bottom: 15px;
+            }
+            .chat-area {
+                padding-left: 0;
+            }
+            .chat-messages {
+                min-height: 300px;
+            }
+            .top-bar {
+                flex-direction: column;
+                align-items: center;
+                padding: 15px 10px;
+            }
+            .top-bar .logo-container-top,
+            .top-bar .search-container,
+            .top-bar .main-nav-top,
+            .top-bar .user-actions {
+                width: 100%;
+                margin: 0;
+                margin-bottom: 10px;
+                justify-content: center;
+            }
+            .top-bar .main-nav-top ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .top-bar .main-nav-top li {
+                margin: 5px 10px;
+            }
+            .top-bar .search-container input {
+                text-align: center;
+                padding: 8px 15px;
+            }
+            .search-container i {
+                left: unset;
+                right: 15px;
+            }
+            .user-dropdown {
+                margin-left: 0;
+            }
+            .user-menu {
+                top: 50px;
+                width: 90%;
+                left: 5%;
+                right: 5%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar .main-nav-top li a span {
+                display: none;
+            }
+            .top-bar .main-nav-top li a i {
+                margin-right: 0;
+            }
+            .top-bar .user-actions .action-btn,
+            .top-bar .user-actions .profile-pic-sm {
+                width: 32px; 
+                height: 32px;
+            }
+            .user-menu-header img {
+                width: 40px;
+                height: 40px;
+            }
+            .user-menu-header h4 {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="top-bar">
+            <nav class="main-nav-top">
+                <ul>
+                    <li class="active">
+                        <a href="{{ url_for('dashboard') }}"> <i class="fas fa-home"></i>
+                            <span>Dashboard</span> </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('explore') }}">
+                            <i class="fas fa-search"></i>
+                            <span>Explorar</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('messages') }}"> {# Redirecionamento para a rota de mensagens #}
+                            <i class="fas fa-comments"></i>
+                            <span>Mensagens</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-cog"></i>
+                            <span>Configurações</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Pesquisar na BusinessHub...">
+            </div>
+            
+            <div class="user-actions">
+                <button class="action-btn">
+                    <i class="fas fa-comment-dots"></i>
+                </button>
+                <button class="action-btn">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <div class="user-dropdown">
+                    <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" alt="User" class="profile-pic-sm" onclick="toggleUserMenu()">
+                    <div class="user-menu" id="userMenu">
+                        <div class="user-menu-header">
+                            <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" alt="User">
+                            <div>
+                                <h4>{{ user.username }}</h4>
+                                <a href="{{ url_for('show_profile') }}">Ver perfil</a>
+                            </div>
+                        </div>
+                        <ul>
+                            <li><a href="{{ url_for('show_profile') }}"><i class="fas fa-user"></i> Meu Perfil</a></li>
+                            <li><a href="#"><i class="fas fa-cog"></i> Configurações</a></li>
+                            <li><a href="#"><i class="fas fa-question-circle"></i> Ajuda</a></li>
+                            <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="messages-container">
+                <div class="conversations-list">
+                    <h3>Mensagens</h3>
+                    <button class="new-chat-btn" onclick="showNewConversationModal()">
+                        <i class="fas fa-plus"></i> Nova Mensagem
+                    </button>
+                    <ul id="conversationsList">
+                        {% for convo in conversations %}
+                        <li class="conversation-item" data-convo-id="{{ convo._id }}" data-other-user-id="{{ convo.other_participant._id }}" data-other-user-name="{{ convo.other_participant.username }}" data-other-user-pic="{{ url_for('static', filename='profile_pics/' + convo.other_participant.profile_pic) }}">
+                            <img src="{{ url_for('static', filename='profile_pics/' + convo.other_participant.profile_pic) }}" alt="{{ convo.other_participant.username }}">
+                            <div class="info">
+                                <h4>{{ convo.other_participant.username }}</h4>
+                                <p>{{ convo.last_message_content }}</p>
+                            </div>
+                            <span class="timestamp">{{ convo.last_message_time }}</span>
+                        </li>
+                        {% else %}
+                        <p style="text-align: center; color: var(--text-color-medium);">Nenhuma conversa iniciada.</p>
+                        {% endfor %}
+                    </ul>
+
+                    {% if pending_requests %}
+                    <div class="connection-requests-section">
+                        <h3>Solicitações de Conexão</h3>
+                        <ul id="pendingRequestsList">
+                            {% for req in pending_requests %}
+                            <li class="request-item" data-request-id="{{ req._id }}">
+                                <div class="sender-info">
+                                    <img src="{{ url_for('static', filename='profile_pics/' + req.sender_info.profile_pic) }}" alt="{{ req.sender_info.username }}">
+                                    <h4>{{ req.sender_info.username }}</h4>
+                                </div>
+                                <div class="actions">
+                                    <button class="accept-btn" onclick="respondConnectionRequest('{{ req._id }}', 'accept')">Aceitar</button>
+                                    <button class="reject-btn" onclick="respondConnectionRequest('{{ req._id }}', 'reject')">Rejeitar</button>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="chat-area" id="chatArea" style="display: none;">
+                    <div class="chat-header">
+                        <img id="chatHeaderPic" src="" alt="Usuário">
+                        <h4 id="chatHeaderName">Selecione uma conversa</h4>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="messageInput" placeholder="Escreva uma mensagem...">
+                        <button id="sendMessageBtn"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const currentUserId = "{{ user._id }}";
+        let activeConversationId = null;
+        let activeOtherUserId = null;
+
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+        document.addEventListener('click', function(event) {
+            const userMenu = document.getElementById('userMenu');
+            const profilePicSm = document.querySelector('.profile-pic-sm');
+            if (userMenu && !userMenu.contains(event.target) && !profilePicSm.contains(event.target)) {
+                userMenu.style.display = 'none';
+            }
+        });
+
+        // Helper para formatar timestamp
+        function formatMessageTimestamp(isoTimestamp) {
+            try {
+                const date = new Date(isoTimestamp);
+                // Verifica se a data é válida (evita NaN)
+                if (isNaN(date.getTime())) {
+                    return 'Data inválida'; 
+                }
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0'); // Mês é 0-indexed
+                const year = date.getFullYear();
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
+            } catch (e) {
+                console.error("Erro ao formatar timestamp:", e, "Timestamp:", isoTimestamp);
+                return 'Erro na data';
+            }
+        }
+
+        async function loadMessages(conversationId, otherUserName, otherUserPic) {
+            if (!conversationId) {
+                document.getElementById('chatArea').style.display = 'none';
+                return;
+            }
+
+            activeConversationId = conversationId;
+            const selectedConversationItem = document.querySelector(`.conversation-item[data-convo-id="${conversationId}"]`);
+            if (selectedConversationItem) {
+                activeOtherUserId = selectedConversationItem.dataset.otherUserId;
+            } 
+
+            document.getElementById('chatHeaderPic').src = otherUserPic;
+            document.getElementById('chatHeaderName').textContent = otherUserName;
+            document.getElementById('chatArea').style.display = 'flex';
+
+            const chatMessagesContainer = document.getElementById('chatMessages');
+            chatMessagesContainer.innerHTML = '<p style="text-align: center; color: var(--text-color-medium);">Carregando mensagens...</p>';
+
+            document.querySelectorAll('.conversation-item').forEach(item => item.classList.remove('active'));
+            if (selectedConversationItem) {
+                selectedConversationItem.classList.add('active');
+            }
+
+            try {
+                const response = await fetch(`/api/conversations/${conversationId}`);
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    throw new Error(`Erro ao carregar mensagens: ${response.status}`);
+                }
+                const messages = await response.json();
+                chatMessagesContainer.innerHTML = '';
+
+                if (messages.length === 0) {
+                    chatMessagesContainer.innerHTML = '<p style="text-align: center; color: var(--text-color-medium);">Nenhuma mensagem nesta conversa ainda. Comece a digitar!</p>';
+                } else {
+                    messages.forEach(msg => {
+                        const isSelf = msg.sender_id === currentUserId;
+                        const bubbleClass = isSelf ? 'self' : 'other';
+                        const messageBubble = document.createElement('div');
+                        messageBubble.classList.add('message-bubble', bubbleClass);
+                        messageBubble.innerHTML = `
+                            <div class="message-content">
+                                ${msg.content}
+                                <div class="message-timestamp">${formatMessageTimestamp(msg.timestamp_iso)}</div>
+                            </div>
+                        `;
+                        chatMessagesContainer.appendChild(messageBubble);
+                    });
+                    chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar mensagens:', error);
+                chatMessagesContainer.innerHTML = '<p style="text-align: center; color: var(--notification-red);">Erro ao carregar mensagens.</p>';
+            }
+        }
+
+        // Event listener para cliques em itens da lista de conversas (delegado)
+        document.getElementById('conversationsList').addEventListener('click', function(event) {
+            const item = event.target.closest('.conversation-item');
+            if (item) {
+                const convoId = item.dataset.convoId;
+                const otherUserName = item.dataset.otherUserName; 
+                const otherUserPic = item.dataset.otherUserPic;   
+                loadMessages(convoId, otherUserName, otherUserPic);
+            }
+        });
+
+        document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        async function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const messageContent = messageInput.value.trim();
+
+            if (!messageContent) {
+                Swal.fire('Atenção!', 'Digite uma mensagem.', 'warning');
+                return;
+            }
+            
+            if (!activeOtherUserId) {
+                Swal.fire('Erro!', 'Selecione um usuário para conversar primeiro.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        receiver_id: activeOtherUserId,
+                        message_content: messageContent
+                    })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    messageInput.value = '';
+                    if (data.conversation_id && !activeConversationId) {
+                        activeConversationId = data.conversation_id;
+                    }
+                    loadMessages(activeConversationId, document.getElementById('chatHeaderName').textContent, document.getElementById('chatHeaderPic').src);
+                    // Atraso para garantir que a conversa seja criada/atualizada antes do reload
+                    setTimeout(() => window.location.reload(), 500); 
+                } else {
+                    if (response.status === 401) {
+                        window.location.href = '/login';
+                    } else {
+                        Swal.fire('Erro!', data.error, 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao enviar mensagem:', error);
+                Swal.fire('Erro!', 'Não foi possível enviar a mensagem.', 'error');
+            }
+        }
+
+        // Esta função agora apenas recarrega a página após um curto atraso.
+        // É a forma mais simples de garantir que o Jinja2 renderize tudo atualizado.
+        function updateConversationsList() {
+             setTimeout(() => window.location.reload(), 500); 
+        }
+
+        async function sendConnectionRequest(receiverId, username) {
+            try {
+                const result = await Swal.fire({
+                    title: `Enviar solicitação para ${username}?`,
+                    text: "Este usuário poderá te enviar mensagens e ver seu perfil completo.",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-blue'),
+                    cancelButtonColor: getComputedStyle(document.documentElement).getPropertyValue('--offline-grey'),
+                    confirmButtonText: 'Sim, enviar!',
+                    cancelButtonText: 'Cancelar'
+                });
+
+                if (result.isConfirmed) {
+                    const response = await fetch('/api/send_connection_request', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ receiver_id: receiverId })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        Swal.fire('Sucesso!', data.success, 'success');
+                        const searchInput = document.getElementById('userSearchInput');
+                        showNewConversationModal(searchInput ? searchInput.value : ''); 
+                    } else {
+                        if (response.status === 401) { window.location.href = '/login'; }
+                        Swal.fire('Erro!', data.error, 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao enviar solicitação:', error);
+                Swal.fire('Erro!', 'Não foi possível enviar a solicitação.', 'error');
+            }
+        }
+
+        async function respondConnectionRequest(requestId, action) {
+            try {
+                const confirmText = action === 'accept' ? 'Aceitar' : 'Rejeitar';
+                const result = await Swal.fire({
+                    title: `${confirmText} solicitação?`,
+                    text: action === 'accept' ? "Você permitirá que este usuário te envie mensagens." : "Esta solicitação será rejeitada.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: action === 'accept' ? getComputedStyle(document.documentElement).getPropertyValue('--online-green') : getComputedStyle(document.documentElement).getPropertyValue('--notification-red'),
+                    cancelButtonColor: getComputedStyle(document.documentElement).getPropertyValue('--offline-grey'),
+                    confirmButtonText: confirmText,
+                    cancelButtonText: 'Cancelar'
+                });
+
+                if (result.isConfirmed) {
+                    const response = await fetch('/api/respond_connection_request', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ request_id: requestId, action: action })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        Swal.fire('Sucesso!', data.success, 'success');
+                        // Forçamos o reload da página após aceitar/rejeitar
+                        setTimeout(() => window.location.reload(), 500); 
+                    } else {
+                        if (response.status === 401) { window.location.href = '/login'; }
+                        Swal.fire('Erro!', data.error, 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao responder solicitação:', error);
+                Swal.fire('Erro!', 'Não foi possível responder a solicitação.', 'error');
+            }
+        }
+
+        let searchTimeout;
+
+        function showNewConversationModal(initialSearchQuery = '') {
+            Swal.fire({
+                title: 'Iniciar Nova Conversa',
+                html: `
+                    <input type="text" id="userSearchInput" class="swal2-user-search-input" placeholder="Buscar usuários..." value="${initialSearchQuery}">
+                    <div id="userSearchResults" class="swal2-user-search-results">
+                        <p style="text-align: center; color: var(--text-color-medium);">Comece a digitar para buscar usuários.</p>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCloseButton: true,
+                focusConfirm: false,
+                didOpen: () => {
+                    const searchInput = document.getElementById('userSearchInput');
+                    searchInput.focus();
+                    if (initialSearchQuery) {
+                        searchUsers(initialSearchQuery);
+                    }
+                    searchInput.addEventListener('keyup', () => {
+                        clearTimeout(searchTimeout);
+                        searchTimeout = setTimeout(() => {
+                            searchUsers(searchInput.value);
+                        }, 300);
+                    });
+                }
+            });
+        }
+
+        async function searchUsers(query) {
+            const resultsDiv = document.getElementById('userSearchResults');
+            if (query.length < 2) {
+                resultsDiv.innerHTML = '<p style="text-align: center; color: var(--text-color-medium);">Digite pelo menos 2 caracteres.</p>';
+                return;
+            }
+
+            resultsDiv.innerHTML = '<p style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Buscando...</p>';
+
+            try {
+                const response = await fetch(`/api/search_users?q=${encodeURIComponent(query)}`);
+                if (!response.ok) {
+                    if (response.status === 401) { window.location.href = '/login'; return; }
+                    throw new Error(`Erro ao buscar usuários: ${response.status}`);
+                }
+                const users = await response.json();
+                resultsDiv.innerHTML = '';
+
+                if (users.length === 0) {
+                    resultsDiv.innerHTML = '<p style="text-align: center; color: var(--text-color-medium);">Nenhum usuário encontrado.</p>';
+                    return;
+                }
+
+                users.forEach(user => {
+                    const item = document.createElement('div');
+                    item.classList.add('swal2-user-search-result-item');
+                    
+                    let statusText = '';
+                    let statusClass = '';
+                    let clickAction = '';
+                    let buttonHtml = '';
+                    const profilePicBaseUrl = "{{ url_for('static', filename='profile_pics/') }}";
+
+
+                    if (user._id === currentUserId) {
+                        statusText = 'Você';
+                        statusClass = 'self';
+                        item.style.cursor = 'default';
+                        buttonHtml = ''; 
+                    } else if (user.connection_status === 'accepted') {
+                        statusText = 'Conectado';
+                        statusClass = 'connected';
+                        clickAction = `startConversation('${user._id}', '${user.username}', '${profilePicBaseUrl}${user.profile_pic}')`;
+                        buttonHtml = `<button class="swal2-styled" style="background-color: ${getComputedStyle(document.documentElement).getPropertyValue('--primary-blue')};">Mensagem</button>`;
+                    } else if (user.connection_status === 'pending') {
+                        if (user.pending_sent_by_me) { 
+                             statusText = 'Pendente (você)';
+                             statusClass = 'self-pending';
+                             buttonHtml = `<button class="swal2-styled" disabled style="background-color: ${getComputedStyle(document.documentElement).getPropertyValue('--offline-grey')};">Pendente</button>`;
+                             item.style.cursor = 'default'; 
+                        } else { 
+                            statusText = 'Pendente';
+                            statusClass = 'pending';
+                            buttonHtml = `
+                                <button class="swal2-styled" style="background-color: ${getComputedStyle(document.documentElement).getPropertyValue('--online-green')};" onclick="respondConnectionRequest('${user.request_id}', 'accept'); Swal.close();">Aceitar</button>
+                                <button class="swal2-styled" style="background-color: ${getComputedStyle(document.documentElement).getPropertyValue('--notification-red')}; margin-left: 5px;" onclick="respondConnectionRequest('${user.request_id}', 'reject'); Swal.close();">Rejeitar</button>
+                            `;
+                            item.style.cursor = 'default';
+                        }
+                    } else {
+                        statusText = 'Não conectado';
+                        statusClass = '';
+                        clickAction = `sendConnectionRequest('${user._id}', '${user.username}')`;
+                        buttonHtml = `<button class="swal2-styled" style="background-color: ${getComputedStyle(document.documentElement).getPropertyValue('--primary-blue')};">Conectar</button>`;
+                    }
+
+                    item.innerHTML = `
+                        <img src="${profilePicBaseUrl}${user.profile_pic}" alt="${user.username}">
+                        <div class="user-info">
+                            <span class="username">${user.username}</span>
+                        </div>
+                        <span class="status ${statusClass}">${statusText}</span>
+                        ${buttonHtml}
+                    `;
+                    if (clickAction && user.connection_status !== 'pending' && user._id !== currentUserId) {
+                        item.setAttribute('onclick', clickAction);
+                    } else {
+                        item.style.cursor = 'default';
+                    }
+                    resultsDiv.appendChild(item);
+                });
+
+            } catch (error) {
+                console.error('Erro na busca de usuários:', error);
+                resultsDiv.innerHTML = '<p style="text-align: center; color: var(--notification-red);">Erro na busca.</p>';
+            }
+        }
+
+        async function startConversation(otherUserId, otherUserName, otherUserPic) {
+            Swal.close();
+
+            activeOtherUserId = otherUserId; 
+            document.getElementById('chatHeaderPic').src = otherUserPic;
+            document.getElementById('chatHeaderName').textContent = otherUserName;
+            document.getElementById('chatArea').style.display = 'flex';
+            document.getElementById('messageInput').focus();
+
+            try {
+                const response = await fetch(`/api/get_conversation_by_users?other_user_id=${otherUserId}`);
+                const data = await response.json();
+                if (data.conversation_id) {
+                    activeConversationId = data.conversation_id;
+                    loadMessages(activeConversationId, otherUserName, otherUserPic);
+                } else {
+                    activeConversationId = null; 
+                    document.getElementById('chatMessages').innerHTML = '<p style="text-align: center; color: var(--text-color-medium);">Esta é uma nova conversa. Comece a digitar!</p>';
+                }
+            } catch (error) {
+                console.error('Erro ao buscar conversa existente:', error);
+                document.getElementById('chatMessages').innerHTML = '<p style="text-align: center; color: var(--notification-red);">Erro ao iniciar conversa.</p>';
+            }
+        }
+
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/check-auth');
+                const data = await response.json();
+                if (!data.authenticated) {
+                    window.location.href = '/login'; 
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                console.error('Erro ao verificar autenticação:', error);
+                window.location.href = '/login'; 
+                return false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+        });
+    </script>
+</body>
+</html>

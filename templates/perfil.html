@@ -474,7 +474,8 @@
                 <i class="fas fa-bell"></i>
             </button>
             <div class="user-dropdown">
-                <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" alt="User" class="profile-pic-sm" onclick="toggleUserMenu()">
+                <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" 
+                     alt="User" class="profile-pic-sm" onclick="toggleUserMenu()">
                 <div class="user-menu" id="userMenu">
                     <div class="user-menu-header">
                         <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" alt="User">
@@ -535,19 +536,19 @@
                 </div>
                 <div class="info-group">
                     <h3>Razão Social</h3>
-                    <p id="companyName">{{ company.data.nome if company and company.data.nome else 'Não cadastrada' }}</p>
+                    <p id="companyName">{{ company.data.nome if company and company.data and company.data.nome else 'Não cadastrada' }}</p>
                 </div>
                 <div class="info-group">
                     <h3>Nome Fantasia</h3>
-                    <p id="fantasyName">{{ company.data.fantasia if company and company.data.fantasia else 'Não cadastrado' }}</p>
+                    <p id="fantasyName">{{ company.data.fantasia if company and company.data and company.data.fantasia else 'Não cadastrado' }}</p>
                 </div>
                 <div class="info-group">
                     <h3>Data de Abertura</h3>
-                    <p id="openingDate">{{ company.data.abertura if company and company.data.abertura else 'Não cadastrada' }}</p>
+                    <p id="openingDate">{{ company.data.abertura if company and company.data and company.data.abertura else 'Não cadastrada' }}</p>
                 </div>
                 <div class="info-group">
                     <h3>Situação</h3>
-                    <p id="companyStatus">{{ company.data.situacao if company and company.data.situacao else 'Não cadastrada' }}</p>
+                    <p id="companyStatus">{{ company.data.situacao if company and company.data and company.data.situacao else 'Não cadastrada' }}</p>
                 </div>
                 <button class="edit-btn" onclick="openEditModal('company')">Editar CNPJ</button>
             </div>
@@ -556,27 +557,27 @@
                 <h2>Endereço da Empresa</h2>
                 <div class="info-group">
                     <h3>Logradouro</h3>
-                    <p id="companyStreet">{{ company.data.logradouro if company and company.data.logradouro else 'Não cadastrado' }}</p>
+                    <p id="companyStreet">{{ company.data.logradouro if company and company.data and company.data.logradouro else 'Não cadastrado' }}</p>
                 </div>
                 <div class="info-group">
                     <h3>Número</h3>
-                    <p id="companyNumber">{{ company.data.numero if company and company.data.numero else 'Não cadastrado' }}</p>
+                    <p id="companyNumber">{{ company.data.numero if company and company.data and company.data.numero else 'Não cadastrado' }}</p>
                 </div>
                 <div class="info-group">
                     <h3>Complemento</h3>
-                    <p id="companyComplement">{{ company.data.complemento if company and company.data.complemento else 'Não cadastrado' }}</p>
+                    <p id="companyComplement">{{ company.data.complemento if company and company.data and company.data.complemento else 'Não cadastrado' }}</p>
                 </div>
                 <div class="info-group">
                     <h3>Bairro</h3>
-                    <p id="companyDistrict">{{ company.data.bairro if company and company.data.bairro else 'Não cadastrado' }}</p>
+                    <p id="companyDistrict">{{ company.data.bairro if company and company.data and company.data.bairro else 'Não cadastrado' }}</p>
                 </div>
                 <div class="info-group">
                     <h3>Cidade/UF</h3>
-                    <p id="companyCity">{{ company.data.municipio if company and company.data.municipio else 'Não cadastrado' }}/{{ company.data.uf if company and company.data.uf else '' }}</p>
+                    <p id="companyCity">{{ company.data.municipio if company and company.data and company.data.municipio else 'Não cadastrado' }}/{{ company.data.uf if company and company.data and company.data.uf else '' }}</p>
                 </div>
                 <div class="info-group">
                     <h3>CEP</h3>
-                    <p id="companyCEP">{{ company.data.cep if company and company.data.cep else 'Não cadastrado' }}</p>
+                    <p id="companyCEP">{{ company.data.cep if company and company.data and company.data.cep else 'Não cadastrado' }}</p>
                 </div>
             </div>
             
@@ -584,16 +585,16 @@
                 <h2>Atividades Econômicas</h2>
                 <div class="info-group">
                     <h3>Atividade Principal</h3>
-                    <p id="mainActivity">{{ company.data.atividade_principal[0].text if company and company.data.atividade_principal and company.data.atividade_principal|length > 0 else 'Não cadastrada' }}</p>
+                    <p id="mainActivity">{{ company.data.atividade_principal[0].text if company and company.data and company.data.atividade_principal and company.data.atividade_principal|length > 0 else 'Não cadastrada' }}</p>
                 </div>
                 <div class="info-group">
                     <h3>Código CNAE</h3>
-                    <p id="mainActivityCode">{{ company.data.atividade_principal[0].code if company and company.data.atividade_principal and company.data.atividade_principal|length > 0 else 'Não cadastrado' }}</p>
+                    <p id="mainActivityCode">{{ company.data.atividade_principal[0].code if company and company.data and company.data.atividade_principal and company.data.atividade_principal|length > 0 else 'Não cadastrado' }}</p>
                 </div>
                 <div class="info-group">
                     <h3>Atividades Secundárias</h3>
                     <div id="secondaryActivities">
-                        {% if company and company.data.atividades_secundarias and company.data.atividades_secundarias|length > 0 %}
+                        {% if company and company.data and company.data.atividades_secundarias and company.data.atividades_secundarias|length > 0 %}
                             {% for activity in company.data.atividades_secundarias %}
                                 <p>{{ activity.text }} ({{ activity.code }})</p>
                             {% endfor %}
@@ -714,8 +715,9 @@
                 if (response.ok) { // Verifica se a resposta HTTP foi bem-sucedida (status 2xx)
                     Swal.fire('Sucesso!', 'Foto de perfil atualizada com sucesso!', 'success');
                     // O caminho da imagem na barra superior também precisa ser atualizado
-                    document.querySelector('.profile-pic-sm').src = `/static/profile_pics/${data.filename}`;
-                    document.querySelector('.user-menu-header img').src = `/static/profile_pics/${data.filename}`;
+                    const newImageUrl = `/static/profile_pics/${data.filename}`;
+                    document.querySelector('.profile-pic-sm').src = newImageUrl;
+                    document.querySelector('.user-menu-header img').src = newImageUrl;
                 } else {
                     Swal.fire('Erro!', data.error || 'Falha ao atualizar foto de perfil', 'error');
                 }
@@ -728,9 +730,34 @@
         // Salvar informações pessoais
         async function savePersonalInfo() {
             const formData = new FormData(); // Usar FormData para enviar dados de formulário
-            formData.append('username', document.getElementById('editUsername').value);
-            formData.append('email', document.getElementById('editEmail').value);
-            formData.append('phone', document.getElementById('editPhone').value);
+            const currentUsername = document.getElementById('usernameInfo').textContent;
+            const currentEmail = document.getElementById('emailInfo').textContent;
+            const currentPhone = document.getElementById('phoneInfo').textContent === 'Não cadastrado' ? '' : document.getElementById('phoneInfo').textContent;
+
+            const newUsername = document.getElementById('editUsername').value;
+            const newEmail = document.getElementById('editEmail').value;
+            const newPhone = document.getElementById('editPhone').value;
+            
+            let hasChanges = false;
+            if (newUsername !== currentUsername) {
+                formData.append('username', newUsername);
+                hasChanges = true;
+            }
+            if (newEmail !== currentEmail) {
+                formData.append('email', newEmail);
+                hasChanges = true;
+            }
+            // Compara os telefones após remover a formatação para uma comparação precisa
+            if (newPhone.replace(/\D/g, '') !== currentPhone.replace(/\D/g, '')) {
+                formData.append('phone', newPhone);
+                hasChanges = true;
+            }
+
+            if (!hasChanges) {
+                closeModal('personalInfoModal');
+                Swal.fire('Nenhuma alteração!', 'Não houve alterações a serem salvas.', 'info');
+                return;
+            }
             
             try {
                 const response = await fetch('/api/update_profile', {
@@ -741,15 +768,17 @@
                 const data = await response.json();
                 if (response.ok) { // Verifica se a resposta HTTP foi bem-sucedida (status 2xx)
                     // Atualizar exibição na página
-                    document.getElementById('usernameDisplay').textContent = formData.get('username');
-                    document.getElementById('emailDisplay').textContent = formData.get('email');
-                    document.getElementById('phoneDisplay').textContent = formData.get('phone') || 'Não cadastrado';
-                    document.getElementById('usernameInfo').textContent = formData.get('username');
-                    document.getElementById('emailInfo').textContent = formData.get('email');
-                    document.getElementById('phoneInfo').textContent = formData.get('phone') || 'Não cadastrado';
+                    document.getElementById('usernameDisplay').textContent = newUsername;
+                    document.getElementById('emailDisplay').textContent = newEmail;
+                    document.getElementById('phoneDisplay').textContent = newPhone || 'Não cadastrado';
+                    document.getElementById('usernameInfo').textContent = newUsername;
+                    document.getElementById('emailInfo').textContent = newEmail;
+                    document.getElementById('phoneInfo').textContent = newPhone || 'Não cadastrado';
                     
                     closeModal('personalInfoModal');
-                    Swal.fire('Sucesso!', 'Informações atualizadas com sucesso!', 'success');
+                    Swal.fire('Sucesso!', 'Informações atualizadas com sucesso!', 'success').then(() => {
+                        window.location.reload(); // Recarrega a página para atualizar o cabeçalho e outros dados
+                    });
                 } else {
                     Swal.fire('Erro!', data.message || 'Falha ao atualizar informações', 'error');
                 }
@@ -761,8 +790,17 @@
 
         // Salvar informações da empresa (CNPJ)
         async function saveCompanyInfo() {
-            const cnpj = document.getElementById('editCNPJ').value;
+            const cnpjInput = document.getElementById('editCNPJ');
+            const cnpj = cnpjInput.value.replace(/\D/g, ''); // CNPJ formatado (apenas dígitos)
+            const currentCnpj = document.getElementById('cnpjInfo').textContent.replace(/\D/g, '');
             
+            // Se o CNPJ no input for o mesmo que o atual e não estiver vazio, não faz nada
+            if (cnpj === currentCnpj && cnpj !== '') {
+                closeModal('companyInfoModal');
+                Swal.fire('Nenhuma alteração!', 'Não houve alterações no CNPJ a serem salvas.', 'info');
+                return;
+            }
+
             try {
                 const response = await fetch('/api/update_company', {
                     method: 'POST',
@@ -770,15 +808,15 @@
                         'Content-Type': 'application/json', // O backend espera JSON para esta rota
                     },
                     body: JSON.stringify({ // Envia o CNPJ como JSON
-                        cnpj: cnpj
+                        cnpj: cnpj // Envia o CNPJ (pode ser vazio para remover)
                     })
                 });
                 
                 const data = await response.json();
                 if (response.ok) { // Verifica se a resposta HTTP foi bem-sucedida (status 2xx)
                     // Atualizar exibição com os novos dados da empresa
-                    document.getElementById('cnpjDisplay').textContent = cnpj || 'Não cadastrado';
-                    document.getElementById('cnpjInfo').textContent = cnpj || 'Não cadastrado';
+                    document.getElementById('cnpjDisplay').textContent = cnpjInput.value || 'Não cadastrado'; // Mantém a formatação no display
+                    document.getElementById('cnpjInfo').textContent = cnpjInput.value || 'Não cadastrado';
                     
                     if (data.company) {
                         // Atualizar todos os campos da empresa com os dados retornados
@@ -830,7 +868,9 @@
                     }
                     
                     closeModal('companyInfoModal');
-                    Swal.fire('Sucesso!', 'CNPJ atualizado e dados da empresa carregados!', 'success');
+                    Swal.fire('Sucesso!', data.success, 'success').then(() => {
+                        window.location.reload(); // Recarrega a página para garantir que tudo foi atualizado
+                    });
                 } else {
                     Swal.fire('Erro!', data.error || 'Falha ao atualizar CNPJ', 'error');
                 }

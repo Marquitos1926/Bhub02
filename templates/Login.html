@@ -13,12 +13,12 @@
             --primary-blue: #007bff; /* Azul vibrante principal */
             --dark-blue: #0056b3;    /* Azul mais escuro para hover/detalhes */
             --light-blue: #e0f2ff;   /* Azul muito claro para fundos sutis */
-            --accent-blue: #17a2b8;  /* Um tom de azul-ciano para destaque */
-            --white: #ffffff;        /* Branco puro */
-            --black: #212529;        /* Preto quase puro para textos principais */
-            --gray-text: #495057;    /* Cinza escuro para textos secundários */
+            --accent-blue: #17a2b8;  /* Um tone de azul-ciano para destaque */
+            --white: #ffffff;       /* Branco puro */
+            --black: #212529;       /* Preto quase puro para textos principais */
+            --gray-text: #495057;   /* Cinza escuro para textos secundários */
             --light-gray-bg: #f8f9fa; /* Cinza muito claro para fundos de campos */
-            --border-color: #ced4da;  /* Cor de borda para inputs */
+            --border-color: #ced4da; /* Cor de borda para inputs */
         }
 
         * {
@@ -29,7 +29,6 @@
         }
 
         body {
-            /* Imagem de fundo com mais contraste e leve opacidade */
             background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
                         url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') 
                         no-repeat center center fixed;
@@ -190,9 +189,9 @@
             text-decoration: underline;
         }
 
-        /* Modal de Consentimento - CORRIGIDO */
+        /* Modal de Consentimento */
         .modal {
-            display: none;
+            display: none; 
             position: fixed;
             z-index: 1000;
             left: 0;
@@ -203,6 +202,7 @@
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px); /* Para compatibilidade com Safari */
         }
 
         .modal-content {
@@ -216,6 +216,8 @@
             max-height: 85vh;
             overflow-y: auto;
             border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
         }
 
         .modal-content h1 {
@@ -227,25 +229,58 @@
         }
 
         .consent-questions {
-            margin-bottom: 30px;
+            margin-bottom: 15px; 
+            flex-grow: 1; 
+            overflow-y: auto; 
+            padding-right: 15px; 
+            box-sizing: border-box; 
+        }
+        /* Estilo para a scrollbar interna */
+        .consent-questions::-webkit-scrollbar {
+            width: 8px;
+            background-color: var(--light-gray-bg);
+        }
+        .consent-questions::-webkit-scrollbar-thumb {
+            background-color: var(--primary-blue);
+            border-radius: 10px;
         }
 
+
         .consent-questions p {
-            margin-bottom: 18px;
+            margin-bottom: 15px; 
             color: var(--gray-text);
             display: flex;
             align-items: flex-start;
             line-height: 1.6;
-            font-size: 1rem;
+            font-size: 0.95rem; 
+            padding-left: 5px; 
         }
 
         .consent-questions input[type="checkbox"] {
-            margin-right: 12px;
+            margin-right: 10px; 
             margin-top: 3px;
-            min-width: 20px;
-            min-height: 20px;
+            min-width: 18px; 
+            min-height: 18px; 
             cursor: pointer;
             accent-color: var(--primary-blue);
+            flex-shrink: 0; 
+        }
+
+        .terms-read-more {
+            text-align: right;
+            margin-top: 10px;
+            margin-bottom: 20px; 
+        }
+
+        .terms-read-more a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .terms-read-more a:hover {
+            text-decoration: underline;
         }
 
         .consent-buttons {
@@ -253,6 +288,7 @@
             justify-content: flex-end;
             gap: 15px;
             margin-top: 25px;
+            flex-shrink: 0; 
         }
 
         .consent-buttons .btn {
@@ -374,6 +410,10 @@
                     <input type="password" id="newPassword" name="newPassword" placeholder="Senha (mínimo 8 caracteres)" minlength="8" maxlength="20" required>
                     <i class='bx bxs-lock-alt' id="toggleNewPassword"></i>
                 </div>
+                <div class="input-box">
+                    <input type="tel" id="phone" name="phone" placeholder="Telefone (opcional)" maxlength="15">
+                    <i class='bx bxs-phone'></i>
+                </div>
                 <button type="submit" class="btn">Criar conta</button>
                 <div class="register-link">
                     <p>Já possui uma conta? <a href="#" id="showLogin">Faça login</a></p>
@@ -385,15 +425,10 @@
     <div id="consentModal" class="modal">
         <div class="modal-content">
             <h1>Termos de Consentimento</h1>
-            <div class="consent-questions">
-                <p><input type="checkbox" id="consentCadastro" required> Você autoriza a BusinessHub a armazenar e utilizar suas informações de cadastro para criar e gerenciar seu perfil na plataforma?</p>
-                <p><input type="checkbox" id="consentPerfilVisualizacao" required> Você autoriza que outras empresas visualizem as informações do seu perfil?</p>
-                <p><input type="checkbox" id="consentPerfilParcerias" required> Você autoriza a BusinessHub a utilizar suas informações de perfil para sugerir parcerias relevantes?</p>
-                <p><input type="checkbox" id="consentPostagens" required> Você autoriza que outras empresas visualizem suas postagens e atualizações?</p>
-                <p><input type="checkbox" id="consentParcerias" required> Você autoriza a BusinessHub a sugerir sua empresa como uma potencial parceira para outras empresas?</p>
-                <p><input type="checkbox" id="consentChat" required> Você autoriza que outras empresas entrem em contato com você através do chat da BusinessHub?</p>
-                <p><input type="checkbox" id="consentContratosArmazenamento" required> Você autoriza a BusinessHub a armazenar os contratos digitais firmados entre sua empresa e outras empresas, ciente de que a responsabilidade pelos contratos é exclusivamente das empresas envolvidas?</p>
-                <p><input type="checkbox" id="consentContratosConfirmacao" required> Você concorda que a confirmação dos contratos digitais será realizada através de e-mails entre as empresas envolvidas e que ambas devem concordar para que o contrato seja validado e registrado na plataforma?</p>
+            <div class="consent-questions" id="consentQuestionsContent">
+            </div>
+            <div class="terms-read-more">
+                <a href="{{ url_for('termos_completos') }}" target="_blank">Leia os termos completos aqui</a>
             </div>
             <div class="consent-buttons">
                 <button id="selectAllConsents" class="btn">Marcar Todos</button>
@@ -409,12 +444,14 @@
             e.preventDefault();
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('registerForm').style.display = 'block';
+            history.replaceState({}, document.title, window.location.pathname + '#register'); // Adiciona o hash para URL
         });
 
         document.getElementById('showLogin').addEventListener('click', function(e) {
             e.preventDefault();
             document.getElementById('registerForm').style.display = 'none';
             document.getElementById('loginForm').style.display = 'block';
+            history.replaceState({}, document.title, window.location.pathname); // Remove o hash da URL
         });
 
         // Mostrar/ocultar senha
@@ -444,63 +481,76 @@
             e.target.value = value.substring(0, 18);
         });
 
-        // Verificar consentimento
-        // Para testes, descomente a linha abaixo para forçar o modal a aparecer sempre:
-        // localStorage.removeItem('consentGiven'); 
+        // Formatar Telefone
+        document.getElementById('phone')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            let formattedValue = '';
+            if (value.length > 0) {
+                formattedValue += '(' + value.substring(0, 2);
+            }
+            if (value.length > 2) {
+                formattedValue += ') ' + value.substring(2, 7);
+            }
+            if (value.length > 7) {
+                formattedValue += '-' + value.substring(7, 11);
+            }
+            e.target.value = formattedValue.substring(0, 15);
+        });
 
-        if (!localStorage.getItem('consentGiven')) {
-            document.getElementById('consentModal').style.display = 'flex';
+        // --- Lógica do Modal de Consentimento ---
+        const consentModal = document.getElementById('consentModal');
+        const consentQuestionsContent = document.getElementById('consentQuestionsContent');
+        let consentCheckboxes; // Será populado dinamicamente
+        const consentSubmitBtn = document.getElementById('consentSubmit');
+        const selectAllConsentsBtn = document.getElementById('selectAllConsents');
+
+        const baseTerms = [
+            { id: 'consentCadastro', text: 'Você autoriza a BusinessHub a armazenar e utilizar suas informações de cadastro para criar e gerenciar seu perfil na plataforma?' },
+            { id: 'consentPerfilVisualizacao', text: 'Você autoriza que outras empresas visualizem as informações do seu perfil?' },
+            { id: 'consentPerfilParcerias', text: 'Você autoriza a BusinessHub a utilizar suas informações de perfil para sugerir parcerias relevantes?' },
+            { id: 'consentPostagens', text: 'Você autoriza que outras empresas visualizem suas postagens e atualizações?' },
+            { id: 'consentParcerias', text: 'Você autoriza a BusinessHub a sugerir sua empresa como uma potencial parceira para outras empresas?' },
+            { id: 'consentChat', text: 'Você autoriza que outras empresas entrem em contato com você através do chat da BusinessHub?' },
+            { id: 'consentContratosArmazenamento', text: 'Você autoriza a BusinessHub a armazenar os contratos digitais firmados entre sua empresa e outras empresas, ciente de que a responsabilidade pelos contratos é exclusivamente das empresas envolvidas?' },
+            { id: 'consentContratosConfirmacao', text: 'Você concorda que a confirmação dos contratos digitais será realizada através de e-mails entre as empresas envolvidas e que ambas devem concordar para que o contrato seja validado e registrado na plataforma?' },
+        ];
+
+        let allConsentTerms = [...baseTerms];
+        // Adicionar muitos termos para simular "mais de 100" para teste
+        for (let i = 1; i <= 15; i++) {
+            baseTerms.forEach(term => {
+                allConsentTerms.push({
+                    id: `${term.id}_extra${i}`,
+                    text: `[Cláusula ${i}.x] ${term.text.replace('?', ` (seção ${i+1}).`)} Você entende a importância desta cláusula e aceita os termos aqui descritos para prosseguir com o uso dos serviços. ${i}º Parágrafo de detalhe.`
+                });
+            });
+        }
+        allConsentTerms.push({ id: 'consentFinal', text: 'Você declara que leu, compreendeu e concorda integralmente com todos os Termos de Uso e Política de Privacidade da BusinessHub.' });
+
+
+        function populateConsentTerms() {
+            consentQuestionsContent.innerHTML = '';
+            allConsentTerms.forEach(term => {
+                const p = document.createElement('p');
+                p.innerHTML = `<input type="checkbox" id="${term.id}" name="${term.id}"> ${term.text}`;
+                consentQuestionsContent.appendChild(p);
+            });
+            // Atualiza a NodeList de checkboxes após popular
+            consentCheckboxes = document.querySelectorAll('#consentModal .consent-questions input[type="checkbox"]');
+            // Adiciona event listeners para cada checkbox para verificar o estado e atualizar o botão "Marcar Todos"
+            consentCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectAllButton);
+            });
+            updateSelectAllButton(); // Garante que o texto do botão esteja correto ao popular
         }
 
-        // Lidar com o consentimento
-        document.getElementById('consentSubmit').addEventListener('click', function() {
-            const requiredConsents = [
-                'consentCadastro', 'consentPerfilVisualizacao', 'consentPerfilParcerias',
-                'consentPostagens', 'consentParcerias', 'consentChat',
-                'consentContratosArmazenamento', 'consentContratosConfirmacao'
-            ];
+        // Função para atualizar o texto do botão "Marcar Todos/Desmarcar Todos"
+        function updateSelectAllButton() {
+            if (!consentCheckboxes || consentCheckboxes.length === 0) return;
+            const allCurrentlyChecked = Array.from(consentCheckboxes).every(checkbox => checkbox.checked);
+            selectAllConsentsBtn.textContent = allCurrentlyChecked ? 'Desmarcar Todos' : 'Marcar Todos';
+        }
 
-            const allAccepted = requiredConsents.every(id =>
-                document.getElementById(id).checked
-            );
-
-            if (allAccepted) {
-                document.getElementById('consentModal').style.display = 'none';
-                localStorage.setItem('consentGiven', 'true');
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Termos aceitos',
-                    text: 'Obrigado por aceitar nossos termos de uso.',
-                    timer: 2000,
-                    showConfirmButton: false,
-                    background: 'var(--white)',
-                    color: 'var(--black)'
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Termos não aceitos',
-                    text: 'Por favor, aceite todos os termos para continuar.',
-                    background: 'var(--white)',
-                    color: 'var(--black)'
-                });
-            }
-        });
-
-        // Marcar/desmarcar todos os termos
-        document.getElementById('selectAllConsents').addEventListener('click', function(e) {
-            e.preventDefault();
-            const checkboxes = document.querySelectorAll('.consent-questions input[type="checkbox"]');
-            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = !allChecked;
-            });
-
-            this.textContent = allChecked ? 'Marcar Todos' : 'Desmarcar Todos';
-        });
-
-        // Função para mostrar alertas
         function showAlert(icon, title, message, redirectUrl = null) {
             return Swal.fire({
                 icon: icon,
@@ -515,6 +565,79 @@
                 }
             });
         }
+
+        // Função para exibir o modal de consentimento
+        async function showConsentModal(message = null) {
+            populateConsentTerms(); // Garante que os termos estejam na DOM
+            if (message) {
+                // Se houver uma mensagem, exibe-a em um SweetAlert antes de mostrar o modal
+                await Swal.fire({
+                    icon: 'info',
+                    title: 'Atenção!',
+                    text: message,
+                    confirmButtonColor: 'var(--primary-blue)',
+                    background: 'var(--white)',
+                    color: 'var(--black)'
+                });
+            }
+            consentModal.style.display = 'flex';
+        }
+
+        // Event listener para o botão "Confirmar" do modal de consentimento
+        consentSubmitBtn.addEventListener('click', async function() {
+            const consentData = {};
+            let allChecked = true;
+            
+            // Verifica se todos os checkboxes estão marcados
+            consentCheckboxes.forEach(checkbox => {
+                if (!checkbox.checked) {
+                    allChecked = false;
+                }
+                consentData[checkbox.name] = checkbox.checked;
+            });
+
+            if (!allChecked) {
+                showAlert('error', 'Termos não aceitos', 'Por favor, aceite todos os termos para continuar.');
+                return; // Impede o envio se nem todos estiverem marcados
+            }
+
+            try {
+                // Envia o consentimento para a API.
+                const response = await fetch('/api/initial_consent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(consentData)
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    consentModal.style.display = 'none';
+                    // Redireciona para o login após o consentimento bem-sucedido e logout no backend.
+                    // O backend agora envia 'redirect': url_for('login')
+                    await showAlert('success', result.title, result.message, result.redirect);
+                } else {
+                    showAlert('error', 'Erro', result.error);
+                }
+            } catch (error) {
+                console.error("Erro ao enviar consentimento:", error);
+                showAlert('error', 'Erro', 'Ocorreu um erro ao registrar seu consentimento.');
+            }
+        });
+
+        // Event listener para o botão "Marcar Todos"
+        selectAllConsentsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const allCurrentlyChecked = Array.from(consentCheckboxes).every(checkbox => checkbox.checked);
+
+            consentCheckboxes.forEach(checkbox => {
+                checkbox.checked = !allCurrentlyChecked;
+            });
+            updateSelectAllButton(); // Atualiza o texto do botão após a ação
+        });
+
+        // Fechar modal ao clicar fora (REMOVIDO OU AJUSTADO PARA FORÇAR ACEITAÇÃO)
+        // O modal só será fechado ao clicar em "Confirmar" quando todos os termos forem aceitos.
+
 
         // Enviar formulário de login
         document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
@@ -535,13 +658,15 @@
                 
                 const result = await response.json();
                 
-                if (result.status === 'success') {
-                    await showAlert('success', result.title, result.message, result.redirect);
-                } else {
+                // Se o backend indicar um redirecionamento (seja para dashboard ou para login com consent_required)
+                if (result.redirect) { 
+                    window.location.href = result.redirect;
+                } else if (result.status === 'error') {
                     showAlert('error', result.title, result.message);
                 }
             } catch (error) {
-                showAlert('error', 'Erro', 'Ocorreu um erro ao processar sua solicitação.');
+                console.error("Erro de rede ou servidor:", error);
+                showAlert('error', 'Erro de conexão', 'Ocorreu um erro ao tentar conectar-se ao servidor.');
             } finally {
                 submitButton.disabled = false;
                 submitButton.textContent = originalText;
@@ -568,22 +693,58 @@
                 const result = await response.json();
                 
                 if (result.status === 'success') {
+                    // Após registro bem-sucedido, o Flask vai definir o user_id na sessão e redirecionar
+                    // com o parâmetro `require_consent=true`.
                     await showAlert('success', result.title, result.message, result.redirect);
                 } else {
                     showAlert('error', result.title, result.message);
                 }
             } catch (error) {
-                showAlert('error', 'Erro', 'Ocorreu um erro ao processar seu cadastro.');
+                console.error("Erro de rede ou servidor:", error);
+                showAlert('error', 'Erro de conexão', 'Ocorreu um erro ao tentar registrar sua conta.');
             } finally {
                 submitButton.disabled = false;
                 submitButton.textContent = originalText;
             }
         });
 
-        // Fechar modal ao clicar fora
-        window.addEventListener('click', function(e) {
-            if (e.target === document.getElementById('consentModal')) {
-                document.getElementById('consentModal').style.display = 'none';
+        // Ao carregar a página, verifica o status de consentimento
+        document.addEventListener('DOMContentLoaded', async function() {
+            populateConsentTerms(); // Popula os termos uma vez ao carregar
+
+            const params = new URLSearchParams(window.location.search);
+            const requireConsentFromUrl = params.get('require_consent');
+            const hash = window.location.hash;
+
+            // Se o URL explicitamente pede consentimento, mostra o modal.
+            if (requireConsentFromUrl === 'true') { 
+                showConsentModal('Por favor, aceite nossos Termos de Uso e Política de Privacidade para acessar a plataforma.');
+                // Remove o parâmetro da URL para evitar que o modal apareça novamente se a página for recarregada.
+                history.replaceState({}, document.title, window.location.pathname);
+            } else if (hash === '#register') {
+                // Se a URL tem o hash '#register', mostra o formulário de registro
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
+            } else {
+                // Se não há o parâmetro na URL nem o hash, verifica via API se o usuário está logado e precisa de consentimento.
+                // Isso cobre o cenário de um usuário logado que acessa /login diretamente, mas ainda não consentiu.
+                try {
+                    const authResponse = await fetch('/api/check_consent_status');
+                    const authData = await authResponse.json();
+
+                    // Se está autenticado e NÃO deu consentimento, mostra o modal
+                    if (authData.authenticated && !authData.consent_given) {
+                        showConsentModal('Você precisa aceitar os Termos de Uso para continuar. Sua sessão foi mantida.');
+                    } else if (authData.authenticated && authData.consent_given) {
+                        // Se o usuário está autenticado E já deu consentimento, redireciona para o dashboard
+                        // Não importa se está em /login ou /
+                        window.location.href = '/dashboard';
+                    }
+                    // Se não estiver autenticado e não precisar de consentimento, permanece na página login.html
+                } catch (error) {
+                    console.error("Erro ao verificar autenticação inicial ou consentimento:", error);
+                    // Permanece na página login.html caso haja erro de conexão
+                }
             }
         });
     </script>
