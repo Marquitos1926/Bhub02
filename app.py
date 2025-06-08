@@ -778,43 +778,52 @@ def login():
                 'message': 'Por favor, preencha ambos os campos.'
             }), 400
 
-        # Aqui o erro estava ocorrendo. users_collection.find_one({'username': username}) é a linha 780 do seu traceback
-        # O problema não é na linha em si, mas na incapacidade de se conectar ao MongoDB
-        user = users_collection.find_one({'username': username})
+        try:
+            user = users_collection.find_one({'username': username})
 
-        if not user or not check_password_hash(user['password'], password):
+            if not user or not check_password_hash(user['password'], password):
+                return jsonify({
+                    'status': 'error',
+                    'title': 'Falha no login',
+                    'message': 'Credenciais inválidas.'
+                }), 401
+
+            # Autenticação bem-sucedida
+            session['username'] = username
+            session['user_id'] = str(user['_id'])
+            # AQUI: A sessão é atualizada com o status de consentimento do DB.
+            session['consent_given'] = user.get('consent_given', False)
+
+            if remember:
+                session.permanent = True
+                app.permanent_session_lifetime = timedelta(days=30) # Sessão permanente por 30 dias
+
+            # Se o consentimento NÃO foi dado, redireciona para a própria página de login com o parâmetro
+            if not session['consent_given']:
+                return jsonify({
+                    'status': 'consent_required',
+                    'title': 'Termos de Uso',
+                    'message': 'Por favor, aceite nossos Termos de Uso e Política de Privacidade para acessar a plataforma.',
+                    'redirect': url_for('login', require_consent=True)
+                })
+            else:
+                # Se o consentimento já foi dado, redireciona para o dashboard
+                return jsonify({
+                    'status': 'success',
+                    'title': 'Login bem-sucedido',
+                    'message': 'Você será redirecionado...',
+                    'redirect': url_for('dashboard')
+                })
+
+        except Exception as e:
+            # Captura qualquer exceção que ocorra durante o processo de login
+            # Isso inclui erros de conexão com o MongoDB (ServerSelectionTimeoutError)
+            print(f"Erro inesperado durante o login: {e}")
             return jsonify({
                 'status': 'error',
-                'title': 'Falha no login',
-                'message': 'Credenciais inválidas.'
-            }), 401
-
-        # Autenticação bem-sucedida
-        session['username'] = username
-        session['user_id'] = str(user['_id'])
-        # AQUI: A sessão é atualizada com o status de consentimento do DB.
-        session['consent_given'] = user.get('consent_given', False)
-
-        if remember:
-            session.permanent = True
-            app.permanent_session_lifetime = timedelta(days=30) # Sessão permanente por 30 dias
-
-        # Se o consentimento NÃO foi dado, redireciona para a própria página de login com o parâmetro
-        if not session['consent_given']:
-            return jsonify({
-                'status': 'consent_required',
-                'title': 'Termos de Uso',
-                'message': 'Por favor, aceite nossos Termos de Uso e Política de Privacidade para acessar a plataforma.',
-                'redirect': url_for('login', require_consent=True)
-            })
-        else:
-            # Se o consentimento já foi dado, redireciona para o dashboard
-            return jsonify({
-                'status': 'success',
-                'title': 'Login bem-sucedido',
-                'message': 'Você será redirecionado...',
-                'redirect': url_for('dashboard')
-            })
+                'title': 'Erro Interno do Servidor',
+                'message': 'Não foi possível completar o login devido a um problema no servidor. Por favor, tente novamente.'
+            }), 500
 
     # Para requisições GET, renderiza o template de login. O JS no frontend cuidará do modal.
     return render_template('login.html')
@@ -841,51 +850,9 @@ def register():
                 'message': 'Preencha todos os campos obrigatórios.'
             }), 400
 
-        # Validação do nome de usuário
-        is_valid, title, message = validate_username(username)
-        if not is_valid:
-            return jsonify({
-                'status': 'error',
-                'title': title,
-                'message': message
-            }), 400
-
-        if users_collection.find_one({'username': username}):
-            return jsonify({
-                'status': 'error',
-                'title': 'Nome em uso',
-                'message': 'Este nome de usuário já está sendo usado.'
-            }), 400
-
-        # Validação do e-mail
-        is_valid, title, message = validate_email(email)
-        if not is_valid:
-            return jsonify({
-                'status': 'error',
-                'title': title,
-                'message': message
-            }), 400
-
-        if users_collection.find_one({'email': email}):
-            return jsonify({
-                'status': 'error',
-                'title': 'Email em uso',
-                'message': 'Este email já está cadastrado.'
-            }), 400
-
-        # Validação da senha
-        is_valid, title, message = validate_password(password)
-        if not is_valid:
-            return jsonify({
-                'status': 'error',
-                'title': title,
-                'message': message
-            }), 400
-
-        # Validação e tratamento do CNPJ (se fornecido)
-        if cnpj and cnpj.strip(): # Verifica se o campo CNPJ não está vazio e não contém apenas espaços
-            formatted_cnpj = ''.join(filter(str.isdigit, cnpj)) # Remove não-dígitos
-            is_valid, title, message = validate_cnpj(formatted_cnpj)
+        try: # Adicionado try-except para a rota de registro também
+            # Validação do nome de usuário
+            is_valid, title, message = validate_username(username)
             if not is_valid:
                 return jsonify({
                     'status': 'error',
@@ -893,77 +860,128 @@ def register():
                     'message': message
                 }), 400
 
-            # Verifica se o CNPJ já está sendo usado por *qualquer* outro usuário
-            if cnpjs_collection.find_one({'cnpj': formatted_cnpj}):
+            if users_collection.find_one({'username': username}):
                 return jsonify({
                     'status': 'error',
-                    'title': 'CNPJ em uso',
-                    'message': 'Este CNPJ já está cadastrado.'
+                    'title': 'Nome em uso',
+                    'message': 'Este nome de usuário já está sendo usado.'
                 }), 400
-        else:
-            formatted_cnpj = None # Define como None se o CNPJ não for fornecido
 
-        # Validação e tratamento do telefone (se fornecido)
-        if phone and phone.strip():
-            formatted_phone = ''.join(filter(str.isdigit, phone))
-            is_valid, title, message = validate_phone(formatted_phone)
+            # Validação do e-mail
+            is_valid, title, message = validate_email(email)
             if not is_valid:
                 return jsonify({
                     'status': 'error',
                     'title': title,
                     'message': message
                 }), 400
-        else:
-            formatted_phone = None # Define como None se o telefone não for fornecido
 
-        # Criação dos dados do novo usuário
-        user_data = {
-            'username': username,
-            'password': generate_password_hash(password), # Hash da senha para segurança
-            'email': email,
-            'phone': formatted_phone,
-            'cnpj': formatted_cnpj, # Armazena o CNPJ no documento do usuário também
-            'created_at': datetime.now(),
-            'consent_given': False, # Novo usuário SEMPRE começa com consentimento NÃO dado
-            'profile_pic': 'user-icon-pequeno.png' # Foto de perfil padrão
-        }
+            if users_collection.find_one({'email': email}):
+                return jsonify({
+                    'status': 'error',
+                    'title': 'Email em uso',
+                    'message': 'Este email já está cadastrado.'
+                }), 400
 
-        result = users_collection.insert_one(user_data)
-        new_user_id = str(result.inserted_id)
+            # Validação da senha
+            is_valid, title, message = validate_password(password)
+            if not is_valid:
+                return jsonify({
+                    'status': 'error',
+                    'title': title,
+                    'message': message
+                }), 400
 
-        # Autentica o usuário recém-cadastrado na sessão
-        session['username'] = username
-        session['user_id'] = new_user_id
-        session['consent_given'] = False # Garante que a sessão reflita o status de consentimento
+            # Validação e tratamento do CNPJ (se fornecido)
+            if cnpj and cnpj.strip(): # Verifica se o campo CNPJ não está vazio e não contém apenas espaços
+                formatted_cnpj = ''.join(filter(str.isdigit, cnpj)) # Remove não-dígitos
+                is_valid, title, message = validate_cnpj(formatted_cnpj)
+                if not is_valid:
+                    return jsonify({
+                        'status': 'error',
+                        'title': title,
+                        'message': message
+                    }), 400
 
+                # Verifica se o CNPJ já está sendo usado por *qualquer* outro usuário
+                if cnpjs_collection.find_one({'cnpj': formatted_cnpj}):
+                    return jsonify({
+                        'status': 'error',
+                        'title': 'CNPJ em uso',
+                        'message': 'Este CNPJ já está cadastrado.'
+                    }), 400
+            else:
+                formatted_cnpj = None # Define como None se o CNPJ não for fornecido
 
-        # Se um CNPJ foi fornecido, insere na coleção de CNPJs e cria uma entrada de empresa associada
-        if formatted_cnpj:
-            # Insere/Atualiza o CNPJ na coleção de controle de CNPJs com o user_id
-            cnpjs_collection.update_one(
-                {'cnpj': formatted_cnpj},
-                {'$set': {'cnpj': formatted_cnpj, 'user_id': ObjectId(new_user_id)}}, # Use ObjectId para o user_id no DB
-                upsert=True
-            )
+            # Validação e tratamento do telefone (se fornecido)
+            if phone and phone.strip():
+                formatted_phone = ''.join(filter(str.isdigit, phone))
+                is_valid, title, message = validate_phone(formatted_phone)
+                if not is_valid:
+                    return jsonify({
+                        'status': 'error',
+                        'title': title,
+                        'message': message
+                    }), 400
+            else:
+                formatted_phone = None # Define como None se o telefone não for fornecido
 
-            # Cria ou atualiza a entrada da empresa na companies_collection
-            company_data = {
-                'name': username, # Nome inicial da empresa pode ser o nome de usuário
-                'cnpj': formatted_cnpj,
-                'description': f'Empresa de {username} no BusinessHub',
-                'logo': 'company-default.png', # Logo padrão
-                'owner_id': new_user_id, # Associa a empresa ao ID do usuário (como string)
-                'created_at': datetime.now()
+            # Criação dos dados do novo usuário
+            user_data = {
+                'username': username,
+                'password': generate_password_hash(password), # Hash da senha para segurança
+                'email': email,
+                'phone': formatted_phone,
+                'cnpj': formatted_cnpj, # Armazena o CNPJ no documento do usuário também
+                'created_at': datetime.now(),
+                'consent_given': False, # Novo usuário SEMPRE começa com consentimento NÃO dado
+                'profile_pic': 'user-icon-pequeno.png' # Foto de perfil padrão
             }
-            companies_collection.insert_one(company_data) # Insere uma nova empresa para o novo CNPJ/usuário
 
-        # Redireciona para a página de login com o parâmetro para exibir o modal de consentimento
-        return jsonify({
-            'status': 'success',
-            'title': 'Cadastro realizado!',
-            'message': 'Seu cadastro foi concluído com sucesso. Por favor, aceite os termos para continuar.',
-            'redirect': url_for('login', require_consent=True) # Redireciona para a página de login com o parâmetro
-        })
+            result = users_collection.insert_one(user_data)
+            new_user_id = str(result.inserted_id)
+
+            # Autentica o usuário recém-cadastrado na sessão
+            session['username'] = username
+            session['user_id'] = new_user_id
+            session['consent_given'] = False # Garante que a sessão reflita o status de consentimento
+
+
+            # Se um CNPJ foi fornecido, insere na coleção de CNPJs e cria uma entrada de empresa associada
+            if formatted_cnpj:
+                # Insere/Atualiza o CNPJ na coleção de controle de CNPJs com o user_id
+                cnpjs_collection.update_one(
+                    {'cnpj': formatted_cnpj},
+                    {'$set': {'cnpj': formatted_cnpj, 'user_id': ObjectId(new_user_id)}}, # Use ObjectId para o user_id no DB
+                    upsert=True
+                )
+
+                # Cria ou atualiza a entrada da empresa na companies_collection
+                company_data = {
+                    'name': username, # Nome inicial da empresa pode ser o nome de usuário
+                    'cnpj': formatted_cnpj,
+                    'description': f'Empresa de {username} no BusinessHub',
+                    'logo': 'company-default.png', # Logo padrão
+                    'owner_id': new_user_id, # Associa a empresa ao ID do usuário (como string)
+                    'created_at': datetime.now()
+                }
+                companies_collection.insert_one(company_data) # Insere uma nova empresa para o novo CNPJ/usuário
+
+            # Redireciona para a página de login com o parâmetro para exibir o modal de consentimento
+            return jsonify({
+                'status': 'success',
+                'title': 'Cadastro realizado!',
+                'message': 'Seu cadastro foi concluído com sucesso. Por favor, aceite os termos para continuar.',
+                'redirect': url_for('login', require_consent=True) # Redireciona para a página de login com o parâmetro
+            })
+
+        except Exception as e:
+            print(f"Erro inesperado durante o registro: {e}")
+            return jsonify({
+                'status': 'error',
+                'title': 'Erro Interno do Servidor',
+                'message': 'Não foi possível completar o registro devido a um problema no servidor. Por favor, tente novamente.'
+            }), 500
 
     return render_template('login.html') # A página de registro geralmente é acessada a partir do login
 
@@ -1095,83 +1113,92 @@ def update_profile():
 
     update_data = {}
 
-    # Atualização do Username
-    if new_username and new_username != current_user_doc.get('username'):
-        is_valid, title, message = validate_username(new_username)
-        if not is_valid:
-            return jsonify({'status': 'error', 'message': f"{title}: {message}"}), 400
-        if users_collection.find_one({'username': new_username, '_id': {'$ne': ObjectId(user_id)}}):
-            return jsonify({'status': 'error', 'message': 'Este nome de usuário já está em uso.'}), 400
-        update_data['username'] = new_username
-        session['username'] = new_username # Atualiza o username na sessão
-
-    # Atualização do Email
-    if new_email and new_email != current_user_doc.get('email'):
-        is_valid, title, message = validate_email(new_email)
-        if not is_valid:
-            return jsonify({'status': 'error', 'message': f"{title}: {message}"}), 400
-        if users_collection.find_one({'email': new_email, '_id': {'$ne': ObjectId(user_id)}}):
-            return jsonify({'status': 'error', 'message': 'Este e-mail já está cadastrado.'}), 400
-        update_data['email'] = new_email
-
-    # Atualização do CNPJ
-    # Certifica-se de que o CNPJ é uma string e remove não-dígitos, ou é None se o campo for vazio
-    processed_new_cnpj = ''.join(filter(str.isdigit, new_cnpj)) if new_cnpj else None
-    current_cnpj = current_user_doc.get('cnpj')
-
-    if processed_new_cnpj != current_cnpj:
-        if processed_new_cnpj: # Se um novo CNPJ foi fornecido e não está vazio
-            is_valid, title, message = validate_cnpj(processed_new_cnpj)
+    try: # Adicionado try-except
+        # Atualização do Username
+        if new_username and new_username != current_user_doc.get('username'):
+            is_valid, title, message = validate_username(new_username)
             if not is_valid:
                 return jsonify({'status': 'error', 'message': f"{title}: {message}"}), 400
-            # Verifica se o CNPJ já está sendo usado por outro usuário que NÃO SEJA O ATUAL
-            if cnpjs_collection.find_one({'cnpj': processed_new_cnpj, 'user_id': {'$ne': ObjectId(user_id)}}):
-                return jsonify({'status': 'error', 'message': 'Este CNPJ já está cadastrado para outro usuário.'}), 400
+            if users_collection.find_one({'username': new_username, '_id': {'$ne': ObjectId(user_id)}}):
+                return jsonify({'status': 'error', 'message': 'Este nome de usuário já está em uso.'}), 400
+            update_data['username'] = new_username
+            session['username'] = new_username # Atualiza o username na sessão
 
-            update_data['cnpj'] = processed_new_cnpj
-            # Atualiza ou insere o CNPJ na coleção de cnpjs_collection associado ao user_id
-            cnpjs_collection.update_one(
-                {'user_id': ObjectId(user_id)}, # Encontra pelo user_id
-                {'$set': {'cnpj': processed_new_cnpj, 'user_id': ObjectId(user_id)}},
-                upsert=True
-            )
-            # Atualiza ou cria a empresa na companies_collection
-            companies_collection.update_one(
-                {'owner_id': user_id}, # owner_id é uma string aqui (session['user_id'])
-                {'$set': {
-                    'cnpj': processed_new_cnpj,
-                    'name': current_user_doc.get('username', 'Empresa'), # Mantém o nome atual ou padrão
-                    'updated_at': datetime.now()
-                }},
-                upsert=True
-            )
-        else: # Se o CNPJ foi removido (campo vazio)
-            update_data['cnpj'] = None
-            cnpjs_collection.delete_one({'user_id': ObjectId(user_id)}) # Remove da coleção de CNPJs
-            companies_collection.delete_one({'owner_id': user_id}) # Remove a empresa associada
-
-    # Atualização do Telefone
-    # Certifica-se de que o telefone é uma string e remove não-dígitos, ou é None se o campo for vazio
-    processed_new_phone = ''.join(filter(str.isdigit, new_phone)) if new_phone else None
-    current_phone = current_user_doc.get('phone')
-
-    if processed_new_phone != current_phone:
-        if processed_new_phone: # Se um novo telefone foi fornecido e não está vazio
-            is_valid, title, message = validate_phone(processed_new_phone)
+        # Atualização do Email
+        if new_email and new_email != current_user_doc.get('email'):
+            is_valid, title, message = validate_email(new_email)
             if not is_valid:
                 return jsonify({'status': 'error', 'message': f"{title}: {message}"}), 400
-            update_data['phone'] = processed_new_phone
-        else: # Se o telefone foi removido (campo vazio)
-            update_data['phone'] = None
+            if users_collection.find_one({'email': new_email, '_id': {'$ne': ObjectId(user_id)}}):
+                return jsonify({'status': 'error', 'message': 'Este e-mail já está cadastrado.'}), 400
+            update_data['email'] = new_email
 
-    if update_data:
-        users_collection.update_one(
-            {'_id': ObjectId(user_id)},
-            {'$set': update_data}
-        )
-        return jsonify({'status': 'success', 'message': 'Perfil atualizado com sucesso!'})
-    else:
-        return jsonify({'status': 'info', 'message': 'Nenhuma alteração a ser salva.'})
+        # Atualização do CNPJ
+        # Certifica-se de que o CNPJ é uma string e remove não-dígitos, ou é None se o campo for vazio
+        processed_new_cnpj = ''.join(filter(str.isdigit, new_cnpj)) if new_cnpj else None
+        current_cnpj = current_user_doc.get('cnpj')
+
+        if processed_new_cnpj != current_cnpj:
+            if processed_new_cnpj: # Se um novo CNPJ foi fornecido e não está vazio
+                is_valid, title, message = validate_cnpj(processed_new_cnpj)
+                if not is_valid:
+                    return jsonify({'status': 'error', 'message': f"{title}: {message}"}), 400
+                # Verifica se o CNPJ já está sendo usado por outro usuário que NÃO SEJA O ATUAL
+                if cnpjs_collection.find_one({'cnpj': processed_new_cnpj, 'user_id': {'$ne': ObjectId(user_id)}}):
+                    return jsonify({'status': 'error', 'message': 'Este CNPJ já está cadastrado para outro usuário.'}), 400
+
+                update_data['cnpj'] = processed_new_cnpj
+                # Atualiza ou insere o CNPJ na coleção de cnpjs_collection associado ao user_id
+                cnpjs_collection.update_one(
+                    {'user_id': ObjectId(user_id)}, # Encontra pelo user_id
+                    {'$set': {'cnpj': processed_new_cnpj, 'user_id': ObjectId(user_id)}},
+                    upsert=True
+                )
+                # Atualiza ou cria a empresa na companies_collection
+                companies_collection.update_one(
+                    {'owner_id': user_id}, # owner_id é uma string aqui (session['user_id'])
+                    {'$set': {
+                        'cnpj': processed_new_cnpj,
+                        'name': current_user_doc.get('username', 'Empresa'), # Mantém o nome atual ou padrão
+                        'updated_at': datetime.now()
+                    }},
+                    upsert=True
+                )
+            else: # Se o CNPJ foi removido (campo vazio)
+                update_data['cnpj'] = None
+                cnpjs_collection.delete_one({'user_id': ObjectId(user_id)}) # Remove da coleção de CNPJs
+                companies_collection.delete_one({'owner_id': user_id}) # Remove a empresa associada
+
+        # Atualização do Telefone
+        # Certifica-se de que o telefone é uma string e remove não-dígitos, ou é None se o campo for vazio
+        processed_new_phone = ''.join(filter(str.isdigit, new_phone)) if new_phone else None
+        current_phone = current_user_doc.get('phone')
+
+        if processed_new_phone != current_phone:
+            if processed_new_phone: # Se um novo telefone foi fornecido e não está vazio
+                is_valid, title, message = validate_phone(processed_new_phone)
+                if not is_valid:
+                    return jsonify({'status': 'error', 'message': f"{title}: {message}"}), 400
+                update_data['phone'] = processed_new_phone
+            else: # Se o telefone foi removido (campo vazio)
+                update_data['phone'] = None
+
+        if update_data:
+            users_collection.update_one(
+                {'_id': ObjectId(user_id)},
+                {'$set': update_data}
+            )
+            return jsonify({'status': 'success', 'message': 'Perfil atualizado com sucesso!'})
+        else:
+            return jsonify({'status': 'info', 'message': 'Nenhuma alteração a ser salva.'})
+    except Exception as e:
+        print(f"Erro inesperado durante a atualização de perfil: {e}")
+        return jsonify({
+            'status': 'error',
+            'title': 'Erro Interno do Servidor',
+            'message': 'Não foi possível atualizar o perfil devido a um problema no servidor. Por favor, tente novamente.'
+        }), 500
+
 
 # --- Rotas de Recuperação de Senha ---
 @app.route('/recuperar_senha')
@@ -1188,24 +1215,34 @@ def recover_password():
     Simula o envio de um e-mail de redefinição.
     """
     identifier = request.form.get('recoveryIdentifier')
-    user = users_collection.find_one({'$or': [{'email': identifier}, {'username': identifier}]})
+    
+    try: # Adicionado try-except
+        user = users_collection.find_one({'$or': [{'email': identifier}, {'username': identifier}]})
 
-    if user:
-        # Em um ambiente real, aqui você geraria um token de redefinição,
-        # o armazenaria no banco de dados e enviaria um e-mail com o link de redefinição.
-        print(f"DEBUG: Solicitação de recuperação para: {identifier}. E-mail de recuperação simulado enviado para {user['email']}")
-        return jsonify({
-            'status': 'success',
-            'title': 'E-mail Enviado',
-            'message': 'Seu link de redefinição de senha foi enviado para o e-mail cadastrado. Verifique sua caixa de entrada (e a pasta de spam).',
-            'redirect': url_for('login')
-        })
-    else:
+        if user:
+            # Em um ambiente real, aqui você geraria um token de redefinição,
+            # o armazenaria no banco de dados e enviaria um e-mail com o link de redefinição.
+            print(f"DEBUG: Solicitação de recuperação para: {identifier}. E-mail de recuperação simulado enviado para {user['email']}")
+            return jsonify({
+                'status': 'success',
+                'title': 'E-mail Enviado',
+                'message': 'Seu link de redefinição de senha foi enviado para o e-mail cadastrado. Verifique sua caixa de entrada (e a pasta de spam).',
+                'redirect': url_for('login')
+            })
+        else:
+            return jsonify({
+                'status': 'error',
+                'title': 'Usuário não encontrado',
+                'message': 'Nenhum usuário ou e-mail encontrado com este identificador. Por favor, tente novamente.'
+            })
+    except Exception as e:
+        print(f"Erro inesperado durante a recuperação de senha: {e}")
         return jsonify({
             'status': 'error',
-            'title': 'Usuário não encontrado',
-            'message': 'Nenhum usuário ou e-mail encontrado com este identificador. Por favor, tente novamente.'
-        })
+            'title': 'Erro Interno do Servidor',
+            'message': 'Não foi possível processar a recuperação de senha devido a um problema no servidor. Por favor, tente novamente.'
+        }), 500
+
 
 # --- Rotas para Arquivos Estáticos ---
 @app.route('/static/<path:filename>')
@@ -1227,10 +1264,15 @@ def check_authentication_and_consent_status():
     authenticated = 'username' in session and 'user_id' in session
     consent_given = False
     if authenticated:
-        user = users_collection.find_one({'_id': ObjectId(session['user_id'])}, {'consent_given': 1})
-        if user:
-            consent_given = user.get('consent_given', False)
-            session['consent_given'] = consent_given # Garante que a sessão está atualizada
+        try: # Adicionado try-except
+            user = users_collection.find_one({'_id': ObjectId(session['user_id'])}, {'consent_given': 1})
+            if user:
+                consent_given = user.get('consent_given', False)
+                session['consent_given'] = consent_given # Garante que a sessão está atualizada
+        except Exception as e:
+            print(f"Erro ao verificar status de consentimento no MongoDB: {e}")
+            authenticated = False # Considera não autenticado se não conseguir verificar o DB
+            consent_given = False # Considera consentimento não dado
 
     return jsonify({
         'authenticated': authenticated,
@@ -1262,25 +1304,31 @@ def update_profile_pic():
         return jsonify({'error': 'Nenhum arquivo selecionado'}), 400
 
     if file and allowed_file(file.filename):
-        # Gera um nome de arquivo único para a nova foto
-        filename = f"{session['user_id']}_{int(datetime.now().timestamp())}.{file.filename.rsplit('.', 1)[1].lower()}"
-        filepath = os.path.join(app.config['PROFILE_PICS_FOLDER'], filename)
-        file.save(filepath)
+        try: # Adicionado try-except
+            # Gera um nome de arquivo único para a nova foto
+            filename = f"{session['user_id']}_{int(datetime.now().timestamp())}.{file.filename.rsplit('.', 1)[1].lower()}"
+            filepath = os.path.join(app.config['PROFILE_PICS_FOLDER'], filename)
+            file.save(filepath)
 
-        # Remove a foto antiga do sistema de arquivos, se não for a padrão
-        user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
-        if user and 'profile_pic' in user and user['profile_pic'] != 'user-icon-pequeno.png':
-            old_pic_path = os.path.join(app.config['PROFILE_PICS_FOLDER'], user['profile_pic'])
-            if os.path.exists(old_pic_path):
-                os.remove(old_pic_path)
+            # Remove a foto antiga do sistema de arquivos, se não for a padrão
+            user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
+            if user and 'profile_pic' in user and user['profile_pic'] != 'user-icon-pequeno.png':
+                old_pic_path = os.path.join(app.config['PROFILE_PICS_FOLDER'], user['profile_pic'])
+                if os.path.exists(old_pic_path):
+                    os.remove(old_pic_path)
 
-        # Atualiza o nome da foto de perfil no banco de dados do usuário
-        users_collection.update_one(
-            {'_id': ObjectId(session['user_id'])},
-            {'$set': {'profile_pic': filename}}
-        )
+            # Atualiza o nome da foto de perfil no banco de dados do usuário
+            users_collection.update_one(
+                {'_id': ObjectId(session['user_id'])},
+                {'$set': {'profile_pic': filename}}
+            )
 
-        return jsonify({'success': 'Foto de perfil atualizada!', 'filename': filename})
+            return jsonify({'success': 'Foto de perfil atualizada!', 'filename': filename})
+        except Exception as e:
+            print(f"Erro ao atualizar foto de perfil: {e}")
+            return jsonify({
+                'error': 'Ocorreu um erro ao atualizar a foto de perfil. Por favor, tente novamente.'
+            }), 500
 
     return jsonify({'error': 'Tipo de arquivo não permitido'}), 400
 
@@ -1302,30 +1350,30 @@ def update_company():
     # Remove qualquer caractere que não seja dígito do CNPJ
     cnpj = re.sub(r'\D', '', data.get('cnpj', ''))
 
-    if not cnpj: # Se o CNPJ for vazio, o usuário quer remover a empresa
-        # Remove o CNPJ do usuário
-        users_collection.update_one(
-            {'_id': ObjectId(session['user_id'])},
-            {'$set': {'cnpj': None}}
-        )
-        # Remove a entrada do CNPJ da cnpjs_collection
-        cnpjs_collection.delete_one({'user_id': ObjectId(session['user_id'])})
-        # Remove a empresa da companies_collection
-        companies_collection.delete_one({'owner_id': session['user_id']})
-        return jsonify({'success': 'Informações da empresa removidas com sucesso!'})
+    try: # Adicionado try-except
+        if not cnpj: # Se o CNPJ for vazio, o usuário quer remover a empresa
+            # Remove o CNPJ do usuário
+            users_collection.update_one(
+                {'_id': ObjectId(session['user_id'])},
+                {'$set': {'cnpj': None}}
+            )
+            # Remove a entrada do CNPJ da cnpjs_collection
+            cnpjs_collection.delete_one({'user_id': ObjectId(session['user_id'])})
+            # Remove a empresa da companies_collection
+            companies_collection.delete_one({'owner_id': session['user_id']})
+            return jsonify({'success': 'Informações da empresa removidas com sucesso!'})
 
-    if len(cnpj) != 14:
-        return jsonify({'error': 'CNPJ inválido. Deve conter 14 dígitos.'}), 400
+        if len(cnpj) != 14:
+            return jsonify({'error': 'CNPJ inválido. Deve conter 14 dígitos.'}), 400
 
-    # Verifica se o CNPJ já está em uso por outro usuário
-    # Ao atualizar, precisamos garantir que o CNPJ não seja de outro usuário.
-    # O user_id associado ao CNPJ na cnpjs_collection deve ser diferente do user_id atual.
-    existing_cnpj_record = cnpjs_collection.find_one({'cnpj': cnpj})
-    if existing_cnpj_record and str(existing_cnpj_record.get('user_id')) != session['user_id']:
-        return jsonify({'error': 'Este CNPJ já está cadastrado para outro usuário.'}), 400
+        # Verifica se o CNPJ já está em uso por outro usuário
+        # Ao atualizar, precisamos garantir que o CNPJ não seja de outro usuário.
+        # O user_id associado ao CNPJ na cnpjs_collection deve ser diferente do user_id atual.
+        existing_cnpj_record = cnpjs_collection.find_one({'cnpj': cnpj})
+        if existing_cnpj_record and str(existing_cnpj_record.get('user_id')) != session['user_id']:
+            return jsonify({'error': 'Este CNPJ já está cadastrado para outro usuário.'}), 400
 
 
-    try:
         # Realiza a requisição HTTP para a API da Receita WS
         response = requests.get(f'https://www.receitaws.com.br/v1/cnpj/{cnpj}')
         response.raise_for_status() # Lança um erro para status de erro HTTP (4xx ou 5xx)
@@ -1368,9 +1416,11 @@ def update_company():
 
     except requests.exceptions.RequestException as e:
         # Captura erros de requisição HTTP (conexão, timeout, etc.)
+        print(f"Erro de comunicação com a API da Receita WS: {e}")
         return jsonify({'error': f'Erro de comunicação com a API da Receita WS: {str(e)}'}), 500
     except Exception as e:
         # Captura outros erros inesperados
+        print(f"Erro interno ao processar dados da empresa: {e}")
         return jsonify({'error': f'Erro interno ao processar dados da empresa: {str(e)}'}), 500
 
 
