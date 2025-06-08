@@ -31,7 +31,7 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'} # Extensões de
 # AQUI ESTÁ A LINHA CORRIGIDA:
 # O primeiro argumento é o NOME da variável de ambiente ("MONGO_URI").
 # O segundo argumento é o VALOR DEFAULT (sua URI de conexão completa com a senha REAL).
-mongo_uri = os.environ.get("MONGO_URI", "mongodb+srv://juliocardoso:<db_password>@dbbhub.nxcw2n9.mongodb.net/")
+mongo_uri = os.environ.get("MONGO_URI", "mongodb+srv://juliocardoso:<db_password>@dbbhub.nxcw2n9.mongodb.net/?retryWrites=true&w=majority&appName=dbBhub")
 client = MongoClient(mongo_uri)
 db = client.get_database("dbbhub")
 
