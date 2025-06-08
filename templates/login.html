@@ -689,17 +689,45 @@
         });
 
         // Enviar formulário de registro
-        document.getElementById('registerForm')?.addEventListener('submit', async function(e) {
+        const registerForm = document.getElementById('registerForm');
+        const registerSubmitBtn = registerForm?.querySelector('button[type="submit"]');
+        
+        registerForm?.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const formData = new FormData(this);
-            const submitButton = this.querySelector('button[type="submit"]');
-            const originalText = submitButton.textContent;
+            // Validação básica dos campos (adicione os campos específicos do seu formulário)
+            const nome = document.getElementById('nome')?.value.trim();
+            const email = document.getElementById('email')?.value.trim();
+            const senha = document.getElementById('senha')?.value.trim();
+            const confirmarSenha = document.getElementById('confirmarSenha')?.value.trim();
+            
+            if (!nome) {
+                showAlert('error', 'Erro de validação', 'Por favor, insira seu nome completo');
+                return;
+            }
+            
+            if (!email || !email.includes('@')) {
+                showAlert('error', 'Erro de validação', 'Por favor, insira um e-mail válido');
+                return;
+            }
+            
+            if (!senha || senha.length < 6) {
+                showAlert('error', 'Erro de validação', 'A senha deve ter pelo menos 6 caracteres');
+                return;
+            }
+            
+            if (senha !== confirmarSenha) {
+                showAlert('error', 'Erro de validação', 'As senhas não coincidem');
+                return;
+            }
+            
+            // Configuração do botão de submit
+            const originalText = registerSubmitBtn.textContent;
+            registerSubmitBtn.disabled = true;
+            registerSubmitBtn.textContent = 'Registrando...';
             
             try {
-                submitButton.disabled = true;
-                submitButton.textContent = 'Registrando...';
-                
+                const formData = new FormData(this);
                 const response = await fetch('/register', {
                     method: 'POST',
                     body: formData
@@ -708,8 +736,6 @@
                 const result = await response.json();
                 
                 if (result.status === 'success') {
-                    // Após registro bem-sucedido, o Flask vai definir o user_id na sessão e redirecionar
-                    // com o parâmetro `require_consent=true`.
                     await showAlert('success', result.title, result.message, result.redirect);
                 } else {
                     showAlert('error', result.title, result.message);
@@ -718,8 +744,8 @@
                 console.error("Erro de rede ou servidor:", error);
                 showAlert('error', 'Erro de conexão', 'Ocorreu um erro ao tentar registrar sua conta.');
             } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = originalText;
+                registerSubmitBtn.disabled = false;
+                registerSubmitBtn.textContent = originalText;
             }
         });
 
