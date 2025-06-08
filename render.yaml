@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: chefabook
+    name: businesshub  # <-- ALTERADO AQUI
     runtime: python
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app"
