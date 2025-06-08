@@ -1,36 +1,15 @@
-# ChefaBook - Plataforma de Receitas Culinárias
+BusinessHub - Plataforma de Conexão Empresarial
+Acesso Rápido: 📅 Documentação | 🔄 Como Usar | 🎥 Demo
 
-![GitHub Last Commit](https://img.shields.io/github/last-commit/seu-usuario/ChefaBook)
-![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-
-**Acesso Rápido:** [📅 Documentação](#documentação) | [🔄 Como Usar](#como-usar) | [🎥 Demo](#demo)
-
----
-
-### Recursos
-
-- 📄 Cadastro de usuários com criptografia
-- 🟢 Upload de fotos via GridFS
-- 🔍 Busca de receitas por categoria
-- 🟣 Painel administrativo
-- 🟤 Design responsivo
-
----
-
-### Demo
-
-Acesse nossa demonstração interativa:
-
-**Link da Demo aqui**
-
-*Ou execute localmente seguindo os passos abaixo:*
-
----
-
-### Como Usar
-
-#### Pré-requisitos
+Recursos
+📄 Autenticação Segura: Cadastro e login de usuários com criptografia de senhas.
+🟢 Gestão de Perfil: Upload de fotos de perfil e atualização de dados via armazenamento otimizado.
+🔍 Busca Avançada: Encontre usuários e empresas por critérios específicos.
+💬 Sistema de Mensagens: Chat privado e gerenciamento de solicitações de conexão.
+📰 Feed de Notícias: Publicação e interação com posts (curtidas).
+🏢 Integração CNPJ: Consulta de dados de empresas via Receita WS.
+🟣 Painel Administrativo: (Se aplicável, ou remova se ainda não implementado)
+🟤 Design Responsivo: Experiência otimizada em diferentes dispositivos.
 
 ```bash
 # Exemplo de comandos básicos para verificar as instalações
