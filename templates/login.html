@@ -2,209 +2,196 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Chefabook</title>
-    <link rel="icon" href="https://img.icons8.com/color/48/000000/restaurant--v1.png" type="image/x-icon">
-    <link rel="shortcut icon" href="https://img.icons8.com/color/48/000000/restaurant--v1.png" type="image/x-icon">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Sistema de Login - BusinessHub</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
+        /* Variáveis de Cores Aprimoradas */
         :root {
-            --primary-color: #2E7D32; /* Verde Chefabook */
-            --secondary-color: #FFA726; /* Laranja Chefabook */
-            --dark-color: #1b5e20;
-            --light-color: #f5f5f5;
-            --text-color: #333;
-            --text-light: #777;
-            --white: #ffffff;
-            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
+            --primary-blue: #007bff; /* Azul vibrante principal */
+            --dark-blue: #0056b3;    /* Azul mais escuro para hover/detalhes */
+            --light-blue: #e0f2ff;   /* Azul muito claro para fundos sutis */
+            --accent-blue: #17a2b8;  /* Um tone de azul-ciano para destaque */
+            --white: #ffffff;       /* Branco puro */
+            --black: #212529;       /* Preto quase puro para textos principais */
+            --gray-text: #495057;   /* Cinza escuro para textos secundários */
+            --light-gray-bg: #f8f9fa; /* Cinza muito claro para fundos de campos */
+            --border-color: #ced4da; /* Cor de borda para inputs */
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
-                        url('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80') no-repeat center center fixed;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                        url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') 
+                        no-repeat center center fixed;
             background-size: cover;
-            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: var(--text-color);
-            line-height: 1.6;
+            min-height: 100vh;
+            color: var(--black);
         }
 
         .container {
-            background-color: rgba(255, 255, 255, 0.96);
-            max-width: 450px;
-            width: 90%;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: var(--box-shadow);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .container::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
-        }
-
-        .logo {
-            display: inline-block;
-            margin-bottom: 5px;
-            color: var(--primary-color);
-            font-family: 'Playfair Display', serif;
-            font-weight: 600;
-        }
-
-        h2 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            color: var(--primary-color);
-        }
-
-        .subtitle {
-            font-size: 1rem;
-            color: var(--text-light);
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--text-color);
-        }
-
-        input {
-            width: 100%;
-            padding: 14px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: var(--transition);
-            background-color: rgba(255, 255, 255, 0.8);
-        }
-
-        input:focus {
-            border-color: var(--secondary-color);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
             background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            width: 420px;
+            max-width: 90%;
+            margin: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .divlogo {
+            display: flex;
+            justify-content: center;
+            padding: 25px 0;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue)); 
+        }
+
+        .imglogo {
+            max-width: 180px;
+            height: auto;
+            filter: brightness(0) invert(1);
+        }
+
+        .wrapper {
+            padding: 30px 35px;
+        }
+
+        .wrapper h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 2rem;
+        }
+
+        .input-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 14px 45px 14px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: var(--light-gray-bg);
+            color: var(--black);
+        }
+
+        .input-box input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            background-color: var(--white);
+        }
+
+        .input-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.3rem;
+            color: var(--gray-text);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .input-box i:hover {
+            color: var(--primary-blue);
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--gray-text);
+        }
+
+        .remember-forgot label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .remember-forgot label input {
+            margin-right: 7px;
+            accent-color: var(--primary-blue);
+        }
+
+        .remember-forgot a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .remember-forgot a:hover {
+            color: var(--dark-blue);
+            text-decoration: underline;
         }
 
         .btn {
             width: 100%;
-            padding: 15px;
-            background-color: var(--secondary-color);
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
             color: var(--white);
             border: none;
             border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
             cursor: pointer;
-            transition: var(--transition);
-            margin-top: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
         }
 
         .btn:hover {
-            background-color: #e6951d;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
         }
 
         .btn:active {
-            transform: translateY(1px);
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
-        .footer-text {
+        .register-link {
+            text-align: center;
             margin-top: 25px;
-            color: var(--text-light);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            color: var(--gray-text);
         }
 
-        .footer-text a {
-            color: var(--primary-color);
-            font-weight: 600;
+        .register-link a {
+            color: var(--primary-blue);
             text-decoration: none;
-            transition: var(--transition);
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
-        .footer-text a:hover {
+        .register-link a:hover {
+            color: var(--dark-blue);
             text-decoration: underline;
-            color: var(--dark-color);
         }
 
-        /* Efeito de loading no botão */
-        .btn.loading {
-            position: relative;
-            color: transparent;
-        }
-
-        .btn.loading::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top-color: var(--white);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        /* Ajustes para Formulários e Modal de Consentimento (adaptação do BusinessHub) */
-        #registerForm, #loginForm {
-            display: none; /* Inicia ambos ocultos, JS decide qual mostrar */
-        }
-        .form-group.visible {
-            display: block;
-        }
-        .form-group.hidden {
-            display: none;
-        }
-        .input-box { /* Nova classe para inputs com ícones (se for usar) */
-            position: relative;
-            margin-bottom: 20px;
-        }
-        .input-box input {
-            width: 100%;
-            padding: 14px 15px; /* Ajuste para não ter ícone */
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: var(--transition);
-            background-color: rgba(255, 255, 255, 0.8);
-        }
-
-        /* Modal de Consentimento (copiado do BusinessHub, com cores adaptadas) */
+        /* Modal de Consentimento */
         .modal {
-            display: none; /* Escondido por padrão */
+            display: none; 
             position: fixed;
             z-index: 1000;
             left: 0;
@@ -215,7 +202,7 @@
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px); /* Para compatibilidade com Safari */
         }
 
         .modal-content {
@@ -228,14 +215,14 @@
             width: 90%;
             max-height: 85vh;
             overflow-y: auto;
-            border: 1px solid #ced4da;
+            border: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
         }
 
         .modal-content h1 {
             margin-bottom: 25px;
-            color: var(--primary-color); /* Cor principal do Chefabook */
+            color: var(--primary-blue);
             font-size: 2rem;
             text-align: center;
             font-weight: 700;
@@ -248,18 +235,20 @@
             padding-right: 15px; 
             box-sizing: border-box; 
         }
+        /* Estilo para a scrollbar interna */
         .consent-questions::-webkit-scrollbar {
             width: 8px;
-            background-color: var(--light-color);
+            background-color: var(--light-gray-bg);
         }
         .consent-questions::-webkit-scrollbar-thumb {
-            background-color: var(--primary-color);
+            background-color: var(--primary-blue);
             border-radius: 10px;
         }
 
+
         .consent-questions p {
             margin-bottom: 15px; 
-            color: var(--text-light);
+            color: var(--gray-text);
             display: flex;
             align-items: flex-start;
             line-height: 1.6;
@@ -273,7 +262,7 @@
             min-width: 18px; 
             min-height: 18px; 
             cursor: pointer;
-            accent-color: var(--primary-color);
+            accent-color: var(--primary-blue);
             flex-shrink: 0; 
         }
 
@@ -284,7 +273,7 @@
         }
 
         .terms-read-more a {
-            color: var(--primary-color);
+            color: var(--primary-blue);
             text-decoration: none;
             font-weight: 600;
             font-size: 0.9rem;
@@ -306,58 +295,67 @@
             width: auto;
             padding: 12px 28px;
             font-size: 1rem;
-            background-color: var(--primary-color); /* Adaptação de cor */
-        }
-        .consent-buttons .btn:hover {
-            background-color: var(--dark-color); /* Adaptação de cor */
         }
 
         #selectAllConsents {
-            background: #e0e0e0; /* Cor de borda leve */
-            color: var(--text-light);
+            background: var(--border-color);
+            color: var(--gray-text);
             box-shadow: none;
         }
+
         #selectAllConsents:hover {
-            background: #d0d0d0;
-            color: var(--text-color);
+            background: #c5d0da;
+            color: var(--black);
             transform: translateY(-1px);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        
-        /* Responsividade */
-        @media (max-width: 768px) {
-            .container {
-                padding: 30px 25px;
-            }
-            h2 {
-                font-size: 1.8rem;
-            }
-            .modal-content {
-                padding: 30px 25px;
-            }
+
+        /* Formulários */
+        #registerForm {
+            display: none;
         }
 
+        /* Responsividade */
         @media (max-width: 480px) {
-            .container {
-                width: 95%;
-                padding: 25px 20px;
+            .wrapper {
+                padding: 25px;
             }
-            input, .btn {
-                padding: 12px 15px;
+            
+            .wrapper h1 {
+                font-size: 1.6rem;
             }
+
+            .input-box input {
+                padding: 12px 40px 12px 12px;
+            }
+            
+            .input-box i {
+                right: 12px;
+                font-size: 1.1rem;
+            }
+
+            .btn {
+                padding: 12px;
+                font-size: 1rem;
+            }
+
             .modal-content {
-                padding: 25px 20px;
+                padding: 25px;
             }
+
             .modal-content h1 {
                 font-size: 1.6rem;
             }
+
             .consent-questions p {
                 font-size: 0.9rem;
             }
+
             .consent-buttons {
                 flex-direction: column;
                 align-items: stretch;
             }
+
             .consent-buttons .btn {
                 width: 100%;
                 margin-bottom: 10px;
@@ -367,67 +365,61 @@
 </head>
 <body>
     <div class="container">
-        <h2 id="formTitle">Bem-vindo ao <span class="logo">Chefabook</span></h2>
-        <p class="subtitle" id="formSubtitle">Faça login para acessar sua conta</p>
-
-        <div class="flash-messages">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert-data" data-category="{{ category }}" data-message="{{ message }}"></div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+        <div class="divlogo">
+            <img class="imglogo" src="{{ url_for('static', filename='images/logo-bhub.png') }}" alt="Logo BusinessHub">
         </div>
+        <div class="wrapper">
+            <form id="loginForm" method="POST">
+                <h1>Login</h1>
+                <div class="input-box">
+                    <input type="text" id="username" name="username" placeholder="Nome de usuário" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" id="password" name="password" placeholder="Senha" required>
+                    <i class='bx bxs-lock-alt' id="togglePassword"></i>
+                </div>
+                <div class="remember-forgot">
+                    <label>
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
+                        Lembrar-me
+                    </label>
+                    <a href="{{ url_for('show_recover_password') }}">Esqueceu a senha?</a>
+                </div>
+                <button type="submit" class="btn">Entrar</button>
+                <div class="register-link">
+                    <p>Não possui uma conta? <a href="#" id="showRegister">Cadastre-se</a></p>
+                </div>
+            </form>
 
-        <form id="loginForm" method="POST" action="{{ url_for('login') }}">
-            <div class="form-group">
-                <label for="loginEmail">E-mail</label>
-                <input type="email" id="loginEmail" name="email" placeholder="seu@email.com" required
-                       value="{{ request.form.email if request.form.email else '' }}">
-            </div>
-            
-            <div class="form-group">
-                <label for="loginSenha">Senha</label>
-                <input type="password" id="loginSenha" name="senha" placeholder="Sua senha" required>
-            </div>
-
-            <div class="remember-forgot">
-                <label>
-                    <input type="checkbox" id="rememberMe" name="rememberMe">
-                    Lembrar-me
-                </label>
-                <a href="{{ url_for('recuperar_senha') }}">Esqueceu a senha?</a> {# Corrected endpoint name #}
-            </div>
-
-            <button type="submit" class="btn" id="loginSubmitBtn">Entrar</button>
-            <p class="footer-text">Não tem uma conta? <a href="#" id="showRegister">Cadastre-se aqui</a></p>
-        </form>
-
-        <form id="registerForm" method="POST" action="{{ url_for('cadastrar_usuario') }}">
-            <div class="form-group">
-                <label for="registerNome">Nome</label>
-                <input type="text" id="registerNome" name="nome" placeholder="Seu nome completo" required>
-            </div>
-            <div class="form-group">
-                <label for="registerEmail">E-mail</label>
-                <input type="email" id="registerEmail" name="email" placeholder="seu@email.com" required>
-            </div>
-            <div class="form-group">
-                <label for="registerTelefone">Telefone</label>
-                <input type="tel" id="registerTelefone" name="telefone" placeholder="(XX) XXXXX-XXXX" required>
-            </div>
-            <div class="form-group">
-                <label for="registerSenha">Senha</label>
-                <input type="password" id="registerSenha" name="senha" placeholder="Mínimo 6 caracteres" required>
-            </div>
-            <div class="form-group">
-                <label for="confirmarSenha">Confirmar Senha</label>
-                <input type="password" id="confirmarSenha" name="confirmar_senha" placeholder="Confirme sua senha" required>
-            </div>
-            <button type="submit" class="btn" id="registerSubmitBtn">Criar conta</button>
-            <p class="footer-text">Já tem uma conta? <a href="#" id="showLogin">Faça login</a></p>
-        </form>
+            <form id="registerForm" method="POST">
+                <h1>Cadastre-se</h1>
+                <div class="input-box">
+                    <input type="text" id="newUsername" name="newUsername" placeholder="Nome de usuário" maxlength="20" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+                <div class="input-box">
+                    <input type="text" id="cnpj" name="cnpj" placeholder="CNPJ (opcional)" maxlength="18">
+                    <i class='bx bxs-id-card'></i>
+                </div>
+                <div class="input-box">
+                    <input type="email" id="email" name="email" placeholder="E-mail" maxlength="100" required>
+                    <i class='bx bxs-envelope'></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" id="newPassword" name="newPassword" placeholder="Senha (mínimo 8 caracteres)" minlength="8" maxlength="20" required>
+                    <i class='bx bxs-lock-alt' id="toggleNewPassword"></i>
+                </div>
+                <div class="input-box">
+                    <input type="tel" id="phone" name="phone" placeholder="Telefone (opcional)" maxlength="15">
+                    <i class='bx bxs-phone'></i>
+                </div>
+                <button type="submit" class="btn">Criar conta</button>
+                <div class="register-link">
+                    <p>Já possui uma conta? <a href="#" id="showLogin">Faça login</a></p>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div id="consentModal" class="modal">
@@ -445,71 +437,52 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Funções de alerta (SweetAlert)
-        function showAlert(icon, title, message, redirectUrl = null) {
-            Swal.fire({
-                icon: icon,
-                title: title,
-                text: message,
-                confirmButtonColor: 'var(--primary-color)', /* Adaptação de cor */
-                background: 'var(--white)',
-                color: 'var(--text-color)'
-            }).then((result) => {
-                if (redirectUrl && result.isConfirmed) {
-                    window.location.href = redirectUrl;
-                }
-            });
-        }
-
-        // Mostrar mensagens flash do Flask
-        document.addEventListener('DOMContentLoaded', function() {
-            const alerts = document.querySelectorAll('.alert-data');
-            alerts.forEach(alert => {
-                const category = alert.getAttribute('data-category');
-                const message = alert.getAttribute('data-message');
-                if (category && message) {
-                    showAlert(category, message);
-                }
-            });
-        });
-
         // Alternar entre formulários de login e registro
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        const showRegisterBtn = document.getElementById('showRegister');
-        const showLoginBtn = document.getElementById('showLogin');
-        const formTitle = document.getElementById('formTitle');
-        const formSubtitle = document.getElementById('formSubtitle');
-
-        function showLoginForm() {
-            loginForm.style.display = 'block';
-            registerForm.style.display = 'none';
-            formTitle.textContent = 'Bem-vindo ao Chefabook';
-            formSubtitle.textContent = 'Faça login para acessar sua conta';
-            history.replaceState({}, document.title, window.location.pathname); // Limpa o hash
-        }
-
-        function showRegisterForm() {
-            loginForm.style.display = 'none';
-            registerForm.style.display = 'block';
-            formTitle.textContent = 'Crie sua conta no Chefabook';
-            formSubtitle.textContent = 'Junte-se à nossa comunidade culinária!';
-            history.replaceState({}, document.title, window.location.pathname + '#register'); // Adiciona o hash
-        }
-
-        showRegisterBtn.addEventListener('click', function(e) {
+        document.getElementById('showRegister').addEventListener('click', function(e) {
             e.preventDefault();
-            showRegisterForm();
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            history.replaceState({}, document.title, window.location.pathname + '#register'); // Adiciona o hash para URL
         });
 
-        showLoginBtn.addEventListener('click', function(e) {
+        document.getElementById('showLogin').addEventListener('click', function(e) {
             e.preventDefault();
-            showLoginForm();
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            history.replaceState({}, document.title, window.location.pathname); // Remove o hash da URL
         });
 
-        // Validação e formatação de telefone (adaptado do BusinessHub)
-        document.getElementById('registerTelefone')?.addEventListener('input', function(e) {
+        // Mostrar/ocultar senha
+        function setupPasswordToggle(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (input && icon) {
+                icon.addEventListener('click', function() {
+                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                    input.setAttribute('type', type);
+                    icon.classList.toggle('bxs-lock-open');
+                });
+            }
+        }
+
+        setupPasswordToggle('password', 'togglePassword');
+        setupPasswordToggle('newPassword', 'toggleNewPassword');
+
+        // Formatar CNPJ
+        document.getElementById('cnpj')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 2) value = value.substring(0, 2) + '.' + value.substring(2);
+            if (value.length > 6) value = value.substring(0, 6) + '.' + value.substring(6);
+            if (value.length > 10) value = value.substring(0, 10) + '/' + value.substring(10);
+            if (value.length > 15) value = value.substring(0, 15) + '-' + value.substring(15, 17);
+            e.target.value = value.substring(0, 18);
+        });
+
+        // Formatar Telefone
+        document.getElementById('phone')?.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             let formattedValue = '';
             if (value.length > 0) {
@@ -524,40 +497,35 @@
             e.target.value = formattedValue.substring(0, 15);
         });
 
-        // --- Lógica do Modal de Consentimento (adaptado do BusinessHub) ---
+        // --- Lógica do Modal de Consentimento ---
         const consentModal = document.getElementById('consentModal');
         const consentQuestionsContent = document.getElementById('consentQuestionsContent');
-        let consentCheckboxes;
+        let consentCheckboxes; // Será populado dinamicamente
         const consentSubmitBtn = document.getElementById('consentSubmit');
         const selectAllConsentsBtn = document.getElementById('selectAllConsents');
 
-        // Termos de consentimento (Chefabook-specific)
-        // Removida a baseTerms duplicada para evitar confusão na geração de extras
-        const allConsentTerms = [
-            { id: 'consentDadosCadastro', text: 'Você autoriza o Chefabook a armazenar e utilizar suas informações de cadastro (nome, e-mail, telefone) para criar e gerenciar seu perfil na plataforma?' },
-            { id: 'consentReceitasPublicas', text: 'Você autoriza que suas receitas postadas sejam visíveis para outros usuários e visitantes da plataforma?' },
-            { id: 'consentComunidade', text: 'Você autoriza o Chefabook a utilizar suas informações para interação com outros membros da comunidade (ex: comentários, avaliações de receitas)?' },
-            { id: 'consentPersonalizacao', text: 'Você concorda que o Chefabook pode usar seus dados de uso (ex: receitas favoritas, buscas) para personalizar sua experiência e sugerir conteúdos relacionados?' },
-            { id: 'consentComComunicacao', text: 'Você autoriza o Chefabook a enviar comunicações relevantes sobre a plataforma, novas funcionalidades ou avisos importantes por e-mail?' },
-            { id: 'consentTerceiros', text: 'Você entende que, para o funcionamento da plataforma, dados anonimizados e agregados podem ser compartilhados com terceiros (ex: serviços de análise de dados), sem identificação pessoal?' },
-            { id: 'consentFinal', text: 'Você declara que leu, compreendeu e concorda integralmente com todos os Termos de Uso e Política de Privacidade do Chefabook.' }
+        const baseTerms = [
+            { id: 'consentCadastro', text: 'Você autoriza a BusinessHub a armazenar e utilizar suas informações de cadastro para criar e gerenciar seu perfil na plataforma?' },
+            { id: 'consentPerfilVisualizacao', text: 'Você autoriza que outras empresas visualizem as informações do seu perfil?' },
+            { id: 'consentPerfilParcerias', text: 'Você autoriza a BusinessHub a utilizar suas informações de perfil para sugerir parcerias relevantes?' },
+            { id: 'consentPostagens', text: 'Você autoriza que outras empresas visualizem suas postagens e atualizações?' },
+            { id: 'consentParcerias', text: 'Você autoriza a BusinessHub a sugerir sua empresa como uma potencial parceira para outras empresas?' },
+            { id: 'consentChat', text: 'Você autoriza que outras empresas entrem em contato com você através do chat da BusinessHub?' },
+            { id: 'consentContratosArmazenamento', text: 'Você autoriza a BusinessHub a armazenar os contratos digitais firmados entre sua empresa e outras empresas, ciente de que a responsabilidade pelos contratos é exclusivamente das empresas envolvidas?' },
+            { id: 'consentContratosConfirmacao', text: 'Você concorda que a confirmação dos contratos digitais será realizada através de e-mails entre as empresas envolvidas e que ambas devem concordar para que o contrato seja validado e registrado na plataforma?' },
         ];
 
-        // Se você não precisa de mais de 100 termos, pode remover este loop, ou adaptá-lo para os termos do Chefabook
-        // Exemplo de como gerar extras com base nos termos do Chefabook (se necessário):
-        const chefaBookBaseTermsForExtras = [
-            { id: 'consentDadosCadastro', text: 'Você autoriza o Chefabook a armazenar e utilizar suas informações de cadastro (nome, e-mail, telefone) para criar e gerenciar seu perfil na plataforma?' },
-            { id: 'consentReceitasPublicas', text: 'Você autoriza que suas receitas postadas sejam visíveis para outros usuários e visitantes da plataforma?' },
-            // ... adicione outros termos base se quiser que eles tenham "extras"
-        ];
-        // for (let i = 1; i <= 5; i++) { // Por exemplo, 5 extras
-        //     chefaBookBaseTermsForExtras.forEach(term => {
-        //         allConsentTerms.push({
-        //             id: `${term.id}_extra${i}`,
-        //             text: `[Cláusula ${i}.x] ${term.text.replace('?', ` (seção ${i+1}).`)} Mais detalhes sobre esta permissão.`
-        //         });
-        //     });
-        // }
+        let allConsentTerms = [...baseTerms];
+        // Adicionar muitos termos para simular "mais de 100" para teste
+        for (let i = 1; i <= 15; i++) {
+            baseTerms.forEach(term => {
+                allConsentTerms.push({
+                    id: `${term.id}_extra${i}`,
+                    text: `[Cláusula ${i}.x] ${term.text.replace('?', ` (seção ${i+1}).`)} Você entende a importância desta cláusula e aceita os termos aqui descritos para prosseguir com o uso dos serviços. ${i}º Parágrafo de detalhe.`
+                });
+            });
+        }
+        allConsentTerms.push({ id: 'consentFinal', text: 'Você declara que leu, compreendeu e concorda integralmente com todos os Termos de Uso e Política de Privacidade da BusinessHub.' });
 
 
         function populateConsentTerms() {
@@ -567,37 +535,60 @@
                 p.innerHTML = `<input type="checkbox" id="${term.id}" name="${term.id}"> ${term.text}`;
                 consentQuestionsContent.appendChild(p);
             });
+            // Atualiza a NodeList de checkboxes após popular
             consentCheckboxes = document.querySelectorAll('#consentModal .consent-questions input[type="checkbox"]');
+            // Adiciona event listeners para cada checkbox para verificar o estado e atualizar o botão "Marcar Todos"
             consentCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', updateSelectAllButton);
             });
-            updateSelectAllButton();
+            updateSelectAllButton(); // Garante que o texto do botão esteja correto ao popular
         }
 
+        // Função para atualizar o texto do botão "Marcar Todos/Desmarcar Todos"
         function updateSelectAllButton() {
             if (!consentCheckboxes || consentCheckboxes.length === 0) return;
             const allCurrentlyChecked = Array.from(consentCheckboxes).every(checkbox => checkbox.checked);
             selectAllConsentsBtn.textContent = allCurrentlyChecked ? 'Desmarcar Todos' : 'Marcar Todos';
         }
 
-        async function showConsentModalOnDemand(message = null) {
-            populateConsentTerms();
+        function showAlert(icon, title, message, redirectUrl = null) {
+            return Swal.fire({
+                icon: icon,
+                title: title,
+                text: message,
+                confirmButtonColor: 'var(--primary-blue)',
+                background: 'var(--white)',
+                color: 'var(--black)'
+            }).then((result) => {
+                if (redirectUrl && result.isConfirmed) {
+                    window.location.href = redirectUrl;
+                }
+            });
+        }
+
+        // Função para exibir o modal de consentimento
+        async function showConsentModal(message = null) {
+            populateConsentTerms(); // Garante que os termos estejam na DOM
             if (message) {
+                // Se houver uma mensagem, exibe-a em um SweetAlert antes de mostrar o modal
                 await Swal.fire({
                     icon: 'info',
                     title: 'Atenção!',
                     text: message,
-                    confirmButtonColor: 'var(--primary-color)',
+                    confirmButtonColor: 'var(--primary-blue)',
                     background: 'var(--white)',
-                    color: 'var(--text-color)'
+                    color: 'var(--black)'
                 });
             }
             consentModal.style.display = 'flex';
         }
 
+        // Event listener para o botão "Confirmar" do modal de consentimento
         consentSubmitBtn.addEventListener('click', async function() {
             const consentData = {};
             let allChecked = true;
+            
+            // Verifica se todos os checkboxes estão marcados
             consentCheckboxes.forEach(checkbox => {
                 if (!checkbox.checked) {
                     allChecked = false;
@@ -607,10 +598,11 @@
 
             if (!allChecked) {
                 showAlert('error', 'Termos não aceitos', 'Por favor, aceite todos os termos para continuar.');
-                return;
+                return; // Impede o envio se nem todos estiverem marcados
             }
 
             try {
+                // Envia o consentimento para a API.
                 const response = await fetch('/api/initial_consent', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -620,6 +612,8 @@
 
                 if (result.success) {
                     consentModal.style.display = 'none';
+                    // Redireciona para o login após o consentimento bem-sucedido e logout no backend.
+                    // O backend agora envia 'redirect': url_for('login')
                     await showAlert('success', result.title, result.message, result.redirect);
                 } else {
                     showAlert('error', 'Erro', result.error);
@@ -630,41 +624,126 @@
             }
         });
 
+        // Event listener para o botão "Marcar Todos"
         selectAllConsentsBtn.addEventListener('click', function(e) {
             e.preventDefault();
             const allCurrentlyChecked = Array.from(consentCheckboxes).every(checkbox => checkbox.checked);
+
             consentCheckboxes.forEach(checkbox => {
                 checkbox.checked = !allCurrentlyChecked;
             });
-            updateSelectAllButton();
+            updateSelectAllButton(); // Atualiza o texto do botão após a ação
         });
 
-        // Controlar qual formulário mostrar e o modal de consentimento ao carregar a página
+        // Fechar modal ao clicar fora (REMOVIDO OU AJUSTADO PARA FORÇAR ACEITAÇÃO)
+        // O modal só será fechado ao clicar em "Confirmar" quando todos os termos forem aceitos.
+
+
+        // Enviar formulário de login
+        document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            
+            try {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Autenticando...';
+                
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                // Se o backend indicar um redirecionamento (seja para dashboard ou para login com consent_required)
+                if (result.redirect) { 
+                    window.location.href = result.redirect;
+                } else if (result.status === 'error') {
+                    showAlert('error', result.title, result.message);
+                }
+            } catch (error) {
+                console.error("Erro de rede ou servidor:", error);
+                showAlert('error', 'Erro de conexão', 'Ocorreu um erro ao tentar conectar-se ao servidor.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+            }
+        });
+
+        // Enviar formulário de registro
+        document.getElementById('registerForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            
+            try {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Registrando...';
+                
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    // Após registro bem-sucedido, o Flask vai definir o user_id na sessão e redirecionar
+                    // com o parâmetro `require_consent=true`.
+                    await showAlert('success', result.title, result.message, result.redirect);
+                } else {
+                    showAlert('error', result.title, result.message);
+                }
+            } catch (error) {
+                console.error("Erro de rede ou servidor:", error);
+                showAlert('error', 'Erro de conexão', 'Ocorreu um erro ao tentar registrar sua conta.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+            }
+        });
+
+        // Ao carregar a página, verifica o status de consentimento
         document.addEventListener('DOMContentLoaded', async function() {
-            populateConsentTerms(); // Popula os termos inicialmente
+            populateConsentTerms(); // Popula os termos uma vez ao carregar
 
             const params = new URLSearchParams(window.location.search);
             const requireConsentFromUrl = params.get('require_consent');
             const hash = window.location.hash;
 
-            if (requireConsentFromUrl === 'true') {
-                showConsentModalOnDemand('Por favor, aceite nossos Termos de Uso e Política de Privacidade para acessar a plataforma.');
-                history.replaceState({}, document.title, window.location.pathname); // Limpa o parâmetro da URL
+            // Se o URL explicitamente pede consentimento, mostra o modal.
+            if (requireConsentFromUrl === 'true') { 
+                showConsentModal('Por favor, aceite nossos Termos de Uso e Política de Privacidade para acessar a plataforma.');
+                // Remove o parâmetro da URL para evitar que o modal apareça novamente se a página for recarregada.
+                history.replaceState({}, document.title, window.location.pathname);
             } else if (hash === '#register') {
-                showRegisterForm();
+                // Se a URL tem o hash '#register', mostra o formulário de registro
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
             } else {
-                showLoginForm();
-                // Verifica o status de consentimento se já estiver logado (para o caso de sessões antigas)
+                // Se não há o parâmetro na URL nem o hash, verifica via API se o usuário está logado e precisa de consentimento.
+                // Isso cobre o cenário de um usuário logado que acessa /login diretamente, mas ainda não consentiu.
                 try {
                     const authResponse = await fetch('/api/check_consent_status');
                     const authData = await authResponse.json();
+
+                    // Se está autenticado e NÃO deu consentimento, mostra o modal
                     if (authData.authenticated && !authData.consent_given) {
-                        showConsentModalOnDemand('Você precisa aceitar os Termos de Uso para continuar. Sua sessão foi mantida.');
+                        showConsentModal('Você precisa aceitar os Termos de Uso para continuar. Sua sessão foi mantida.');
                     } else if (authData.authenticated && authData.consent_given) {
-                        window.location.href = '/dashboard'; // Redireciona para o dashboard se já logado e consentiu
+                        // Se o usuário está autenticado E já deu consentimento, redireciona para o dashboard
+                        // Não importa se está em /login ou /
+                        window.location.href = '/dashboard';
                     }
+                    // Se não estiver autenticado e não precisar de consentimento, permanece na página login.html
                 } catch (error) {
                     console.error("Erro ao verificar autenticação inicial ou consentimento:", error);
+                    // Permanece na página login.html caso haja erro de conexão
                 }
             }
         });
