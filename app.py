@@ -125,7 +125,7 @@ def home():
     """
     if 'username' in session and 'user_id' in session and session.get('consent_given', False):
         return redirect(url_for('dashboard'))
-    return render_template('index.html') # A nova página inicial
+    return render_template('login.html') # A nova página inicial agora é login.html
 
 
 @app.route('/test-server')
@@ -629,7 +629,7 @@ def send_connection_request():
     request_data = {
         'sender_id': sender_id,
         'receiver_id': receiver_id,
-        'status': 'pending',    # status: pending, accepted, rejected
+        'status': 'pending',     # status: pending, accepted, rejected
         'sent_at': datetime.now()
     }
     connection_requests_collection.insert_one(request_data)
@@ -1017,7 +1017,8 @@ def initial_consent():
     # Retorna uma resposta de sucesso e o redirecionamento para a página de login.
     return jsonify({
         'success': True,
-        'message': 'Consentimento registrado com sucesso! Por favor, faça login novamente.',
+        'title': 'Consentimento registrado com sucesso!',
+        'message': 'Seu consentimento foi registrado. Por favor, faça login novamente para acessar a plataforma.',
         'redirect': url_for('login') # Redireciona para a página de login
     })
 
