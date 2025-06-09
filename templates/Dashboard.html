@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BusinessHub - Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
-        /* Variáveis CSS para o padrão de cores (baseado na imagem fornecida e requisição anterior) */
+        /* --- Variáveis CSS para o padrão de cores --- */
         :root {
             --primary-blue: #1877f2; /* Azul principal: botões, links ativos */
-            --dark-blue: #0056b3;    /* Azul mais escuro para hover, detalhes */
+            --dark-blue: #0056b3;     /* Azul mais escuro para hover, detalhes */
             --light-blue-bg: #e7f3ff; /* Azul claro para background de hover/ativos (opção) */
             --background-grey: #f0f2f5; /* Fundo geral do dashboard */
             --card-background: #fff; /* Fundo de cards, sidebars, menus */
@@ -27,14 +27,23 @@
             --top-bar-blue: #2196F3; /* Azul mais escuro para a top bar */
             --search-bg-blue: #ADD8E6; /* Azul claro para o fundo da busca */
 
-            /* Novas variáveis para o menu dropdown, alinhadas com a imagem */
+            /* Novas variáveis para o menu dropdown */
             --dropdown-text-dark: #212529; /* Preto para o nome do usuário e itens de menu */
             --dropdown-link-blue: #007bff; /* Azul para "Ver perfil" */
             --dropdown-hover-bg: #f5f5f5; /* Cinza muito claro para hover dos itens */
             --dropdown-icon-color: #212529; /* Cor dos ícones do menu */
+            
+            /* Novas variáveis para gradientes, sombras e efeitos visuais */
+            --gradient-blue-light: linear-gradient(to right, #6dd5ed, #2193b0); /* Gradiente azul claro */
+            --gradient-blue-dark: linear-gradient(to right, #1a2a6c, #b21f1f, #fdbb2d); /* Gradiente mais escuro para destaque */
+            --shadow-light: 0px 4px 15px rgba(0, 0, 0, 0.08); /* Sombra suave para cards */
+            --shadow-medium: 0px 8px 20px rgba(0, 0, 0, 0.15); /* Sombra mais pronunciada */
+            --blur-effect: blur(5px); /* Efeito de desfoque */
+            --transition-speed: 0.3s ease; /* Velocidade padrão de transição */
+            --hover-scale: 1.02; /* Escala para efeito hover */
         }
 
-        /* Reset e Estilos Globais */
+        /* --- Reset e Estilos Globais Aprimorados --- */
         * {
             margin: 0;
             padding: 0;
@@ -46,30 +55,47 @@
             background-color: var(--background-grey);
             color: var(--text-color-dark);
             overflow-x: hidden; /* Evita scroll horizontal */
+            line-height: 1.6; /* Melhorar legibilidade */
+            -webkit-font-smoothing: antialiased; /* Suavização de fontes */
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Melhoria na seleção de texto */
+        ::selection {
+            background-color: var(--primary-blue);
+            color: var(--card-background);
         }
 
         .dashboard-container {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); /* Adiciona uma textura de fundo sutil */
+            background-repeat: repeat;
         }
 
-        /* --- Top Bar Styles --- */
+        /* --- Top Bar Styles Aprimorados --- */
         .top-bar {
             background-color: var(--top-bar-blue);
-            padding: 10px 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            background-image: var(--gradient-blue-light); /* Gradiente na top bar */
+            padding: 10px 30px; /* Mais padding */
+            box-shadow: var(--shadow-medium); /* Sombra mais visível */
             display: flex;
             align-items: center;
             justify-content: space-between;
-            z-index: 1;
-            color: white; /* Cor padrão para elementos diretos na top bar */
-            flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha em telas pequenas */
+            z-index: 10; /* Garante que fique acima de outros elementos */
+            color: white;  
+            flex-wrap: wrap;   
+            position: sticky; /* Fixa a barra no topo ao rolar */
+            top: 0;
+            backdrop-filter: blur(8px); /* Efeito de desfoque na top bar */
+            -webkit-backdrop-filter: blur(8px);
         }
 
         .top-bar a, .top-bar button {
-            color: white; /* Links e botões na top bar devem ser brancos */
+            color: white;   
             text-decoration: none;
+            transition: all var(--transition-speed); /* Transição suave para todos os elementos */
         }
 
         .top-bar .logo-container-top {
@@ -79,14 +105,15 @@
         }
 
         .top-bar .logo-container-top .logo {
-            height: 30px;
+            height: 35px; /* Aumenta um pouco o logo */
             width: auto;
+            filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.3)); /* Sombra para o logo */
         }
         
         .top-bar .main-nav-top {
-            flex: 1; /* Ocupa o espaço disponível */
+            flex: 1;    
             display: flex;
-            justify-content: center; /* Centraliza os itens de navegação */
+            justify-content: center;    
         }
 
         .top-bar .main-nav-top ul {
@@ -98,68 +125,142 @@
 
         .top-bar .main-nav-top li {
             margin: 0 15px;
+            position: relative; /* Para sublinhado animado */
         }
 
         .top-bar .main-nav-top li a {
             display: flex;
             align-items: center;
-            padding: 8px 12px;
-            border-radius: 8px;
-            transition: background-color 0.3s;
+            padding: 10px 15px; /* Mais padding */
+            border-radius: 10px; /* Bordas mais arredondadas */
             font-weight: 500;
-            color: white; /* Cor do texto e ícones na navegação do topo */
+            color: white;   
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2); /* Sombra sutil no texto */
+        }
+
+        .top-bar .main-nav-top li a::after { /* Efeito de sublinhado animado */
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background-color: white;
+            transition: width var(--transition-speed);
         }
 
         .top-bar .main-nav-top li a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.3); /* Mais opacidade no hover */
+            transform: translateY(-2px); /* Efeito de elevação suave */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .top-bar .main-nav-top li a:hover::after,
+        .top-bar .main-nav-top li.active a::after {
+            width: calc(100% - 30px); /* Ocupa a largura do link com padding */
         }
 
         .top-bar .main-nav-top li.active a {
-            background-color: rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.4); /* Fundo mais escuro para ativo */
             color: white;
+            font-weight: 600;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3); /* Sombra interna para ativo */
         }
 
         .top-bar .main-nav-top li a i {
-            font-size: 18px;
-            margin-right: 8px;
+            font-size: 20px; /* Ícones maiores */
+            margin-right: 10px;
         }
         
         .top-bar .main-nav-top .notification-badge {
             background-color: var(--notification-red);
             color: white;
             border-radius: 50%;
-            font-size: 10px;
-            padding: 1px 5px;
-            margin-left: 5px;
+            font-size: 11px; /* Tamanho maior */
+            padding: 2px 6px; /* Mais padding */
+            margin-left: 8px; /* Mais margem */
+            animation: pulse 1.5s infinite; /* Animação de pulso */
+        }
+
+        /* Animação para o badge de notificação */
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(250, 62, 62, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(250, 62, 62, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(250, 62, 62, 0); }
+        }
+
+        /* Estilos para o novo link de usuário na top bar */
+        .top-bar .main-nav-top li a.user-link-top {
+            background-color: rgba(255, 255, 255, 0.2); /* Fundo sutil */
+            border: 1px solid rgba(255, 255, 255, 0.4); /* Borda mais visível */
+            padding: 8px 12px; /* Padding ajustado */
+            border-radius: 25px; /* Formato de pílula */
+            gap: 8px; /* Espaçamento entre imagem e texto */
+            color: white;
+            text-shadow: none; /* Sem sombra no texto para maior clareza */
+            font-weight: 600; /* Mais negrito */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Sombra suave */
+        }
+
+        .top-bar .main-nav-top li a.user-link-top:hover {
+            background-color: rgba(255, 255, 255, 0.3); /* Mais opacidade no hover */
+            border-color: rgba(255, 255, 255, 0.7); /* Borda mais forte no hover */
+            transform: translateY(-2px); /* Elevação suave */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Sombra mais visível */
+        }
+
+        .top-bar .main-nav-top li a.user-link-top .profile-pic-tiny {
+            width: 28px; /* Tamanho pequeno para o avatar */
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white; /* Borda branca ao redor do avatar */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Sombra sutil no avatar */
+        }
+
+        /* Garante que o sublinhado animado não apareça para este link */
+        .top-bar .main-nav-top li a.user-link-top::after {
+            display: none;
         }
 
         .search-container {
-            flex-shrink: 0; /* Não permite encolher */
-            width: 250px; /* Largura fixa para a barra de pesquisa */
+            flex-shrink: 0;
+            width: 280px; /* Largura um pouco maior */
             position: relative;
             margin-left: 20px;
         }
 
         .search-container i {
             position: absolute;
-            left: 10px;
+            left: 15px; /* Ajusta posição do ícone */
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-color-medium);
+            font-size: 16px; /* Ícone de busca maior */
+            pointer-events: none; /* Garante que o ícone não interfira no clique */
         }
 
         .search-container input {
             width: 100%;
-            padding: 8px 15px 8px 35px; /* Padding à esquerda para o ícone */
-            border-radius: 20px;
+            padding: 10px 15px 10px 45px; /* Más padding à esquerda para o ícone */
+            border-radius: 25px; /* Mais arredondado */
             border: none;
-            background-color: var(--search-bg-blue);
-            font-size: 13px;
+            background-color: rgba(255, 255, 255, 0.8); /* Fundo branco semitransparente */
+            font-size: 14px;
             color: var(--text-color-dark);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); /* Sombra interna sutil */
+            transition: all var(--transition-speed);
+        }
+
+        .search-container input:focus {
+            outline: none;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.4); /* Foco com glow azul */
         }
 
         .search-container input::placeholder {
             color: var(--text-color-medium);
+            opacity: 0.9;
         }
 
         .user-actions {
@@ -169,165 +270,209 @@
         }
 
         .action-btn {
-            background-color: transparent;
+            background-color: rgba(255, 255, 255, 0.1); /* Fundo sutil para botões de ação */
             border: none;
-            width: 36px;
-            height: 36px;
+            width: 40px; /* Tamanho maior */
+            height: 40px;
             border-radius: 50%;
-            margin: 0 4px;
+            margin: 0 6px; /* Mais espaçamento */
             cursor: pointer;
             position: relative;
             color: white;
+            font-size: 18px; /* Ícones maiores */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-speed);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         .action-btn:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
 
         .action-btn .notification-badge {
             background-color: var(--notification-red);
             color: white;
             position: absolute;
-            top: -3px;
-            right: -3px;
-            font-size: 9px;
-            padding: 1px 4px;
+            top: -5px; /* Ajusta posição */
+            right: -5px;
+            font-size: 10px; /* Tamanho maior */
+            padding: 2px 5px;
+            border-radius: 50%;
+            border: 1.5px solid var(--top-bar-blue); /* Borda para contraste */
+            animation: pulse 1.5s infinite; /* Animação de pulso */
         }
 
         .user-dropdown {
             position: relative;
-            margin-left: 10px;
+            margin-left: 15px; /* Mais margem */
         }
 
         .profile-pic-sm {
-            width: 36px;
-            height: 36px;
+            width: 40px; /* Tamanho maior */
+            height: 40px;
             border-radius: 50%;
             object-fit: cover;
             cursor: pointer;
-            border: 2px solid white;
+            border: 3px solid white; /* Borda branca mais grossa */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all var(--transition-speed);
         }
 
-        /* --- User Menu Dropdown Styles (AJUSTADO PARA A IMAGEM) --- */
+        .profile-pic-sm:hover {
+            transform: scale(var(--hover-scale));
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* --- User Menu Dropdown Styles --- */
         .user-menu {
             display: none;
             position: absolute;
             right: 0;
-            top: 45px;
-            width: 300px;
-            background-color: var(--card-background); /* Fundo branco */
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-            z-index: 100;
+            top: 55px; /* Posição ajustada */
+            width: 320px; /* Largura maior */
+            background-color: var(--card-background);
+            border-radius: 12px; /* Bordas mais arredondadas */
+            box-shadow: var(--shadow-medium); /* Sombra mais forte */
+            z-index: 1000; /* Garante que fique no topo */
             overflow: hidden;
+            animation: fadeInScale 0.3s ease-out forwards; /* Animação de entrada */
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
         
         .user-menu-header {
             display: flex;
-            align-items: center; /* Alinha verticalmente */
-            padding: 15px;
+            align-items: center;  
+            padding: 20px; /* Mais padding */
             border-bottom: 1px solid var(--border-color);
+            background-color: var(--light-blue-bg); /* Fundo claro para o header do menu */
         }
 
         .user-menu-header img {
-            width: 60px;
-            height: 60px;
+            width: 70px; /* Tamanho maior */
+            height: 70px;
             border-radius: 50%;
             object-fit: cover;
             margin-right: 15px;
-            border: 2px solid var(--primary-blue); /* Borda azul na imagem do perfil no menu */
+            border: 4px solid var(--primary-blue); /* Borda azul mais grossa */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
         .user-menu-header h4 {
-            font-size: 18px;
+            font-size: 20px; /* Tamanho maior */
             margin-bottom: 5px;
-            color: var(--dropdown-text-dark); /* Nome do usuário em preto */
-            font-weight: 600; /* Um pouco mais negrito */
+            color: var(--dropdown-text-dark);
+            font-weight: 700; /* Mais negrito */
         }
 
-        /* Alteração aqui: de <p> para <a> */
-        .user-menu-header a { /* Estilo para o link "Ver perfil" */
-            color: var(--dropdown-link-blue); /* "Ver perfil" em azul */
-            font-size: 14px;
+        .user-menu-header a {  
+            color: var(--dropdown-link-blue);  
+            font-size: 15px;
             cursor: pointer;
-            transition: text-decoration 0.2s;
-            text-decoration: none; /* Remove sublinhado padrão */
+            transition: text-decoration var(--transition-speed), color var(--transition-speed);
+            text-decoration: none;  
         }
 
         .user-menu-header a:hover {
             text-decoration: underline;
+            color: var(--dark-blue);
         }
 
         .user-menu ul {
             list-style: none;
-            padding: 8px 0; /* Espaçamento vertical para os itens da lista */
+            padding: 10px 0; /* Mais espaçamento */
         }
 
         .user-menu li a {
             display: flex;
             align-items: center;
-            padding: 10px 15px; /* Padding ajustado */
-            color: var(--dropdown-text-dark); /* Texto dos itens em preto */
+            padding: 12px 20px; /* Mais padding */
+            color: var(--dropdown-text-dark);  
             text-decoration: none;
-            transition: background-color 0.2s;
+            transition: background-color var(--transition-speed), transform 0.1s ease-out;
+            font-weight: 500;
         }
 
         .user-menu li a:hover {
-            background-color: var(--dropdown-hover-bg); /* Fundo cinza claro no hover */
+            background-color: var(--dropdown-hover-bg);    
+            transform: translateX(5px); /* Desliza um pouco para a direita */
         }
 
         .user-menu li a i {
-            margin-right: 12px; /* Espaçamento entre ícone e texto */
-            font-size: 18px;
-            width: 24px; /* Largura fixa para alinhar ícones */
+            margin-right: 15px; /* Mais espaçamento */
+            font-size: 20px; /* Ícones maiores */
+            width: 28px; /* Largura fixa para alinhar ícones */
             text-align: center;
-            color: var(--dropdown-icon-color); /* Cor dos ícones em preto */
+            color: var(--dropdown-icon-color);  
+        }
+
+        /* Linha divisória no menu (opcional) */
+        .user-menu li.separator {
+            border-top: 1px solid var(--border-color);
+            margin: 10px 0;
         }
 
         /* --- Main Content Layout (3 colunas) --- */
         .main-content {
-            display: flex; /* Transforma em flex container */
-            flex: 1; /* Ocupa o espaço restante da altura do dashboard-container */
-            padding: 20px; /* Padding geral para o conteúdo principal */
-            gap: 20px; /* Espaçamento entre as colunas */
-            max-width: 1300px; /* Largura máxima para centralizar o conteúdo */
-            margin: 0 auto; /* Centraliza o conteúdo principal */
-            width: 100%; /* Garante que ocupe toda a largura disponível */
+            display: flex;  
+            flex: 1;    
+            padding: 25px; /* Mais padding geral */
+            gap: 25px; /* Mais espaçamento entre as colunas */
+            max-width: 1400px; /* Largura máxima um pouco maior */
+            margin: 0 auto; 
+            width: 100%;    
         }
 
-        /* --- Sidebar Esquerda (Navegação) --- */
+        /* --- Sidebar Esquerda (Navegação) Aprimorada --- */
         .sidebar-left {
-            flex: 0 0 250px; /* Largura fixa para a sidebar esquerda */
+            flex: 0 0 280px; /* Largura fixa maior */
             background-color: var(--card-background);
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            height: fit-content; /* Ajusta a altura ao conteúdo */
-            position: sticky; /* Fixa a sidebar ao rolar */
-            top: 20px; /* Distância do topo */
-            display: flex; /* Permite layout interno flexível */
-            flex-direction: column; /* Organiza itens em coluna */
-            gap: 10px; /* Espaçamento entre os itens */
+            border-radius: 12px; /* Mais arredondado */
+            padding: 20px; /* Mais padding */
+            box-shadow: var(--shadow-light); /* Sombra suave */
+            height: fit-content;    
+            position: sticky;   
+            top: 25px; /* Distância do topo ajustada */
+            display: flex;  
+            flex-direction: column; 
+            gap: 15px; /* Mais espaçamento entre os itens */
         }
 
         .sidebar-left .profile-card {
             display: flex;
             align-items: center;
-            padding-bottom: 10px;
+            padding-bottom: 15px; /* Mais padding */
             border-bottom: 1px solid var(--border-color);
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            text-decoration: none;
+            transition: background-color var(--transition-speed), transform 0.2s ease-out;
+            border-radius: 8px; /* Para o hover */
+            padding: 10px; /* Para o hover */
+            margin: -10px; /* Para compensar o padding no hover */
+        }
+        .sidebar-left .profile-card:hover {
+            background-color: var(--background-grey);
+            transform: translateY(-2px);
         }
 
         .sidebar-left .profile-card img {
-            width: 48px;
-            height: 48px;
+            width: 55px; /* Tamanho maior */
+            height: 55px;
             border-radius: 50%;
             object-fit: cover;
-            margin-right: 10px;
+            margin-right: 12px; /* Mais margem */
+            border: 2px solid var(--primary-blue);
         }
 
         .sidebar-left .profile-card h4 {
-            font-size: 16px;
+            font-size: 18px; /* Tamanho maior */
             font-weight: 600;
             color: var(--text-color-dark);
         }
@@ -335,83 +480,109 @@
         .sidebar-left .nav-item {
             display: flex;
             align-items: center;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 12px 15px; /* Mais padding */
+            border-radius: 10px; /* Mais arredondado */
             color: var(--text-color-dark);
             text-decoration: none;
-            transition: background-color 0.2s;
+            transition: background-color var(--transition-speed), transform 0.1s ease-out;
             font-weight: 500;
+            font-size: 15px; /* Tamanho da fonte */
         }
 
         .sidebar-left .nav-item:hover {
-            background-color: var(--background-grey);
+            background-color: var(--light-blue-bg); /* Fundo azul claro no hover */
+            color: var(--primary-blue); /* Texto azul no hover */
+            transform: translateX(5px); /* Desliza um pouco para a direita */
         }
 
         .sidebar-left .nav-item i {
-            font-size: 20px;
-            margin-right: 12px;
-            color: var(--text-color-medium); /* Cor padrão dos ícones */
-            width: 24px; /* Para alinhamento consistente */
+            font-size: 22px; /* Ícones maiores */
+            margin-right: 15px; /* Mais espaçamento */
+            color: var(--text-color-medium);    
+            width: 30px; /* Para alinhamento consistente */
             text-align: center;
         }
 
-        .sidebar-left .nav-item span {
-            flex: 1; /* Ocupa o espaço restante */
-        }
+        /* Cores específicas para ícones da sidebar */
         .sidebar-left .nav-item.notifications i { color: var(--notification-red); }
         .sidebar-left .nav-item.messages i { color: var(--primary-blue); }
-        .sidebar-left .nav-item.connections i { color: #f7b928; } /* Um tom de amarelo/laranja */
-        .sidebar-left .nav-item.groups i { color: #4CAF50; } /* Verde para grupos */
-        .sidebar-left .nav-item.events i { color: #9C27B0; } /* Roxo para eventos */
-        .sidebar-left .nav-item.marketplace i { color: #FF9800; } /* Laranja para marketplace */
-        .sidebar-left .nav-item.settings i { color: var(--text-color-medium); } /* Cinza para configurações */
+        .sidebar-left .nav-item.connections i { color: #f7b928; } /* Laranja */
+        .sidebar-left .nav-item.groups i { color: #4CAF50; } /* Verde */
+        .sidebar-left .nav-item.events i { color: #9C27B0; } /* Roxo */
+        .sidebar-left .nav-item.marketplace i { color: #FF9800; } /* Laranja */
+        .sidebar-left .nav-item.settings i { color: var(--text-color-medium); }
+        .sidebar-left .nav-item:hover i {
+            color: var(--primary-blue); /* Ícones azuis no hover */
+        }
+
 
         /* Conteúdo Central (Feed de Posts) */
         .content-area {
-            flex: 1; /* Ocupa o espaço central principal */
+            flex: 1;    
             display: flex;
             flex-direction: column;
-            gap: 20px; /* Espaçamento entre "criar post" e "posts-feed" */
-            overflow-y: visible; /* Permite que o conteúdo flua naturalmente */
+            gap: 25px; /* Espaçamento entre seções */
         }
 
-        /* Stories */
+        /* Stories Section */
         .stories-section {
             background-color: var(--card-background);
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin-bottom: 0px; /* Removido margin-bottom para não duplicar gap */
+            border-radius: 12px;
+            padding: 20px; /* Mais padding */
+            box-shadow: var(--shadow-light);
+            overflow: hidden; /* Garante que o conteúdo rolável não vaze */
         }
 
         .section-title {
-            font-size: 18px;
-            margin-bottom: 10px;
+            font-size: 20px; /* Título maior */
+            font-weight: 700;
+            margin-bottom: 15px;
             color: var(--text-color-dark);
+            text-align: center; /* Centraliza o título */
+            position: relative;
+            padding-bottom: 10px; /* Espaço para o underline */
         }
+        .section-title::after { /* Underline animado */
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--primary-blue);
+            border-radius: 2px;
+        }
+
 
         .stories-container {
             display: flex;
             overflow-x: auto;
             padding: 10px 0;
-            gap: 10px;
-            /* Esconde a barra de rolagem mas mantém a funcionalidade */
-            -ms-overflow-style: none; /* IE and Edge */
-            scrollbar-width: none; /* Firefox */
+            gap: 15px; /* Mais espaçamento */
+            -ms-overflow-style: none;
+            scrollbar-width: none;  
+            scroll-behavior: smooth; /* Rolagem suave */
         }
         .stories-container::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
+            display: none;  
         }
 
         .create-story, .story {
-            flex: 0 0 110px;
-            height: 200px;
-            border-radius: 10px;
+            flex: 0 0 120px; /* Largura um pouco maior */
+            height: 220px; /* Altura um pouco maior */
+            border-radius: 12px;
             overflow: hidden;
             position: relative;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra mais pronunciada */
             cursor: pointer;
             background-color: var(--card-background);
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .create-story:hover, .story:hover {
+            transform: translateY(-5px) scale(var(--hover-scale)); /* Efeito de elevação e zoom no hover */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
 
         .create-story {
@@ -420,20 +591,18 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border: 1px dashed var(--text-color-medium);
-            background-image: url("{{ url_for('static', filename='images/story-create-placeholder.jpg') }}"); /* Imagem de fundo padrão */
+            border: 2px dashed var(--primary-blue); /* Borda tracejada azul */
+            background-image: url("https://via.placeholder.com/120x160/ADD8E6/FFFFFF?text=Criar+Story"); /* Placeholder melhor */
             background-size: cover;
             background-position: center;
-            color: white; /* Cor do texto no placeholder */
-            text-shadow: 0 0 5px rgba(0,0,0,0.5); /* Sombra para o texto */
-        }
-        .create-story:hover {
-            filter: brightness(0.9); /* Escurece um pouco no hover */
+            color: white;   
+            text-shadow: 0 0 8px rgba(0,0,0,0.7);   
+            font-weight: 600;
         }
 
         .story-avatar {
             width: 100%;
-            height: 140px;
+            height: 150px; /* Ajuste para o botão */
             position: relative;
         }
 
@@ -441,95 +610,114 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            filter: brightness(0.8); /* Escurece um pouco a imagem de fundo */
         }
 
         .add-story-btn {
             position: absolute;
-            bottom: -20px;
+            bottom: -25px; /* Posição ajustada */
             left: 50%;
             transform: translateX(-50%);
-            width: 40px;
-            height: 40px;
+            width: 45px; /* Botão maior */
+            height: 45px;
             border-radius: 50%;
             background-color: var(--primary-blue);
             color: white;
-            border: 4px solid var(--card-background);
+            border: 5px solid var(--card-background); /* Borda mais grossa */
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 24px; /* Ícone maior */
             z-index: 5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: all var(--transition-speed);
         }
+        .add-story-btn:hover {
+            background-color: var(--dark-blue);
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
 
         .create-story p, .story p {
             position: absolute;
-            bottom: 10px;
+            bottom: 15px; /* Posição ajustada */
             left: 0;
             right: 0;
             text-align: center;
             font-weight: 600;
-            color: white; /* Texto em branco nas stories */
-            padding: 0 5px;
-            text-shadow: 0 0 5px rgba(0,0,0,0.7); /* Sombra para o texto */
+            color: white;   
+            padding: 0 10px; /* Mais padding */
+            text-shadow: 0 0 10px rgba(0,0,0,0.9); /* Sombra mais forte */
             z-index: 4;
+            font-size: 15px;
         }
 
         .story .profile-pic-sm {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            width: 36px;
-            height: 36px;
-            border: 3px solid var(--primary-blue); /* Borda azul para indicar visualizado/ativo */
-            border-radius: 50%;
-            object-fit: cover;
+            top: 12px; /* Posição ajustada */
+            left: 12px;
+            width: 40px; /* Tamanho maior */
+            height: 40px;
+            border: 4px solid var(--primary-blue); /* Borda azul mais grossa */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             z-index: 5;
         }
 
         /* Criar Post */
         .create-post {
             background-color: var(--card-background);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 0px; /* Removido margin-bottom para não duplicar gap */
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 20px; /* Mais padding */
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color); /* Borda sutil */
         }
 
         .post-editor {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px; /* Mais margem */
         }
 
         .post-author-img {
-            width: 40px;
-            height: 40px;
+            width: 48px; /* Tamanho maior */
+            height: 48px;
             border-radius: 50%;
             object-fit: cover;
-            margin-right: 10px;
+            margin-right: 15px; /* Mais margem */
+            border: 2px solid var(--primary-blue);
         }
 
         .post-input {
             flex: 1;
-            padding: 10px 15px;
-            border-radius: 20px;
+            padding: 12px 20px; /* Mais padding */
+            border-radius: 25px; /* Más arredondado */
             border: none;
             background-color: var(--input-background);
-            font-size: 14px;
+            font-size: 15px;
             color: var(--text-color-dark);
-            cursor: pointer; /* Indica que é clicável */
+            cursor: text; /* Mudar para cursor de texto */
+            transition: all var(--transition-speed);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .post-input:focus {
+            outline: none;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.3); /* Foco com glow azul */
         }
 
         .post-input::placeholder {
             color: var(--text-color-medium);
+            opacity: 0.9;
         }
 
         .post-options {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around; /* Distribui o espaço */
             border-top: 1px solid var(--border-color);
-            padding-top: 10px;
+            padding-top: 15px; /* Mais padding */
         }
 
         .post-option {
@@ -539,21 +727,28 @@
             justify-content: center;
             background: none;
             border: none;
-            padding: 8px 0;
-            border-radius: 5px;
+            padding: 10px 0; /* Mais padding */
+            border-radius: 8px; /* Mais arredondado */
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color var(--transition-speed), transform 0.1s ease-out;
             color: var(--text-color-medium);
-            font-weight: 500; /* Texto mais fino */
+            font-weight: 500;  
+            font-size: 15px;
         }
 
         .post-option:hover {
-            background-color: var(--background-grey);
+            background-color: var(--light-blue-bg); /* Fundo azul claro no hover */
+            color: var(--primary-blue); /* Texto azul no hover */
+            transform: translateY(-2px);
+        }
+        .post-option:hover i {
+            color: var(--primary-blue); /* Ícones azuis no hover */
         }
 
+
         .post-option i {
-            margin-right: 5px;
-            font-size: 18px; /* Ajuste para ícones */
+            margin-right: 8px;
+            font-size: 20px; /* Ajuste para ícones */
         }
 
         .post-option i.fa-image {
@@ -566,38 +761,64 @@
 
         #imagePreview {
             display: none;
-            margin-top: 10px;
+            margin-top: 15px;
             text-align: center;
+            padding: 10px;
+            background-color: var(--background-grey);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            position: relative;
         }
 
         #imagePreview img {
             max-width: 100%;
-            max-height: 200px;
+            max-height: 250px; /* Altura máxima da preview */
             border-radius: 8px;
+            object-fit: contain; /* Garante que a imagem se ajuste sem cortar */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         #imagePreview button {
-            margin-top: 5px;
-            background: var(--background-grey);
+            margin-top: 10px;
+            background: var(--notification-red);
+            color: white;
             border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 8px 15px;
+            border-radius: 20px;
             cursor: pointer;
-            color: var(--text-color-dark);
+            font-size: 14px;
+            font-weight: 600;
+            transition: all var(--transition-speed);
+            position: absolute; /* Botão de remover no canto */
+            top: 10px;
+            right: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        #imagePreview button:hover {
+            background-color: #d12e2e;
+            transform: scale(1.05);
         }
 
         /* Feed de Posts */
         .posts-feed {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px; /* Espaçamento entre posts */
         }
 
         .post {
             background-color: var(--card-background);
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+        }
+        .post:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-medium);
         }
 
         .post-header {
@@ -612,13 +833,14 @@
         }
 
         .post-author-info h4 {
-            font-size: 16px;
+            font-size: 17px;
             margin-bottom: 2px;
             color: var(--text-color-dark);
+            font-weight: 600;
         }
 
         .post-author-info p {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-color-medium);
         }
 
@@ -626,14 +848,16 @@
             background: none;
             border: none;
             color: var(--text-color-medium);
-            font-size: 16px;
+            font-size: 18px;
             cursor: pointer;
-            padding: 5px;
+            padding: 8px;
             border-radius: 50%;
+            transition: background-color var(--transition-speed);
         }
 
         .post-options-btn:hover {
             background-color: var(--background-grey);
+            color: var(--text-color-dark);
         }
 
         .post-content {
@@ -642,33 +866,45 @@
 
         .post-content p {
             margin-bottom: 10px;
-            line-height: 1.4;
+            line-height: 1.5;
             color: var(--text-color-dark);
+            font-size: 15px;
         }
 
         .post-image {
             width: 100%;
-            border-radius: 8px;
+            max-height: 450px; /* Altura máxima para imagens de post */
+            object-fit: cover; /* Recorta a imagem para cobrir a área */
+            border-radius: 10px;
             margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         .post-stats {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
+            padding: 12px 0;
             border-top: 1px solid var(--border-color);
             border-bottom: 1px solid var(--border-color);
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-size: 14px;
             color: var(--text-color-medium);
         }
-
-        .post-stats span:first-child {
-            color: var(--primary-blue);
+        .post-stats span i {
+            margin-right: 5px;
+            color: var(--text-color-medium);
+        }
+        .post-stats span:first-child i {
+             color: var(--primary-blue); /* Cor do ícone de like */
+        }
+        .post-stats span {
+            display: flex;
+            align-items: center;
         }
 
         .post-actions {
             display: flex;
+            justify-content: space-around;
         }
 
         .post-action-btn {
@@ -678,43 +914,54 @@
             justify-content: center;
             background: none;
             border: none;
-            padding: 8px 0;
-            border-radius: 5px;
+            padding: 10px 0;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color var(--transition-speed), color var(--transition-speed), transform 0.1s ease-out;
             color: var(--text-color-medium);
             font-weight: 600;
+            font-size: 15px;
         }
 
         .post-action-btn.liked {
             color: var(--primary-blue);
         }
+        .post-action-btn.liked i {
+            color: var(--primary-blue);
+        }
 
         .post-action-btn:hover {
-            background-color: var(--background-grey);
+            background-color: var(--light-blue-bg);
+            color: var(--primary-blue);
+            transform: translateY(-2px);
+        }
+        .post-action-btn:hover i {
+            color: var(--primary-blue);
         }
 
         .post-action-btn i {
-            margin-right: 5px;
+            margin-right: 8px;
+            font-size: 18px;
         }
 
-        /* --- Sidebar Direita (Contatos e Patrocinados) --- */
+        /* --- Sidebar Direita (Contatos e Patrocinados) Aprimorada --- */
         .sidebar-right {
-            flex: 0 0 300px; /* Largura fixa para a sidebar direita */
-            padding: 0px; /* O padding será dentro dos cards */
+            flex: 0 0 320px; /* Largura fixa maior */
+            padding: 0px;  
             display: flex;
             flex-direction: column;
-            gap: 20px; /* Espaçamento entre as seções */
-            height: fit-content; /* Ajusta a altura ao conteúdo */
-            position: sticky; /* Fixa a sidebar ao rolar */
-            top: 20px; /* Distância do topo */
+            gap: 25px; /* Espaçamento entre as seções */
+            height: fit-content;    
+            position: sticky;   
+            top: 25px; /* Distância do topo ajustada */
         }
 
         .contacts-section, .sponsored-section {
             background-color: var(--card-background);
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 20px; /* Mais padding */
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color);
         }
 
         .contacts-header {
@@ -725,67 +972,83 @@
         }
 
         .contacts-header h3 {
-            font-size: 18px;
+            font-size: 20px;
             color: var(--text-color-dark);
+            font-weight: 700;
         }
 
         .contacts-actions button {
             background: none;
             border: none;
             color: var(--text-color-medium);
-            font-size: 16px;
+            font-size: 18px;
             margin-left: 10px;
             cursor: pointer;
-            padding: 5px;
+            padding: 8px;
             border-radius: 50%;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
         }
 
         .contacts-actions button:hover {
             background-color: var(--background-grey);
+            color: var(--primary-blue);
         }
 
         .contacts-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px; /* Mais espaçamento */
         }
 
         .contact {
             display: flex;
             align-items: center;
-            padding: 5px;
-            border-radius: 5px;
+            padding: 8px 10px; /* Mais padding */
+            border-radius: 8px;
             cursor: pointer;
             position: relative;
             color: var(--text-color-dark);
-            text-decoration: none; /* Remove sublinhado padrão */
+            text-decoration: none;  
+            transition: background-color var(--transition-speed), transform 0.1s ease-out;
+            font-size: 15px;
+            font-weight: 500;
         }
 
         .contact:hover {
-            background-color: var(--background-grey);
+            background-color: var(--light-blue-bg);
+            transform: translateX(3px);
         }
 
         .contact img {
-            width: 36px;
-            height: 36px;
+            width: 40px; /* Tamanho maior */
+            height: 40px;
             border-radius: 50%;
             object-fit: cover;
-            margin-right: 10px;
+            margin-right: 12px;
+            border: 2px solid var(--border-color); /* Borda sutil para avatares */
         }
 
         .online-status {
             position: absolute;
-            bottom: 5px;
-            left: 30px;
-            width: 10px;
-            height: 10px;
+            bottom: 5px; /* Posição ajustada */
+            left: 35px; /* Posição ajustada */
+            width: 12px; /* Tamanho maior */
+            height: 12px;
             border-radius: 50%;
             background-color: var(--online-green);
-            border: 2px solid var(--card-background);
+            border: 3px solid var(--card-background); /* Borda mais grossa */
+            animation: pulse-green 2s infinite; /* Animação de pulso para online */
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(49, 162, 76, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(49, 162, 76, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(49, 162, 76, 0); }
         }
 
         .online-status.offline {
             background-color: var(--offline-grey);
+            animation: none; /* Remove animação se offline */
         }
 
         .sponsored-item {
@@ -793,51 +1056,64 @@
             align-items: center;
             margin: 15px 0;
             cursor: pointer;
-            text-decoration: none; /* Remove sublinhado padrão */
-            color: inherit; /* Herda a cor do texto padrão */
+            text-decoration: none;  
+            color: inherit; 
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+            padding: 10px; /* Para o hover */
+            border-radius: 8px;
+            background-color: transparent; /* Garante que o fundo não mude sem hover */
+        }
+        .sponsored-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background-color: var(--background-grey);
         }
 
         .sponsored-item img {
-            width: 100px;
-            height: 70px;
-            border-radius: 5px;
+            width: 120px; /* Imagem maior */
+            height: 80px; /* Imagem maior */
+            border-radius: 8px;
             object-fit: cover;
-            margin-right: 10px;
+            margin-right: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .sponsored-item h4 {
-            font-size: 14px;
-            margin-bottom: 3px;
+            font-size: 16px;
+            margin-bottom: 5px;
             color: var(--text-color-dark);
+            font-weight: 600;
         }
 
         .sponsored-item p {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-color-medium);
         }
 
-        /* Responsividade */
+        /* --- Responsividade Aprimorada --- */
         @media (max-width: 1200px) {
             .sidebar-right {
-                display: none; /* Oculta a sidebar direita em telas menores */
+                display: none;  
             }
             .top-bar .search-container {
-                width: 200px;
-                margin-left: 10px;
+                width: 250px; /* Ajusta largura */
+                margin-left: 15px;
             }
             .main-content {
-                max-width: 900px; /* Ajusta largura máxima para 2 colunas */
+                max-width: 900px;   
+                padding: 20px;
+                gap: 20px;
             }
         }
 
         @media (max-width: 992px) {
             .sidebar-left {
-                display: none; /* Oculta a sidebar esquerda em telas menores */
+                display: none;  
             }
             .top-bar {
                 flex-direction: column;
                 align-items: center;
-                padding: 15px 10px;
+                padding: 15px 15px;
             }
             .top-bar .logo-container-top,
             .top-bar .search-container,
@@ -845,7 +1121,7 @@
             .top-bar .user-actions {
                 width: 100%;
                 margin: 0;
-                margin-bottom: 10px;
+                margin-bottom: 15px; /* Mais margem entre blocos */
                 justify-content: center;
             }
             .top-bar .main-nav-top ul {
@@ -853,55 +1129,171 @@
                 justify-content: center;
             }
             .top-bar .main-nav-top li {
-                margin: 5px 10px;
+                margin: 5px 12px;
             }
             .top-bar .search-container input {
-                text-align: center;
-                padding: 8px 15px;
+                text-align: left; /* Mantém alinhamento à esquerda */
+                padding: 10px 15px 10px 45px;
             }
             .search-container i {
-                left: unset;
-                right: 15px;
+                left: 15px; /* Volta para a esquerda */
+                right: unset;
             }
             .user-dropdown {
                 margin-left: 0;
             }
             .user-menu {
-                top: 50px;
-                width: 90%;
-                left: 5%;
-                right: 5%;
+                top: 60px; /* Ajusta a posição */
+                width: 95%; /* Ocupa quase toda a largura */
+                left: 2.5%; /* Centraliza */
+                right: 2.5%;
             }
-             .main-content {
-                padding: 15px; /* Reduz o padding em telas menores */
-                flex-direction: column; /* Coloca as colunas em pilha */
-                gap: 15px; /* Espaçamento ajustado */
+            .main-content {
+                padding: 20px;  
+                flex-direction: column; 
+                gap: 20px;  
             }
         }
 
         @media (max-width: 768px) {
-            .top-bar .main-nav-top li a span {
-                display: none; /* Esconde o texto dos links de navegação do topo */
+            .top-bar .main-nav-top li a span:not(.user-link-top span) { /* Não esconde o texto do 'Você' */
+                display: none;  
             }
             .top-bar .main-nav-top li a i {
                 margin-right: 0;
             }
-            .top-bar .user-actions .action-btn,
-            .top-bar .user-actions .profile-pic-sm {
+            .top-bar .action-btn,
+            .top-bar .profile-pic-sm {
+                width: 38px; /* Ajuste menor */
+                height: 38px;
+            }
+            .user-menu-header img {
+                width: 50px;
+                height: 50px;
+            }
+            .user-menu-header h4 {
+                font-size: 18px;
+            }
+            .stories-container {
+                padding-bottom: 10px; /* Adiciona um pouco de padding */
+            }
+            .create-story, .story {
+                flex: 0 0 100px; /* Reduz o tamanho das stories */
+                height: 180px;
+            }
+            .create-story p, .story p {
+                font-size: 14px;
+                bottom: 8px;
+            }
+            .story .profile-pic-sm {
                 width: 32px;
                 height: 32px;
             }
-            .user-menu-header img {
+            .post-author-img {
                 width: 40px;
                 height: 40px;
             }
-            .user-menu-header h4 {
+            .post-author-info h4 {
                 font-size: 16px;
             }
-            .stories-container {
-                padding-bottom: 0; /* Remove padding inferior excessivo */
+            .post-stats, .post-action-btn {
+                font-size: 13px;
+            }
+            /* Ajustes de responsividade para o novo elemento */
+            .top-bar .main-nav-top li a.user-link-top span {
+                display: inline; /* Mostra o texto "Você" mesmo em telas menores */
+            }
+            .top-bar .main-nav-top li a.user-link-top {
+                padding: 8px 10px; /* Reduz padding em telas pequenas */
+                gap: 5px; /* Reduz gap */
+            }
+            .top-bar .main-nav-top li a.user-link-top .profile-pic-tiny {
+                width: 24px; /* Avatar ainda menor */
+                height: 24px;
+                border-width: 1px; /* Borda mais fina */
             }
         }
+
+        @media (max-width: 480px) {
+            .top-bar {
+                padding: 10px;
+            }
+            .top-bar .search-container input {
+                font-size: 13px;
+            }
+            .action-btn, .profile-pic-sm {
+                width: 35px;
+                height: 35px;
+            }
+            .main-content {
+                padding: 10px;
+                gap: 15px;
+            }
+            .stories-section, .create-post, .post, .contacts-section, .sponsored-section {
+                padding: 15px; /* Reduz padding dos cards */
+            }
+            .section-title {
+                font-size: 18px;
+            }
+            .create-story, .story {
+                flex: 0 0 90px; /* Mais redução */
+                height: 160px;
+            }
+            .add-story-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 20px;
+            }
+            .post-option span {
+                display: none; /* Esconde o texto dos botões de postagem */
+            }
+            .post-option i {
+                margin-right: 0;
+            }
+            .post-action-btn span {
+                display: none;
+            }
+            .post-action-btn i {
+                margin-right: 0;
+            }
+            .contacts-header h3 {
+                font-size: 16px;
+            }
+            .contacts-actions button {
+                font-size: 16px;
+            }
+            .contact img {
+                width: 32px;
+                height: 32px;
+            }
+            .online-status {
+                left: 28px;
+                bottom: 3px;
+            }
+            .sponsored-item img {
+                width: 90px;
+                height: 60px;
+            }
+            .sponsored-item h4 {
+                font-size: 14px;
+            }
+            /* Ajustes de responsividade para o novo elemento */
+            .top-bar .main-nav-top li a.user-link-top {
+                font-size: 14px; /* Fonte menor */
+                padding: 6px 8px;
+            }
+            .top-bar .main-nav-top li a.user-link-top .profile-pic-tiny {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        /* Estilo para o SweetAlert2 responsivo */
+        .swal2-responsive {
+            width: 90% !important;
+            max-width: 400px;
+        }
+
     </style>
 </head>
 <body>
@@ -910,8 +1302,10 @@
             <nav class="main-nav-top">
                 <ul>
                     <li class="active">
-                        <a href="{{ url_for('dashboard') }}"> <i class="fas fa-home"></i>
-                            <span>Dashboard</span> </a>
+                        <a href="{{ url_for('dashboard') }}"> 
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>  
+                        </a>
                     </li>
                     <li>
                         <a href="{{ url_for('explore') }}">
@@ -920,7 +1314,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ url_for('messages') }}"> {# Redirecionamento para a rota de mensagens #}
+                        <a href="{{ url_for('messages') }}"> 
                             <i class="fas fa-comments"></i>
                             <span>Mensagens</span>
                         </a>
@@ -929,6 +1323,12 @@
                         <a href="#">
                             <i class="fas fa-cog"></i>
                             <span>Configurações</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('show_profile') }}" class="user-link-top">
+                            <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" alt="User" class="profile-pic-tiny">
+                            <span>Você</span>
                         </a>
                     </li>
                 </ul>
@@ -959,7 +1359,7 @@
                         <ul>
                             <li><a href="{{ url_for('show_profile') }}"><i class="fas fa-user"></i> Meu Perfil</a></li>
                             <li><a href="#"><i class="fas fa-cog"></i> Configurações</a></li>
-                            <li><a href="#"><i class="fas fa-question-circle"></i> Ajuda</a></li>
+                            <li class="separator"></li> <li><a href="#"><i class="fas fa-question-circle"></i> Ajuda & Suporte</a></li>
                             <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
                         </ul>
                     </div>
@@ -975,11 +1375,10 @@
                 </a>
             </aside>
             <div class="content-area">
-
                 <section class="create-post">
                     <div class="post-editor">
                         <img src="{{ url_for('static', filename='profile_pics/' + user.profile_pic) }}" alt="User" class="post-author-img">
-                        <input type="text" placeholder="O que você está pensando?" class="post-input" id="postContent">
+                        <input type="text" placeholder="O que você está pensando, {{ user.username }}?" class="post-input" id="postContent">
                     </div>
                     <div class="post-options">
                         <button class="post-option" onclick="document.getElementById('postImage').click()">
@@ -989,7 +1388,11 @@
                         </button>
                         <button class="post-option">
                             <i class="fas fa-smile"></i>
-                            <span>Sentimento</span>
+                            <span>Sentimento/Atividade</span>
+                        </button>
+                        <button class="post-option">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Localização</span>
                         </button>
                     </div>
                     <div id="imagePreview" style="display: none; margin-top: 10px; text-align: center;">
@@ -1001,9 +1404,8 @@
                 </section>
 
                 <section class="posts-feed" id="postsFeed">
-                    </section>
+                </section>
             </div>
-
             <aside class="sidebar-right">
                 <section class="contacts-section">
                     <div class="contacts-header">
@@ -1052,24 +1454,102 @@
         // Opções de criação (dialog SweetAlert)
         function showCreateOptions() {
             Swal.fire({
-                title: 'Criar',
+                title: 'O que você quer criar?',
                 html: `
-                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
-                        <button onclick="Swal.close(); document.getElementById('postContent').focus();" style="padding: 10px; background: var(--light-blue-bg); border: none; border-radius: 8px; cursor: pointer; color: var(--primary-blue);">
-                            <i class="fas fa-edit"></i> Publicação
+                    <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                        <button onclick="Swal.close(); document.getElementById('postContent').focus();" style="
+                            padding: 15px; 
+                            background: var(--light-blue-bg); 
+                            border: 1px solid var(--primary-blue); 
+                            border-radius: 10px; 
+                            cursor: pointer; 
+                            color: var(--primary-blue); 
+                            font-size: 16px; 
+                            font-weight: 600;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 10px;
+                            transition: all var(--transition-speed);
+                        ">
+                            <i class="fas fa-pencil-alt"></i> Publicação
                         </button>
-                        <button onclick="location.href='#'" style="padding: 10px; background: var(--light-blue-bg); border: none; border-radius: 8px; cursor: pointer; color: var(--primary-blue);">
-                            <i class="fas fa-calendar-alt"></i> Evento
+                        <button onclick="location.href='#'" style="
+                            padding: 15px; 
+                            background: var(--light-blue-bg); 
+                            border: 1px solid var(--primary-blue); 
+                            border-radius: 10px; 
+                            cursor: pointer; 
+                            color: var(--primary-blue); 
+                            font-size: 16px; 
+                            font-weight: 600;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 10px;
+                            transition: all var(--transition-speed);
+                        ">
+                            <i class="fas fa-calendar-plus"></i> Evento
                         </button>
-                        <button onclick="location.href='#'" style="padding: 10px; background: var(--light-blue-bg); border: none; border-radius: 8px; cursor: pointer; color: var(--primary-blue);">
+                        <button onclick="location.href='#'" style="
+                            padding: 15px; 
+                            background: var(--light-blue-bg); 
+                            border: 1px solid var(--primary-blue); 
+                            border-radius: 10px; 
+                            cursor: pointer; 
+                            color: var(--primary-blue); 
+                            font-size: 16px; 
+                            font-weight: 600;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 10px;
+                            transition: all var(--transition-speed);
+                        ">
                             <i class="fas fa-bullhorn"></i> Anúncio
+                        </button>
+                        <button onclick="location.href='#'" style="
+                            padding: 15px; 
+                            background: var(--light-blue-bg); 
+                            border: 1px solid var(--primary-blue); 
+                            border-radius: 10px; 
+                            cursor: pointer; 
+                            color: var(--primary-blue); 
+                            font-size: 16px; 
+                            font-weight: 600;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 10px;
+                            transition: all var(--transition-speed);
+                        ">
+                            <i class="fas fa-briefcase"></i> Vaga de Emprego
                         </button>
                     </div>
                 `,
                 showConfirmButton: false,
                 showCloseButton: true,
                 customClass: {
-                    popup: 'swal2-responsive'
+                    popup: 'swal2-responsive',
+                    title: 'section-title', // Aplica estilo de título existente
+                },
+                didOpen: () => {
+                    // Adiciona efeito de hover aos botões do SweetAlert
+                    const buttons = document.querySelectorAll('.swal2-html-container button');
+                    buttons.forEach(button => {
+                        button.addEventListener('mouseenter', () => {
+                            button.style.backgroundColor = 'var(--primary-blue)';
+                            button.style.color = 'white';
+                            button.style.transform = 'translateY(-3px)';
+                            button.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+                        });
+                        button.addEventListener('mouseleave', () => {
+                            button.style.backgroundColor = 'var(--light-blue-bg)';
+                            button.style.color = 'var(--primary-blue)';
+                            button.style.transform = 'translateY(0)';
+                            button.style.boxShadow = 'none';
+                        });
+                    });
                 }
             });
         }
@@ -1116,8 +1596,6 @@
                 const postsContainer = document.getElementById('postsFeed');
                 postsContainer.innerHTML = '';
                 
-                // Obtém o user._id diretamente do Flask, pois ele é passado no template
-                // Isso evita usar uma variável global no JS que pode ser inconsistente
                 const currentUserId = "{{ user._id }}";
 
                 posts.forEach(post => {
@@ -1125,7 +1603,6 @@
                     postElement.className = 'post';
                     postElement.setAttribute('data-id', post._id);
                     
-                    // Verifica se o ID do usuário atual está na lista de likes do post
                     const isLiked = post.likes && post.likes.includes(currentUserId) ? 'liked' : '';
                     
                     postElement.innerHTML = `
@@ -1149,13 +1626,13 @@
                         </div>
                         <div class="post-actions">
                             <button class="post-action-btn ${isLiked}" onclick="likePost('${post._id}')">
-                                <i class="fas fa-thumbs-up"></i> Curtir
+                                <i class="fas fa-thumbs-up"></i> <span>Curtir</span>
                             </button>
                             <button class="post-action-btn" onclick="focusComment('${post._id}')">
-                                <i class="fas fa-comment"></i> Comentar
+                                <i class="fas fa-comment"></i> <span>Comentar</span>
                             </button>
                             <button class="post-action-btn">
-                                <i class="fas fa-share"></i> Compartilhar
+                                <i class="fas fa-share"></i> <span>Compartilhar</span>
                             </button>
                         </div>
                     `;
@@ -1163,7 +1640,6 @@
                 });
             } catch (error) {
                 console.error('Erro ao carregar posts:', error);
-                // Se o erro não for 401 (não autenticado), mostra um alerta genérico
                 if (error.message && !error.message.includes('401')) {
                     Swal.fire('Erro!', 'Não foi possível carregar os posts.', 'error');
                 }
@@ -1201,7 +1677,6 @@
                         loadPosts();
                         Swal.fire('Sucesso!', 'Post criado com sucesso!', 'success');
                     } else {
-                        // Se for erro de autenticação, redireciona
                         if (response.status === 401) {
                             window.location.href = '/login';
                         } else {
@@ -1227,7 +1702,6 @@
                     const likeButton = document.querySelector(`.post[data-id="${postId}"] .post-action-btn`);
                     
                     if (likesCountSpan && likeButton) {
-                        // O Flask retorna 'Post curtido!' ou 'Curtida removida.'
                         if (data.success === 'Post curtido!') {
                             likesCountSpan.textContent = parseInt(likesCountSpan.textContent) + 1;
                             likeButton.classList.add('liked');
@@ -1237,7 +1711,6 @@
                         }
                     }
                 } else {
-                    // Se for erro de autenticação, redireciona
                     if (response.status === 401) {
                         window.location.href = '/login';
                     } else {
@@ -1261,24 +1734,23 @@
                 const response = await fetch('/api/check-auth');
                 const data = await response.json();
                 if (!data.authenticated) {
-                    window.location.href = '/login'; // Redireciona para login se não autenticado
-                    return false; // Retorna false para indicar que não está autenticado
+                    window.location.href = '/login';  
+                    return false; 
                 }
-                return true; // Retorna true se autenticado
+                return true;  
             } catch (error) {
                 console.error('Erro ao verificar autenticação:', error);
-                window.location.href = '/login'; // Redireciona para login em caso de erro de rede/servidor
+                window.location.href = '/login';  
                 return false;
             }
         }
 
         // Inicialização: Carregar posts e verificar autenticação ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
-            checkAuth().then(authenticated => { // Chama checkAuth e espera o resultado
+            checkAuth().then(authenticated => {  
                 if (authenticated) {
                     loadPosts();
-                    // Define o setInterval apenas se a autenticação for bem-sucedida
-                    setInterval(checkAuth, 300000); // Verifica a cada 5 minutos (300000 ms)
+                    setInterval(checkAuth, 300000);  
                 }
             });
         });
