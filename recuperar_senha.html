@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha - BusinessHub</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        /* Variáveis de Cores (Consistente com a página de Login/Cadastro) */
+        :root {
+            --primary-blue: #007bff; /* Azul vibrante principal */
+            --dark-blue: #0056b3;    /* Azul mais escuro para hover/detalhes */
+            --light-blue: #e0f2ff;   /* Azul muito claro para fundos sutis */
+            --accent-blue: #17a2b8;  /* Um tom de azul-ciano para destaque */
+            --white: #ffffff;        /* Branco puro */
+            --black: #212529;        /* Preto quase puro para textos principais */
+            --gray-text: #495057;    /* Cinza escuro para textos secundários */
+            --light-gray-bg: #f8f9fa; /* Cinza muito claro para fundos de campos */
+            --border-color: #ced4da;  /* Cor de borda para inputs */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            /* Fundo consistente com a página de login */
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                        url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') 
+                        no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--black);
+        }
+
+        .container {
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            width: 420px;
+            max-width: 90%;
+            margin: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .divlogo {
+            display: flex;
+            justify-content: center;
+            padding: 25px 0;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue)); 
+        }
+
+        .imglogo {
+            max-width: 180px;
+            height: auto;
+            filter: brightness(0) invert(1);
+        }
+
+        .wrapper {
+            padding: 30px 35px;
+        }
+
+        .wrapper h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 2rem;
+        }
+
+        .input-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 14px 45px 14px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: var(--light-gray-bg);
+            color: var(--black);
+        }
+
+        .input-box input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            background-color: var(--white);
+        }
+
+        .input-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.3rem;
+            color: var(--gray-text);
+            cursor: default; /* Ícone sem cursor de click, pois não tem função */
+            transition: color 0.3s ease;
+        }
+        
+        .input-box i:hover {
+            color: var(--primary-blue);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.95rem;
+            color: var(--gray-text);
+        }
+
+        .login-link a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: var(--dark-blue);
+            text-decoration: underline;
+        }
+
+        /* Responsividade */
+        @media (max-width: 480px) {
+            .wrapper {
+                padding: 25px;
+            }
+            
+            .wrapper h1 {
+                font-size: 1.6rem;
+            }
+
+            .input-box input {
+                padding: 12px 40px 12px 12px;
+            }
+            
+            .input-box i {
+                right: 12px;
+                font-size: 1.1rem;
+            }
+
+            .btn {
+                padding: 12px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="divlogo">
+            <img class="imglogo" src="{{ url_for('static', filename='images/logo-bhub.png') }}" alt="Logo BusinessHub">
+        </div>
+        <div class="wrapper">
+            <form id="recoverPasswordForm" method="POST">
+                <h1>Recuperar Senha</h1>
+                <p style="text-align: center; margin-bottom: 20px; color: var(--gray-text); font-size: 0.95rem;">
+                    Informe seu e-mail.
+                </p>
+                <div class="input-box">
+                    <input type="text" id="recoveryIdentifier" name="recoveryIdentifier" placeholder="E-mail" required>
+                    <i class='bx bxs-envelope'></i> </div>
+                <button type="submit" class="btn">Redefinir Senha</button>
+                <div class="login-link">
+                    <p><a href="{{ url_for('login') }}">Lembrei a senha, voltar para o Login</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Função para mostrar alertas (consistente com as outras páginas)
+        function showAlert(icon, title, message, redirectUrl = null) {
+            return Swal.fire({
+                icon: icon,
+                title: title,
+                text: message,
+                confirmButtonColor: 'var(--primary-blue)',
+                background: 'var(--white)',
+                color: 'var(--black)'
+            }).then((result) => {
+                if (redirectUrl && result.isConfirmed) {
+                    window.location.href = redirectUrl;
+                }
+            });
+        }
+
+        // Enviar formulário de recuperação de senha
+        document.getElementById('recoverPasswordForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            
+            try {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Enviando...';
+                
+                // --- AQUI VOCÊ CONECTARIA COM O SEU BACKEND ---
+                // Substitua '/recover_password' pela URL do seu endpoint de recuperação de senha
+                const response = await fetch('/recover_password', { 
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    await showAlert('success', result.title, result.message, result.redirect);
+                } else {
+                    showAlert('error', result.title, result.message);
+                }
+            } catch (error) {
+                showAlert('error', 'Erro', 'Ocorreu um erro ao processar sua solicitação de recuperação.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+            }
+        });
+    </script>
+</body>
+</html>
